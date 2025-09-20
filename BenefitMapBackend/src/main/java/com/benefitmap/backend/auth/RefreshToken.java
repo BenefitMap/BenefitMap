@@ -1,0 +1,53 @@
+package com.benefitmap.backend.auth;
+
+import jakarta.persistence.*;
+import lombok.*;
+import com.benefitmap.backend.user.User;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+
+/**
+ * 리프레시 토큰 엔티티
+ * - 원문 대신 SHA-256 해시를 저장
+ * - 만료되면 레코드 삭제로 무효화
+ * - 해시 유니크 제약, 만료 인덱스 적용
+ */
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
+@Builder
+@Entity
+@Table(
+        name = "refresh_token",
+        uniqueConstraints = @UniqueConstraint(name = "uk_refresh_token_hash", columnNames = "token_hash"),
+        indexes = @Index(name = "idx_refresh_expires", columnList = "expires_at")
+)
+public class RefreshToken {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    /** 소유 사용자 (지연 로딩) */
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_refresh_user"))
+    private User user;
+
+    /** SHA-256 HEX(64) 해시 — 원문 토큰은 저장하지 않음 */
+    @Column(name = "token_hash", nullable = false, length = 64)
+    private String tokenHash;
+
+    /** 만료 시각 */
+    @Column(name = "expires_at", nullable = false)
+    private Instant expiresAt;
+
+    /** 생성 시각 */
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    /** INSERT 시 자동 설정 */
+    @PrePersist
+    void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+}
