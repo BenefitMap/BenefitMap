@@ -35,6 +35,8 @@ npm run dev
 2. 테스트시 cd .. 로 상위 폴더 BenefitMap으로 이동 후 npm run dev 로 테스트
 3. 깃허브에 올릴시 cd.. 로 상위 폴더 BenefitMap으로 이동 후 커밋
 
+---
+
 ## Git & GitHub 규칙
 1. `main`은 배포용, `dev`는 통합용. **작업은 항상 `feature/*` 브랜치**에서
 2.  작업 전 **이슈 생성** → 브랜치: `feature/<이슈번호>-<짧은설명>` (예: `feature/1-catalog-search`)
