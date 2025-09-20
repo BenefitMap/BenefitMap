@@ -30,10 +30,9 @@ npm run dev
 
 ---
 
-## 작업 규칙
-1. cd 본인프로젝트(BenefitMapFrontend/BenefitMapBackend) 로 이동 후 작업
-2. 테스트시 cd .. 로 상위 폴더 BenefitMap으로 이동 후 npm run dev 로 테스트
-3. 깃허브에 올릴시 cd.. 로 상위 폴더 BenefitMap으로 이동 후 커밋
+## 테스트 규칙
+1. 테스트시 cd.. 으로 상위 폴더(BenefitMap)으로 이동 후 npm run dev
+2. 만일 프론트만 테스트 하고싶을땐 cd BenefitMapFrontend 로 이동 후 npm run dev
 
 ---
 
