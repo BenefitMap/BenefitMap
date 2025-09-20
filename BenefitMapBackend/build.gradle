@@ -1,12 +1,12 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.6'
+	id 'org.springframework.boot' version '3.5.5'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.benefitmap'
+group = 'org.benefitmap.backend'
 version = '0.0.1-SNAPSHOT'
-description = 'BeneFitMapBackend'
+description = 'benefit-map-backend'
 
 java {
 	toolchain {
@@ -25,13 +25,43 @@ repositories {
 }
 
 dependencies {
+	// === Spring 기본 ===
+	implementation 'org.springframework.boot:spring-boot-starter-web'          // MVC + Tomcat
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// === WebClient만 필요하면(서버는 MVC 유지) ===
+	// starter-webflux (X). 아래 한 줄만 추가해서 WebClient 사용
+	implementation 'org.springframework:spring-webflux'
+
+	// === JWT ===
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+	runtimeOnly   'io.jsonwebtoken:jjwt-impl:0.12.5'
+	runtimeOnly   'io.jsonwebtoken:jjwt-jackson:0.12.5'
+
+	// === DB ===
+	runtimeOnly 'com.mysql:mysql-connector-j' // BOM이 관리하므로 버전 생략 OK
+
+	// === 문서화 ===
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+	// === 캐시 ===
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+
+	// === 안정화(재시도/서킷브레이커) ===
+	implementation 'org.springframework.retry:spring-retry'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+
+	// === Lombok ===
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// === 테스트 ===
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {

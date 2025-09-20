@@ -4,12 +4,13 @@
   "scripts": {
     "postinstall": "npm install --prefix BenefitMapFrontend",
     "dev": "concurrently -k \"npm:dev:backend\" \"npm:dev:frontend\"",
-    "dev:backend": "cross-env-shell \"cd BenefitMapBackend && (./gradlew bootRun || gradlew.bat bootRun)\"",
+    "dev:backend": "dotenv -e BenefitMapBackend/.env.local -- cross-env-shell \"cd BenefitMapBackend && (./gradlew bootRun || gradlew.bat bootRun)\"",
     "dev:frontend": "npm run dev --prefix BenefitMapFrontend"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
-    "cross-env": "^10.0.0"
+    "cross-env": "^10.0.0",
+    "dotenv-cli": "^10.0.0"
   },
   "engines": {
     "node": ">=18",

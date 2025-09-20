@@ -11,8 +11,8 @@
 3. **즐겨찾기**: 관심 복지 저장/관리
 4. **알림**: 즐겨찾기한 복지 **마감 3일 전** 이메일 알림
 5. **캘린더**
-    - 회원: 내 즐겨찾기 일정(신청 시작/마감) 표시
-    - 비회원: 최근 30일 **즐겨찾기 Top-N** 공개 캘린더
+   - 회원: 내 즐겨찾기 일정(신청 시작/마감) 표시
+   - 비회원: 최근 30일 **즐겨찾기 Top-N** 공개 캘린더
 
 ---
 
@@ -33,6 +33,8 @@ npm run dev
 ## 테스트 규칙
 1. 테스트시 cd.. 으로 상위 폴더(BenefitMap)으로 이동 후 npm run dev
 2. 만일 프론트만 테스트 하고싶을땐 cd BenefitMapFrontend 로 이동 후 npm run dev
+3. 구글 로그인 테스트시 백엔드 실행 후 http://localhost:8080/oauth2/authorization/google
+4. swagger문서 확인 시 http://localhost:8080/swagger-ui.html
 
 ---
 
@@ -49,7 +51,7 @@ npm run dev
    <br>(ex. feat: #1 카테고리 검색 기능 추가)
 
    | 타입 | 설명 |
-      |---|---|
+         |---|---|
    | feat | 기능 추가 |
    | fix | 버그 수정 |
    | refactor | 리팩터링 |
