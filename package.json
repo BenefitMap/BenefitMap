@@ -1,0 +1,13 @@
+{
+  "name": "benefitmap",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "cross-env-shell \"cd BenefitMapBackend && (./gradlew bootRun || gradlew.bat bootRun)\"",
+    "dev:frontend": "cd BenefitMapFrontend && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.0.0"
+  }
+}

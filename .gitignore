@@ -1,24 +1,62 @@
-# Compiled class file
-*.class
+# -----------------------
+# OS 공통 쓰레기 파일
+# -----------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
-# Log file
+# -----------------------
+# IDE / 에디터
+# -----------------------
+# JetBrains (IntelliJ, WebStorm, etc.)
+.idea/
+*.iml
+out/
+
+# VS Code & Cursor (Cursor는 VSCode 기반)
+.vscode/
+.cursor/
+
+# 기타 편집기 임시파일
+*.swp
+*.swo
+
+# -----------------------
+# Node / React / Vite
+# -----------------------
+**/node_modules/
+**/dist/
+**/.vite/
+**/.cache/
+**/coverage/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# -----------------------
+# Java / Spring Boot
+# -----------------------
+**/.gradle/
+**/build/
+**/target/
 *.log
+# Eclipse 류 대비(혹시 쓸 경우)
+**/.classpath
+**/.project
+**/.settings/
 
-# BlueJ files
-*.ctxt
+# -----------------------
+# 환경변수
+# -----------------------
+*.env
+*.env.*
+!**/.env.example  # 예시 파일은 커밋 허용
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# -----------------------
+# 기타
+# -----------------------
+*.local
