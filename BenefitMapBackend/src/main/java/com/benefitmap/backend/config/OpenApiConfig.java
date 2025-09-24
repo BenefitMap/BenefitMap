@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 /**
  * OpenAPI 기본 설정
@@ -14,14 +15,10 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(
-                title = "Benefit Map API",
-                version = "v1",
-                description = "Google OIDC + JWT(쿠키) 기반 API"
-        ),
-        servers = {
-                @Server(url = "http://localhost:8080", description = "Local")
-        }
+        info = @Info(title = "Benefit Map API", version = "v1",
+                description = "Google OIDC + JWT(cookie) based API"),
+        servers = { @Server(url = "http://localhost:8080", description = "Local") },
+        security = { @SecurityRequirement(name = "cookieAuth") }
 )
 @SecurityScheme(
         name = "cookieAuth",               // @SecurityRequirement 에서 참조할 이름

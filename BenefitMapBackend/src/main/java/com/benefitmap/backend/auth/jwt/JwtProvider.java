@@ -1,4 +1,4 @@
-package com.benefitmap.backend.auth;
+package com.benefitmap.backend.auth.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

@@ -1,8 +1,8 @@
-package com.benefitmap.backend.auth;
+package com.benefitmap.backend.auth.token;
 
 import jakarta.persistence.*;
 import lombok.*;
-import com.benefitmap.backend.user.User;
+import com.benefitmap.backend.user.entity.User;
 
 import java.time.Instant;
 import java.time.LocalDateTime;

@@ -1,17 +1,22 @@
-package com.benefitmap.backend.auth;
+package com.benefitmap.backend.auth.oauth;
 
+import com.benefitmap.backend.auth.jwt.JwtProvider;
+import com.benefitmap.backend.auth.token.RefreshToken;
+import com.benefitmap.backend.auth.token.RefreshTokenRepository;
+import com.benefitmap.backend.user.entity.User;
+import com.benefitmap.backend.user.enums.Role;
+import com.benefitmap.backend.user.enums.UserStatus;
+import com.benefitmap.backend.user.repo.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import com.benefitmap.backend.user.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,21 +34,23 @@ import java.util.Objects;
  * - 사용자 upsert(DB 저장/갱신)
  * - Access/Refresh JWT 발급
  * - 보안 쿠키 설정 후 프론트로 리다이렉트
+ *
+ * 과제용 프로젝트 기준: 보안은 과도하게 강화하지 않고, 기본 흐름과 안정성에 초점.
  */
 @Component
 @RequiredArgsConstructor
 @Transactional
-public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
+public class OAuth2SuccessHandler implements org.springframework.security.web.authentication.AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProvider jwtProvider;
 
-    /** 로그인 성공 후 이동할 프론트 URL */
+    /** 로그인 성공 후 이동할 프론트 URL (application.properties에 app.oauth2.redirect로 명시) */
     @Value("${app.oauth2.redirect:http://localhost:5173/oauth2/callback}")
     private String redirectUrl;
 
-    /** 로컬 테스트 시 secure=false 로 사용 가능 */
+    /** 로컬(HTTP) 테스트 시 false, 운영(HTTPS)에서는 true 권장 */
     @Value("${app.cookie.secure:true}")
     private boolean cookieSecure;
 
@@ -63,7 +70,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         OAuth2User principal = oauth2.getPrincipal();
         Map<String, Object> attr = principal.getAttributes();
 
-        String provider = oauth2.getAuthorizedClientRegistrationId(); // 예: google
+        String provider = normalizeProvider(oauth2.getAuthorizedClientRegistrationId()); // 예: google
         String sub      = Objects.toString(attr.get("sub"), null);
         String email    = Objects.toString(attr.get("email"), null);
         String name     = Objects.toString(attr.get("name"), "");
@@ -87,7 +94,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     .name(name)
                     .imageUrl(picture)
                     .role(Role.ROLE_USER)
-                    // ✅ 과제용: 첫 가입 즉시 접근 가능하도록 ACTIVE 로 저장
+                    // 과제용: 첫 가입 즉시 접근 가능하도록 ACTIVE 저장
                     .status(UserStatus.ACTIVE)
                     .build();
         } else {
@@ -113,22 +120,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                         .build()
         );
 
-        // 7) 쿠키 생성(서버 전송 전용)
-        ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", accessToken)
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .sameSite("None")
-                .path("/")
-                .maxAge(jwtProvider.getAccessTtlSeconds())
-                .build();
-
-        ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", refreshToken)
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .sameSite("None")
-                .path("/")
-                .maxAge(jwtProvider.getRefreshTtlSeconds())
-                .build();
+        // 7) 쿠키 생성(서버 전송 전용) — 로컬(HTTP)에서는 SameSite=Lax, 운영(HTTPS)에서는 None
+        String sameSite = cookieSecure ? "None" : "Lax";
+        ResponseCookie accessCookie  = buildCookie("ACCESS_TOKEN", accessToken,  jwtProvider.getAccessTtlSeconds(), sameSite);
+        ResponseCookie refreshCookie = buildCookie("REFRESH_TOKEN", refreshToken, jwtProvider.getRefreshTtlSeconds(), sameSite);
 
         // 8) 쿠키 헤더 추가
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
@@ -136,6 +131,20 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // 9) 프론트로 리다이렉트
         response.sendRedirect(redirectUrl);
+    }
+
+    private String normalizeProvider(String registrationId) {
+        return registrationId == null ? "google" : registrationId.toLowerCase();
+    }
+
+    private ResponseCookie buildCookie(String name, String value, long maxAgeSeconds, String sameSite) {
+        return ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .sameSite(sameSite)
+                .path("/")
+                .maxAge(maxAgeSeconds)
+                .build();
     }
 
     /** SHA-256 해시 유틸(리프레시 토큰 저장용) */

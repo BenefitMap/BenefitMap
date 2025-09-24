@@ -1,5 +1,7 @@
-package com.benefitmap.backend.user;
+package com.benefitmap.backend.user.entity;
 
+import com.benefitmap.backend.user.enums.Role;
+import com.benefitmap.backend.user.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
