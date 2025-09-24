@@ -3,9 +3,14 @@
   "private": true,
   "scripts": {
     "postinstall": "npm install --prefix BenefitMapFrontend",
-    "dev": "concurrently -k \"npm:dev:backend\" \"npm:dev:frontend\"",
-    "dev:backend": "dotenv -e BenefitMapBackend/.env.local -- cross-env-shell \"cd BenefitMapBackend && (./gradlew bootRun || gradlew.bat bootRun)\"",
-    "dev:frontend": "npm run dev --prefix BenefitMapFrontend"
+
+    "dev:frontend": "npm run dev --prefix BenefitMapFrontend",
+
+    "dev:backend:win":  "dotenv -e .env -- cross-env-shell \"cd BenefitMapBackend && gradlew.bat bootRun\"",
+    "dev:backend:unix": "dotenv -e .env -- sh -c 'cd BenefitMapBackend && ./gradlew bootRun'",
+
+    "dev": "concurrently -k -n backend,frontend -c blue,green \"npm:dev:backend:win\" \"npm:dev:frontend\"",
+    "dev:unix": "concurrently -k -n backend,frontend -c blue,green \"npm:dev:backend:unix\" \"npm:dev:frontend\""
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

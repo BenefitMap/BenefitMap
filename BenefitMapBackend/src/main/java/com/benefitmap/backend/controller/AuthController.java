@@ -7,8 +7,11 @@ import com.benefitmap.backend.auth.RefreshToken;
 import com.benefitmap.backend.auth.RefreshTokenRepository;
 import com.benefitmap.backend.auth.JwtProvider;
 import com.benefitmap.backend.user.User;
+import com.benefitmap.backend.user.UserRepository;
+import com.benefitmap.backend.user.UserStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,14 +23,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Optional;
 
-/**
- * Auth 컨트롤러
- * - /auth/refresh : 리프레시 토큰으로 액세스 토큰 재발급
- * - /auth/logout  : 현재 기기의 리프레시 토큰 무효화 + 쿠키 만료
- */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -35,9 +32,9 @@ import java.util.Optional;
 public class AuthController {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
 
-    /** 로컬(HTTP) 테스트 시 false, 운영(HTTPS)에서는 true 권장 */
     @Value("${app.cookie.secure:true}")
     private boolean cookieSecure;
 
@@ -52,24 +49,37 @@ public class AuthController {
             }
     )
     @PostMapping("/refresh")
+    @Transactional(readOnly = true)
     public ResponseEntity<?> refresh(HttpServletRequest req) {
         // 1) 쿠키에서 refresh 추출
         String refresh = readCookie(req, "REFRESH_TOKEN");
-        if (refresh == null) {
+        if (refresh == null || refresh.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing refresh");
         }
 
         // 2) 해시로 DB 조회 + 만료 확인
         String hash = sha256Hex(refresh);
         Optional<RefreshToken> opt = refreshTokenRepository.findByTokenHash(hash);
-        if (opt.isEmpty() || opt.get().getExpiresAt().isBefore(Instant.now())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired");
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh");
+        }
+        RefreshToken saved = opt.get();
+        if (saved.getExpiresAt() == null || saved.getExpiresAt().isBefore(Instant.now())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Expired refresh");
         }
 
-        // 3) ACCESS_TOKEN 재발급 후 쿠키로 반환
-        User user = opt.get().getUser();
-        String newAccess = jwtProvider.createAccessToken(user.getId(), user.getRole().name());
+        // 3) 유저를 명시적으로 다시 조회 (LAZY 안전)
+        Long userId = saved.getUser().getId();
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+        }
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not active");
+        }
 
+        // 4) ACCESS_TOKEN 재발급 후 쿠키로 반환
+        String newAccess = jwtProvider.createAccessToken(user.getId(), user.getRole().name());
         ResponseCookie atCookie = ResponseCookie.from("ACCESS_TOKEN", newAccess)
                 .httpOnly(true)
                 .secure(cookieSecure)
@@ -93,14 +103,17 @@ public class AuthController {
             }
     )
     @PostMapping("/logout")
+    @Transactional // ★ 삭제 쿼리 트랜잭션 보장
     public ResponseEntity<Void> logout(HttpServletRequest req) {
-        // 현재 기기의 refresh 토큰만 삭제(있을 경우)
-        String refresh = readCookie(req, "REFRESH_TOKEN");
-        if (refresh != null && !refresh.isBlank()) {
-            refreshTokenRepository.deleteByTokenHash(sha256Hex(refresh));
+        try {
+            String refresh = readCookie(req, "REFRESH_TOKEN");
+            if (refresh != null && !refresh.isBlank()) {
+                refreshTokenRepository.deleteByTokenHash(sha256Hex(refresh));
+            }
+        } catch (Exception ignore) {
+            // 과제용: 삭제 실패해도 쿠키만 비우고 성공 처리
         }
 
-        // 즉시 만료 쿠키 내려서 브라우저에서 제거
         ResponseCookie expiredAccess  = expiredCookie("ACCESS_TOKEN");
         ResponseCookie expiredRefresh = expiredCookie("REFRESH_TOKEN");
 
@@ -114,8 +127,6 @@ public class AuthController {
     record RefreshOk(boolean ok) {}
 
     // ---- 내부 유틸 ----
-
-    /** 요청 쿠키에서 특정 이름의 값을 반환(없으면 null) */
     private static String readCookie(HttpServletRequest req, String name) {
         Cookie[] cookies = req.getCookies();
         if (cookies == null) return null;
@@ -123,7 +134,6 @@ public class AuthController {
         return null;
     }
 
-    /** SHA-256 HEX 해시 */
     private static String sha256Hex(String s) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -136,7 +146,6 @@ public class AuthController {
         }
     }
 
-    /** SameSite=None / Secure / HttpOnly 즉시 만료 쿠키 */
     private ResponseCookie expiredCookie(String name) {
         return ResponseCookie.from(name, "")
                 .httpOnly(true)

@@ -87,7 +87,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     .name(name)
                     .imageUrl(picture)
                     .role(Role.ROLE_USER)
-                    .status(UserStatus.PENDING) // 최초 가입은 PENDING
+                    // ✅ 과제용: 첫 가입 즉시 접근 가능하도록 ACTIVE 로 저장
+                    .status(UserStatus.ACTIVE)
                     .build();
         } else {
             user.setProvider(provider);
