@@ -1,4 +1,4 @@
-package com.benefitmap.backend.user;
+package com.benefitmap.backend.user.enums;
 
 /**
  * 사용자 상태

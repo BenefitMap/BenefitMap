@@ -1,5 +1,6 @@
-package com.benefitmap.backend.user;
+package com.benefitmap.backend.user.repo;
 
+import com.benefitmap.backend.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

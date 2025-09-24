@@ -1,9 +1,9 @@
 package com.benefitmap.backend.config;
 
 import lombok.RequiredArgsConstructor;
-import com.benefitmap.backend.auth.CustomOAuth2UserService;
-import com.benefitmap.backend.auth.JwtAuthenticationFilter;
-import com.benefitmap.backend.auth.OAuth2SuccessHandler;
+import com.benefitmap.backend.auth.oauth.CustomOAuth2UserService;
+import com.benefitmap.backend.auth.jwt.JwtAuthenticationFilter;
+import com.benefitmap.backend.auth.oauth.OAuth2SuccessHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
