@@ -1,6 +1,8 @@
 package com.benefitmap.backend.auth;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -19,5 +21,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     void deleteByTokenHash(String tokenHash);
 
     /** 회원탈퇴/전체 로그아웃: 해당 사용자 토큰 전부 삭제 */
-    void deleteByUser_Id(Long userId);
+    @Modifying
+    @Transactional
+    long deleteByUser_Id(Long userId);
 }
