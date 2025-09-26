@@ -1,16 +1,18 @@
 package com.benefitmap.backend.user.enums;
 
 /**
- * 권한 등급(Enum).
- * Spring Security 규칙에 맞춰 접두사 "ROLE_"를 포함해 정의.
+ * 사용자 권한(Enum)
  *
- * 사용 예:
- * - hasRole("ADMIN")  → ROLE_ADMIN 매칭
- * - hasAnyRole("USER","ADMIN")
+ * - ROLE_ONBOARDING : 최초 로그인 후 추가 정보 입력 단계
+ * - ROLE_USER       : 온보딩을 완료한 일반 사용자
+ * - ROLE_ADMIN      : 관리자
  *
- * (DB에 저장한다면 EnumType.STRING 권장)
+ * Spring Security는 내부적으로 "ROLE_" 접두사를 사용하므로
+ * Enum 이름에 접두사를 포함해 정의합니다.
+ * (DB 저장 시 EnumType.STRING 권장)
  */
 public enum Role {
+    ROLE_ONBOARDING,
     ROLE_USER,
     ROLE_ADMIN
 }
