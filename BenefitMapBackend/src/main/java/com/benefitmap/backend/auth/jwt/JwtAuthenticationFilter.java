@@ -28,12 +28,12 @@ import java.util.Collections;
 import java.util.Optional;
 
 /**
- * JWT Authentication Filter
- * - Try Authorization header (Bearer) first, then ACCESS_TOKEN cookie
- * - Load user by subject(userId) and reflect latest role/status from DB
- * - Only ACTIVE user becomes authenticated
- * - If token 'exists' but invalid/expired -> respond 401/403 with JSON
- * - If token 'does not exist' -> pass through (public endpoints stay open)
+ * JWT 인증 필터
+ * - 먼저 Authorization 헤더(Bearer)에서 토큰을 시도하고, 없으면 ACCESS_TOKEN 쿠키에서 확인
+ * - subject(userId)로 사용자 정보를 불러와 DB의 최신 역할/상태를 반영
+ * - 사용자 상태가 ACTIVE일 때만 인증 처리
+ * - 토큰이 '존재하지만' 유효하지 않거나 만료된 경우 -> 401/403 JSON 응답
+ * - 토큰이 '존재하지 않는' 경우 -> 그대로 통과(공개 엔드포인트는 계속 접근 가능)
  */
 @Component
 @RequiredArgsConstructor
@@ -114,8 +114,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            // ★ principal을 userId가 아닌 User로 설정 → @AuthenticationPrincipal(expression="id") 정상 동작
             var authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()));
-            var auth = new UsernamePasswordAuthenticationToken(userId, null, authorities);
+            var auth = new UsernamePasswordAuthenticationToken(user, null, authorities);
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(auth);
 
