@@ -23,6 +23,7 @@ import java.util.List;
  * Security 기본 설정
  * - 세션 미사용(JWT) / OAuth2 로그인 성공 시 토큰 발급
  * - JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 배치
+ * - 온보딩 사용자(ROLE_ONBOARDING) 접근 허용 범위를 명시
  */
 @Configuration
 @EnableWebSecurity
@@ -46,22 +47,36 @@ public class SecurityConfig {
                 .formLogin(f -> f.disable())
 
                 .authorizeHttpRequests(auth -> auth
+                        // 공개 엔드포인트
                         .requestMatchers("/", "/hello", "/error").permitAll()
 
                         // Swagger/OpenAPI
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-                                "/swagger-resources/**", "/webjars/**").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui.html", "/swagger-ui/**",
+                                "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**"
+                        ).permitAll()
 
-                        // 인증 필요/불필요 엔드포인트
-                        .requestMatchers("/auth/logout").authenticated()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
+                        // 로그인/OAuth 콜백/테스트
                         .requestMatchers("/login/success", "/oauth2/authorization/**", "/login/oauth2/**").permitAll()
 
-                        // 권한별 보호
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                        // ----- 토큰/인증 관련 -----
+                        // refresh는 permitAll(쿠키 기반 재발급), logout은 인증 필요
+                        .requestMatchers("/auth/refresh").permitAll()
+                        .requestMatchers("/auth/logout").authenticated()
+                        // 그 외 /auth/** 경로는 공개 (ex. /auth/public-... 이 있다면)
+                        .requestMatchers("/auth/**").permitAll()
 
+                        // ----- 온보딩 관련 권한 허용 (PENDING도 OK) -----
+                        .requestMatchers(HttpMethod.GET, "/api/tags/**")
+                        .hasAnyRole("ONBOARDING","USER","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/onboarding")
+                        .hasAnyRole("ONBOARDING","USER","ADMIN")
+
+                        // ----- 역할별 보호 구역 -----
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/user/**").hasAnyRole("USER","ADMIN")
+
+                        // 나머지는 인증 필요
                         .anyRequest().authenticated()
                 )
 
@@ -75,13 +90,14 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /** CORS: allowed-origins(콤마 구분)에서 허용, 쿠키 전달 허용 */
+    /** CORS: allowed-origins(콤마 구분) 허용 + 자격증명(쿠키) 허용 + Authorization 헤더 노출 */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration c = new CorsConfiguration();
         for (String o : allowedOrigins.split(",")) c.addAllowedOrigin(o.trim());
-        c.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        c.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         c.setAllowedHeaders(List.of("*"));
+        c.setExposedHeaders(List.of("Authorization","Set-Cookie")); // 프론트에서 토큰/쿠키 확인
         c.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource s = new UrlBasedCorsConfigurationSource();
         s.registerCorsConfiguration("/**", c);

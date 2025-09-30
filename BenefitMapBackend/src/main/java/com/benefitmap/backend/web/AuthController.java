@@ -137,9 +137,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.fail("User not found"));
         }
-        if (user.getStatus() != UserStatus.ACTIVE) {
+        if (user.getStatus() == UserStatus.SUSPENDED) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(ApiResponse.fail("User not active"));
+                    .body(ApiResponse.fail("User suspended"));
         }
 
         // 4) ACCESS_TOKEN 재발급 후 쿠키로 반환 (로컬 HTTP=Lax, 운영 HTTPS=None)

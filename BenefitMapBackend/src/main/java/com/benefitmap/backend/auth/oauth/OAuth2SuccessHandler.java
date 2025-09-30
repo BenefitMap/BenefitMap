@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 
@@ -34,12 +33,9 @@ import java.util.Objects;
  * - 사용자 upsert(DB 저장/갱신)
  * - Access/Refresh JWT 발급
  * - 보안 쿠키 설정 후 프론트로 리다이렉트
- *
- * 과제용 프로젝트 기준: 보안은 과도하게 강화하지 않고, 기본 흐름과 안정성에 초점.
  */
 @Component
 @RequiredArgsConstructor
-@Transactional
 public class OAuth2SuccessHandler implements org.springframework.security.web.authentication.AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
@@ -76,34 +72,33 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
         String name     = Objects.toString(attr.get("name"), "");
         String picture  = Objects.toString(attr.get("picture"), null);
 
-        if (sub == null || email == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "missing 'sub' or 'email'");
+        if (provider == null || sub == null || email == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "OAuth profile insufficient");
             return;
         }
 
-        // 3) 사용자 조회( provider+sub 우선, 없으면 email )
+        // 3) 사용자 upsert
         User user = userRepository.findByProviderAndProviderId(provider, sub)
-                .orElseGet(() -> userRepository.findByEmail(email).orElse(null));
+                .map(u -> {
+                    u.setEmail(email);
+                    if (name != null) u.setName(name);
+                    if (picture != null) u.setImageUrl(picture);
+                    // 첫 로그인 이후 상태/권한은 유지
+                    return u;
+                })
+                .orElseGet(() ->
+                        User.builder()
+                                .provider(provider)
+                                .providerId(sub)
+                                .email(email)
+                                .name(name)
+                                .imageUrl(picture)
+                                .role(Role.ROLE_USER)
+                                .status(UserStatus.PENDING)
+                                .build()
+                );
 
-        // 4) 신규/기존 데이터 upsert
-        if (user == null) {
-            user = User.builder()
-                    .provider(provider)
-                    .providerId(sub)
-                    .email(email)
-                    .name(name)
-                    .imageUrl(picture)
-                    .role(Role.ROLE_USER)
-                    // 과제용: 첫 가입 즉시 접근 가능하도록 ACTIVE 저장
-                    .status(UserStatus.ACTIVE)
-                    .build();
-        } else {
-            user.setProvider(provider);
-            user.setProviderId(sub);
-            user.setName(name);
-            user.setImageUrl(picture);
-        }
-        user.setLastLoginAt(LocalDateTime.now());
+        user.setLastLoginAt(Instant.now());
         userRepository.save(user);
 
         // 5) JWT 발급
@@ -133,16 +128,18 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
         response.sendRedirect(redirectUrl);
     }
 
-    private String normalizeProvider(String registrationId) {
-        return registrationId == null ? "google" : registrationId.toLowerCase();
+    private static String normalizeProvider(String id) {
+        if (id == null) return null;
+        return id.toLowerCase();
     }
 
     private ResponseCookie buildCookie(String name, String value, long maxAgeSeconds, String sameSite) {
+        // 개발 중 HTTP 환경에서는 Secure=false / SameSite=Lax를 권장
         return ResponseCookie.from(name, value)
+                .path("/")
                 .httpOnly(true)
                 .secure(cookieSecure)
                 .sameSite(sameSite)
-                .path("/")
                 .maxAge(maxAgeSeconds)
                 .build();
     }
