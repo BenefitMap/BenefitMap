@@ -5,7 +5,7 @@ import com.benefitmap.backend.user.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 사용자 엔티티
@@ -46,7 +46,7 @@ public class User {
     @Column(length = 100)
     private String name;
 
-    @Column(name = "image_url", length = 512)
+    @Column(name = "image_url", length = 255)
     private String imageUrl;
 
     /** 권한 */
@@ -61,19 +61,19 @@ public class User {
     @Builder.Default
     private UserStatus status = UserStatus.PENDING;
 
-    private LocalDateTime lastLoginAt;
+    private Instant lastLoginAt;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     /** INSERT 시각 자동 설정 */
     @PrePersist
-    void onCreate() { createdAt = updatedAt = LocalDateTime.now(); }
+    void onCreate() { createdAt = updatedAt = Instant.now(); }
 
     /** UPDATE 시각 자동 설정 */
     @PreUpdate
-    void onUpdate() { updatedAt = LocalDateTime.now(); }
+    void onUpdate() { updatedAt = Instant.now(); }
 }

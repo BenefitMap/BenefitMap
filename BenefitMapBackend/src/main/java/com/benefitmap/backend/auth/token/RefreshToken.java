@@ -5,7 +5,6 @@ import lombok.*;
 import com.benefitmap.backend.user.entity.User;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 /**
  * 리프레시 토큰 엔티티
@@ -41,13 +40,17 @@ public class RefreshToken {
     @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
+    /** 폐기 시각 (로그아웃 등) */
+    @Column(name = "revoked_at")
+    private Instant revokedAt;
+
     /** 생성 시각 */
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     /** INSERT 시 자동 설정 */
     @PrePersist
     void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = Instant.now();
     }
 }

@@ -2,22 +2,24 @@
 -- DB & 기본 설정
 -- ------------------------------------------------------------
 CREATE DATABASE IF NOT EXISTS benefitmap
-    CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE benefitmap;
 SET NAMES utf8mb4;
 
 -- ------------------------------------------------------------
--- 1) 사용자 (구글 OAuth 기본정보 + 권한/상태)
+-- 1) 사용자
+--   - role: ROLE_USER | ROLE_ADMIN (ONBOARDING 제거)
+--   - 상태는 status(PENDING/ACTIVE/SUSPENDED)로만 관리
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS users (
                                      id             BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                                     provider       VARCHAR(20)  NOT NULL,                          -- ex) google
-    provider_id    VARCHAR(128) NOT NULL,                          -- 구글 sub
+                                     provider       VARCHAR(20)  NOT NULL,                           -- ex) google
+    provider_id    VARCHAR(128) NOT NULL,                           -- 구글 sub
     email          VARCHAR(120) NOT NULL,
     name           VARCHAR(60)       NULL,
     image_url      VARCHAR(255)      NULL,
-    role           ENUM('ROLE_ONBOARDING','ROLE_USER','ROLE_ADMIN') NOT NULL DEFAULT 'ROLE_ONBOARDING',
-    status         ENUM('PENDING','ACTIVE','SUSPENDED')             NOT NULL DEFAULT 'PENDING',
+    role           ENUM('ROLE_USER','ROLE_ADMIN') NOT NULL DEFAULT 'ROLE_USER',
+    status         ENUM('PENDING','ACTIVE','SUSPENDED') NOT NULL DEFAULT 'PENDING',
     last_login_at  TIMESTAMP         NULL,
     created_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -40,14 +42,14 @@ CREATE TABLE IF NOT EXISTS user_profile (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
--- 3) 태그 마스터
+-- 3) 태그 마스터 (active = BIT(1))
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS lifecycle_tag (
                                              id            SMALLINT     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                              code          VARCHAR(40)  NOT NULL UNIQUE,
     name_ko       VARCHAR(40)  NOT NULL UNIQUE,
     display_order SMALLINT     NOT NULL DEFAULT 0,
-    active        TINYINT(1)   NOT NULL DEFAULT 1
+    active        BIT(1)       NOT NULL DEFAULT b'1'
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS household_tag (
@@ -55,7 +57,7 @@ CREATE TABLE IF NOT EXISTS household_tag (
                                              code          VARCHAR(40)  NOT NULL UNIQUE,
     name_ko       VARCHAR(40)  NOT NULL UNIQUE,
     display_order SMALLINT     NOT NULL DEFAULT 0,
-    active        TINYINT(1)   NOT NULL DEFAULT 1
+    active        BIT(1)       NOT NULL DEFAULT b'1'
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS interest_tag (
@@ -63,7 +65,7 @@ CREATE TABLE IF NOT EXISTS interest_tag (
                                             code          VARCHAR(40)  NOT NULL UNIQUE,
     name_ko       VARCHAR(40)  NOT NULL UNIQUE,
     display_order SMALLINT     NOT NULL DEFAULT 0,
-    active        TINYINT(1)   NOT NULL DEFAULT 1
+    active        BIT(1)       NOT NULL DEFAULT b'1'
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
@@ -73,6 +75,7 @@ CREATE TABLE IF NOT EXISTS user_lifecycle_tag (
                                                   user_id BIGINT   NOT NULL,
                                                   tag_id  SMALLINT NOT NULL,
                                                   PRIMARY KEY (user_id, tag_id),
+    KEY idx_ult_tag_id (tag_id),
     CONSTRAINT fk_ult_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_ult_tag  FOREIGN KEY (tag_id)  REFERENCES lifecycle_tag(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -81,6 +84,7 @@ CREATE TABLE IF NOT EXISTS user_household_tag (
                                                   user_id BIGINT   NOT NULL,
                                                   tag_id  SMALLINT NOT NULL,
                                                   PRIMARY KEY (user_id, tag_id),
+    KEY idx_uht_tag_id (tag_id),
     CONSTRAINT fk_uht_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_uht_tag  FOREIGN KEY (tag_id)  REFERENCES household_tag(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -89,6 +93,7 @@ CREATE TABLE IF NOT EXISTS user_interest_tag (
                                                  user_id BIGINT   NOT NULL,
                                                  tag_id  SMALLINT NOT NULL,
                                                  PRIMARY KEY (user_id, tag_id),
+    KEY idx_uit_tag_id (tag_id),
     CONSTRAINT fk_uit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_uit_tag  FOREIGN KEY (tag_id)  REFERENCES interest_tag(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -99,13 +104,13 @@ CREATE TABLE IF NOT EXISTS user_interest_tag (
 CREATE TABLE IF NOT EXISTS refresh_token (
                                              id          BIGINT      NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                              user_id     BIGINT      NOT NULL,
-                                             token_hash  VARCHAR(64) NOT NULL UNIQUE,
+                                             token_hash  VARCHAR(64) NOT NULL UNIQUE,   -- SHA-256 hex(64)
     user_agent  VARCHAR(200)    NULL,
     ip_address  VARCHAR(45)     NULL,
-    issued_at   DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    issued_at   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expires_at  TIMESTAMP   NOT NULL,
-    revoked_at  DATETIME        NULL,
-    created_at  DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    revoked_at  TIMESTAMP       NULL,
+    created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     KEY idx_rt_user_id (user_id),
     KEY idx_rt_expires_at (expires_at),
     CONSTRAINT fk_rt_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -128,12 +133,3 @@ INSERT IGNORE INTO interest_tag(code,name_ko,display_order) VALUES
 ('SAFETY_CRISIS','안전·위기',7),('PREGNANCY_BIRTH','임신·출산',8),('CHILDCARE','보육',9),
 ('EDUCATION','교육',10),('ADOPTION_TRUST','입양·위탁',11),('CARE_PROTECT','보호·돌봄',12),
 ('MICRO_FINANCE','서민금융',13),('LAW','법률',14),('ENERGY','에너지',15);
-
--- ------------------------------------------------------------
--- 7) 점검
--- ------------------------------------------------------------
-SHOW TABLES;
-SELECT COUNT(*) AS lifecycle_cnt FROM lifecycle_tag;
-SELECT COUNT(*) AS household_cnt FROM household_tag;
-SELECT COUNT(*) AS interest_cnt FROM interest_tag;
-DESCRIBE refresh_token;

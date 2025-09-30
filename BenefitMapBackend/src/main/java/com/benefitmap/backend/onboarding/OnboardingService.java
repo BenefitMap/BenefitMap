@@ -47,18 +47,29 @@ public class OnboardingService {
         if (interest.size() != interestCodes.size())
             throw new IllegalArgumentException("유효하지 않은 관심사 태그가 포함되어 있습니다.");
 
-        // 프로필 저장
+        // -------------------------
+        // 프로필 저장 (@MapsId + Persistable.isNew 로 INSERT 보장)
+        // -------------------------
         var p = req.profile();
-        var profile = profileRepo.findById(userId).orElseGet(() -> {
-            var np = new UserProfile(); np.setUserId(userId); return np;
-        });
+        UserProfile profile = profileRepo.findById(userId)
+                .orElseGet(() -> {
+                    UserProfile np = new UserProfile();
+                    np.setUser(user); // ★ @MapsId: PK(userId)는 여기서 동기화되지만 isNew()=true → persist
+                    return np;
+                });
+
+        if (profile.getUser() == null) profile.setUser(user);
+
         profile.setGender(p.gender());
         profile.setBirthDate(p.birthDate());
         profile.setRegionDo(p.regionDo());
         profile.setRegionSi(p.regionSi());
-        profileRepo.save(profile);
 
-        // 매핑 교체
+        profileRepo.save(profile); // 새면 INSERT, 기존이면 UPDATE
+
+        // -------------------------
+        // 매핑 테이블 교체(삭제 후 일괄 등록)
+        // -------------------------
         userLifecycleRepo.deleteByIdUserId(userId);
         life.forEach(t -> userLifecycleRepo.save(
                 UserLifecycleTag.builder().id(new UserLifecycleTagId(userId, t.getId())).build()
@@ -74,7 +85,9 @@ public class OnboardingService {
                 UserInterestTag.builder().id(new UserInterestTagId(userId, t.getId())).build()
         ));
 
+        // -------------------------
         // 역할/상태 전환
+        // -------------------------
         if (user.getRole() == Role.ROLE_ONBOARDING) user.setRole(Role.ROLE_USER);
         if (user.getStatus() == UserStatus.PENDING) user.setStatus(UserStatus.ACTIVE);
         userRepo.save(user);

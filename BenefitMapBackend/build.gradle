@@ -45,7 +45,7 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j' // BOM이 관리하므로 버전 생략 OK
 
 	// === 문서화 ===
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
 
 	// === 캐시 ===
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
