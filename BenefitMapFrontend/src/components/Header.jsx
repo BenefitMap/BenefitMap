@@ -1,139 +1,145 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-// 아이콘을 유니코드 문자로 대체
-import Notification from './Notification'; // 새로 만든 Notification 컴포넌트 가져오기
+import BenefitMapLogo from '../assets/BenefitMapLogo.png';
+import menubar from '../assets/menubar.png';
 
 const HeaderContainer = styled.header`
   width: 100%;
-  border-bottom: 1px solid #e0e0e0;
+  height: 130px;
   display: flex;
-  justify-content: center;
-  padding: 0 20px;
-  position: relative; /* 자식 요소의 absolute 포지셔닝 기준 */
-`;
-
-const HeaderInner = styled.div`
-  width: 100%;
-  max-width: 1200px;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  height: 80px;
+  justify-content: space-between;
+  padding: 0 40px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #d0d0d0;
+  box-sizing: border-box;
+  
+  @media (max-width: 1200px) {
+    padding: 0 20px;
+  }
+  
+  @media (max-width: 768px) {
+    height: 80px;
+    padding: 0 15px;
+  }
 `;
 
-const Logo = styled(Link)`
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 26px;
-  font-weight: normal;
-  letter-spacing: 1.5px;
-  color: #333;
-  text-decoration: none;
-`;
-
-const NavLinks = styled.nav`
+const LeftSection = styled.div`
   display: flex;
-  gap: 50px;
+  align-items: center;
+  gap: 100px;
+  
+  @media (max-width: 1200px) {
+    gap: 50px;
+  }
+  
+  @media (max-width: 768px) {
+    gap: 20px;
+  }
+`;
+
+const Logo = styled.img`
+  height: 32px;
+  cursor: pointer;
+  display: block;
+  
+  @media (max-width: 768px) {
+    height: 24px;
+  }
+`;
+
+const Nav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 70px;
+  
+  @media (max-width: 1200px) {
+    gap: 40px;
+  }
   
   @media (max-width: 768px) {
     display: none;
   }
 `;
 
-const NavLink = styled(Link)`
-  font-size: 16px;
-  font-weight: 500;
-  color: #555;
-  text-decoration: none; /* 밑줄 제거 */
-  transition: color 0.2s ease-in-out;
+const NavItem = styled.a`
+  font-size: 18px;
+  color: #000000;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 400;
+  white-space: nowrap;
   
   &:hover {
-    color: #000;
+    opacity: 0.7;
+  }
+  
+  @media (max-width: 1200px) {
+    font-size: 16px;
   }
 `;
 
-const UserActions = styled.div`
+const RightSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 25px;
-`;
-
-const IconWrapper = styled.div`
-  font-size: 26px;
-  color: #555;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  position: relative;
-`;
-
-const NotificationBadge = styled.span`
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: #E63946;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-`;
-
-
-const LoginButton = styled(Link)`
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 16px;
-  letter-spacing: 1px;
-  font-weight: normal;
-  color: #555;
-  text-decoration: none; /* 밑줄 제거 */
-
-  @media (max-width: 768px) {
-    display: none;
+  gap: 50px;
+  
+  @media (max-width: 1200px) {
+    gap: 30px;
   }
-`;
-
-const MenuIcon = styled(IconWrapper)`
-  font-size: 28px;
-  display: none;
   
   @media (max-width: 768px) {
-    display: block;
+    gap: 15px;
+  }
+`;
+
+const LoginText = styled.span`
+  font-size: 18px;
+  color: #000000;
+  font-weight: 400;
+  letter-spacing: 2px;
+  cursor: pointer;
+  
+  &:hover {
+    opacity: 0.7;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+`;
+
+const MenuIcon = styled.img`
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  object-fit: contain;
+  display: block;
+  
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
   }
 `;
 
 const Header = () => {
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-
-  const toggleNotification = () => {
-    setIsNotificationOpen(!isNotificationOpen);
-  };
-
+  const navigate = useNavigate();
   return (
     <HeaderContainer>
-      <HeaderInner>
-        <Logo to="/">BENEFIT MAP</Logo>
-        <NavLinks>
-          <NavLink to="/service">복지 서비스</NavLink>
-          <NavLink to="/notification">복지 알림</NavLink>
-          <NavLink to="/calendar">알림 캘린더</NavLink>
-        </NavLinks>
-        <UserActions>
-          <IconWrapper onClick={toggleNotification}>
-            🔔
-            <NotificationBadge>!</NotificationBadge> 
-          </IconWrapper>
-          <LoginButton to="/login">LOGIN</LoginButton>
-          <MenuIcon>
-            ☰
-          </MenuIcon>
-        </UserActions>
-      </HeaderInner>
-      {isNotificationOpen && <Notification />}
+      <LeftSection>
+        <Logo src={BenefitMapLogo} alt="Benefit Map" onClick={() => navigate('/')} onError={(e) => console.log('Logo failed to load:', e)} />
+        <Nav>
+          <NavItem href="#service">복지 서비스</NavItem>
+          <NavItem href="#algorithm">복지 알림</NavItem>
+          <NavItem href="#calendar">알림 캘린더</NavItem>
+        </Nav>
+      </LeftSection>
+      <RightSection>
+        <LoginText onClick={() => navigate('/LoginPage')}>LOGIN</LoginText>
+        <MenuIcon src={menubar} alt="Menu" onError={(e) => console.log('Menu icon failed to load:', e)} />
+      </RightSection>
     </HeaderContainer>
   );
 };

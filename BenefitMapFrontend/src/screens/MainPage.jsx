@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import Footer from '../components/Footer';
 
 const Container = styled.div`
   padding: 20px;
@@ -59,9 +60,9 @@ const MainPage = () => {
       
       <ButtonGrid>
         <PageButton to="/page1">📄 Page 1</PageButton>
-        <PageButton to="/page2">📄 Page 2</PageButton>
-        <PageButton to="/page3">📄 Page 3</PageButton>
-        <PageButton to="/page4">📄 Page 4</PageButton>
+        <PageButton to="/ServicePage">📄 ServicePage</PageButton>
+        <PageButton to="/LoginPage">📄 LoginPage</PageButton>
+        <PageButton to="/calendar">📅 캘린더</PageButton>
         <PageButton to="/page5">📄 Page 5</PageButton>
         <PageButton to="/page6">📄 Page 6</PageButton>
       </ButtonGrid>

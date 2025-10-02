@@ -18,7 +18,7 @@ const Container = styled.div`
   margin: 0 auto;
   padding: 32px;
   background-color: white;
-  min-height: 100vh;
+  min-height: calc(100vh - 130px - 317px); /* 전체 높이에서 Header(130px)와 Footer(317px) 높이 제외 */
   display: flex;
   flex-direction: column;
   align-items: center;
