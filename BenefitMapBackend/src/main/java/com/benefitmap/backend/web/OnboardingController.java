@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-// ⚠️ 주의: Java는 import 별칭을 지원하지 않음 → Swagger ApiResponse/ApiResponses는 FQN으로 사용
 
 @RestController
 @RequestMapping("/api")
@@ -32,6 +31,7 @@ public class OnboardingController {
     private final OnboardingService onboardingService;
     private final TagQueryService tagQueryService;
 
+    /** 생애주기 태그 조회 */
     @GetMapping("/tags/lifecycle")
     @Operation(
             summary = "라이프사이클 태그 목록",
@@ -54,12 +54,15 @@ public class OnboardingController {
                     """)))
             }
     )
-    public ApiResponse<?> lifecycle() { return ApiResponse.ok(tagQueryService.findLifecycle()); }
+    public ApiResponse<?> lifecycle() {
+        return ApiResponse.ok(tagQueryService.findLifecycle());
+    }
 
+    /** 가구상황 태그 조회 */
     @GetMapping("/tags/household")
     @Operation(
-            summary = "가구(세대) 태그 목록",
-            description = "온보딩 화면에서 사용하는 가구/세대(household) 태그를 반환합니다.",
+            summary = "가구상황 태그 목록",
+            description = "온보딩 화면에서 사용하는 가구상황(household) 태그를 반환합니다.",
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "200",
@@ -78,12 +81,15 @@ public class OnboardingController {
                     """)))
             }
     )
-    public ApiResponse<?> household() { return ApiResponse.ok(tagQueryService.findHousehold()); }
+    public ApiResponse<?> household() {
+        return ApiResponse.ok(tagQueryService.findHousehold());
+    }
 
+    /** 관심주제 태그 조회 */
     @GetMapping("/tags/interest")
     @Operation(
-            summary = "관심사 태그 목록",
-            description = "온보딩 화면에서 사용하는 관심사(interest) 태그를 반환합니다.",
+            summary = "관심주제 태그 목록",
+            description = "온보딩 화면에서 사용하는 관심주제(interest) 태그를 반환합니다.",
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "200",
@@ -102,8 +108,11 @@ public class OnboardingController {
                     """)))
             }
     )
-    public ApiResponse<?> interest() { return ApiResponse.ok(tagQueryService.findInterest()); }
+    public ApiResponse<?> interest() {
+        return ApiResponse.ok(tagQueryService.findInterest());
+    }
 
+    /** 온보딩 완료 저장 */
     @PostMapping("/onboarding")
     @Operation(
             summary = "온보딩 완료 저장",
@@ -169,13 +178,11 @@ public class OnboardingController {
             @AuthenticationPrincipal(expression = "id") Long userId,
             @Valid @RequestBody OnboardingRequest req
     ) {
-        // 미인증 시 500이 아닌 401로 응답 (Swagger 디버깅 편의)
+        // 미인증 → 401 (Swagger 디버깅 편의)
         if (userId == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login required");
         }
-
         onboardingService.save(userId, req);
         return ApiResponse.ok("onboarding completed", Map.of("role","ROLE_USER","status","ACTIVE"));
     }
 }
- 

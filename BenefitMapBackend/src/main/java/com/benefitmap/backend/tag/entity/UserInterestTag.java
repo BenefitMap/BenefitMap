@@ -3,6 +3,11 @@ package com.benefitmap.backend.tag.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * 사용자 ↔ 관심주제 태그 매핑 엔티티
+ * - 다대다 관계를 매핑 테이블(user_interest_tag)로 표현
+ * - PK는 (userId, tagId) 복합키
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -11,6 +16,7 @@ import lombok.*;
 @Entity
 @Table(name = "user_interest_tag")
 public class UserInterestTag {
+
     @EmbeddedId
     private UserInterestTagId id;
 }

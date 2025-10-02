@@ -12,16 +12,17 @@ import java.time.Instant;
 import java.util.Date;
 
 /**
- * JWT 발급/검증 프로바이더.
- * - 환경값: app.jwt.secret, app.jwt.access-exp-seconds, app.jwt.refresh-exp-seconds
- * - subject에는 userId만 사용, HS256 서명.
+ * JWT 발급·검증 유틸
+ * - subject = userId
+ * - HS256 서명
+ * - TTL: access/refresh 환경변수 기반
  */
 @Component
 public class JwtProvider {
 
     private final String secret;
-    private final long accessTtl;   // 초 단위
-    private final long refreshTtl;  // 초 단위
+    private final long accessTtl;   // access token 만료(초)
+    private final long refreshTtl;  // refresh token 만료(초)
 
     private SecretKey key;
 
@@ -33,7 +34,7 @@ public class JwtProvider {
         this.refreshTtl = refreshTtl;
     }
 
-    /** 시작 시 서명 키 초기화 */
+    /** 앱 시작 시 서명키 초기화 */
     @PostConstruct
     void init() {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
@@ -42,7 +43,7 @@ public class JwtProvider {
     public long getAccessTtlSeconds()  { return accessTtl; }
     public long getRefreshTtlSeconds() { return refreshTtl; }
 
-    /** 액세스 토큰 생성 (role 최소 클레임 포함) */
+    /** 액세스 토큰 생성 (role 클레임 포함) */
     public String createAccessToken(Long userId, String role) {
         Instant now = Instant.now();
         return Jwts.builder()
@@ -54,7 +55,7 @@ public class JwtProvider {
                 .compact();
     }
 
-    /** 리프레시 토큰 생성 (type=refresh 포함) */
+    /** 리프레시 토큰 생성 (type=refresh 클레임 포함) */
     public String createRefreshToken(Long userId, String role) {
         Instant now = Instant.now();
         return Jwts.builder()
@@ -67,7 +68,7 @@ public class JwtProvider {
                 .compact();
     }
 
-    /** 서명/만료 검증 후 파싱 */
+    /** 토큰 파싱 + 서명/만료 검증 */
     public Jws<Claims> parse(String token) {
         return Jwts.parser()
                 .verifyWith(key)

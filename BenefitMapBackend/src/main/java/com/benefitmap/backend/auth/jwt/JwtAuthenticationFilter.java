@@ -5,14 +5,10 @@ import com.benefitmap.backend.user.enums.Role;
 import com.benefitmap.backend.user.entity.User;
 import com.benefitmap.backend.user.repo.UserRepository;
 import com.benefitmap.backend.user.enums.UserStatus;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,12 +24,10 @@ import java.util.Collections;
 import java.util.Optional;
 
 /**
- * JWT 인증 필터
- * - 먼저 Authorization 헤더(Bearer)에서 토큰을 시도하고, 없으면 ACCESS_TOKEN 쿠키에서 확인
- * - subject(userId)로 사용자 정보를 불러와 DB의 최신 역할/상태를 반영
- * - 특정 경로는 PENDING(미온보딩)도 통과: /auth/refresh, /auth/logout, /api/onboarding, /api/tags/**
- * - 토큰이 '존재하지만' 유효하지 않거나 만료된 경우 -> 401/403 JSON 응답
- * - 토큰이 '존재하지 않는' 경우 -> 그대로 통과(공개 엔드포인트는 계속 접근 가능)
+ * JWT 인증 필터 (Stateless)
+ * - 우선순위: Authorization: Bearer → ACCESS_TOKEN 쿠키
+ * - 토큰 없으면 통과(공개 엔드포인트 유지), 유효하지 않으면 401/403 JSON
+ * - 특정 경로는 PENDING도 허용(아래 화이트리스트 참조)
  */
 @Component
 @RequiredArgsConstructor
@@ -42,11 +36,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
 
+    /** Swagger/OAuth 등 문서·핸드셰이크 경로는 필터 제외 */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String p = request.getRequestURI();
-        // Swagger, OAuth, 로그인 경로 등은 필터 생략
-        // ※ /auth/refresh, /auth/logout 은 필터를 태워서 인증 컨텍스트 세팅/상태검사 완화 적용
         return p.startsWith("/login")
                 || p.startsWith("/oauth2")
                 || p.startsWith("/swagger")
@@ -54,108 +47,90 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
+    protected void doFilterInternal(HttpServletRequest req,
+                                    HttpServletResponse res,
                                     FilterChain chain)
             throws ServletException, IOException {
 
-        // 1) Extract token: header -> cookie
-        String token = null;
+        // 1) 토큰 추출: Bearer → 쿠키(ACCESS_TOKEN)
+        String token = extractToken(req);
 
-        String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            token = header.substring(7);
-        }
-
-        if (token == null) {
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie c : cookies) {
-                    if ("ACCESS_TOKEN".equals(c.getName())) {
-                        token = c.getValue();
-                        break;
-                    }
-                }
-            }
-        }
-
-        // 2) No token -> pass through
+        // 2) 토큰 부재: 그대로 통과
         if (token == null || token.isBlank()) {
-            chain.doFilter(request, response);
+            chain.doFilter(req, res);
             return;
         }
 
-        // 3) Parse/validate token and reflect latest user status
         try {
+            // 3) 파싱/검증 + 사용자 조회
             Jws<Claims> jws = jwtProvider.parse(token);
-
-            String sub = jws.getPayload().getSubject();
-            if (sub == null) {
-                writeJson(response, HttpServletResponse.SC_UNAUTHORIZED, ApiResponse.fail("Invalid token: no subject"));
-                return;
-            }
-
-            Long userId;
-            try {
-                userId = Long.valueOf(sub);
-            } catch (NumberFormatException e) {
-                writeJson(response, HttpServletResponse.SC_UNAUTHORIZED, ApiResponse.fail("Invalid token: bad subject"));
-                return;
-            }
-
+            Long userId = parseUserId(jws);
             Optional<User> opt = userRepository.findById(userId);
             if (opt.isEmpty()) {
-                writeJson(response, HttpServletResponse.SC_UNAUTHORIZED, ApiResponse.fail("User not found"));
+                writeJson(res, HttpServletResponse.SC_UNAUTHORIZED, ApiResponse.fail("User not found"));
                 return;
             }
-
             User user = opt.get();
 
-            // ★ PENDING도 허용할 경로 화이트리스트
-            String uri = request.getRequestURI();
-            boolean skipActiveCheck =
+            // 4) PENDING 허용 경로: refresh/logout/onboarding/tags
+            String uri = req.getRequestURI();
+            boolean allowPending =
                     uri.equals("/auth/refresh") ||
                             uri.equals("/auth/logout")  ||
                             uri.startsWith("/api/onboarding") ||
                             uri.startsWith("/api/tags/");
 
-            // ACTIVE 강제: 화이트리스트가 아니면 ACTIVE만 통과
-            if (!skipActiveCheck && user.getStatus() != UserStatus.ACTIVE) {
-                writeJson(response, HttpServletResponse.SC_FORBIDDEN, ApiResponse.fail("User not active"));
+            if (!allowPending && user.getStatus() != UserStatus.ACTIVE) {
+                writeJson(res, HttpServletResponse.SC_FORBIDDEN, ApiResponse.fail("User not active"));
                 return;
             }
 
-            // principal을 userId가 아닌 User로 설정 → 컨트롤러에서 @AuthenticationPrincipal 활용 편리
-            var authorities = Collections.singletonList(new SimpleGrantedAuthority(
-                    user.getRole() != null ? user.getRole().name() : Role.ROLE_USER.name()
-            ));
-            var auth = new UsernamePasswordAuthenticationToken(user, null, authorities);
-            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            // 5) 인증 컨텍스트 세팅 (principal = User)
+            var authority = new SimpleGrantedAuthority(
+                    (user.getRole() != null ? user.getRole() : Role.ROLE_USER).name()
+            );
+            var auth = new UsernamePasswordAuthenticationToken(user, null, Collections.singletonList(authority));
+            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
             SecurityContextHolder.getContext().setAuthentication(auth);
 
-            chain.doFilter(request, response);
+            chain.doFilter(req, res);
+
         } catch (JwtException | IllegalArgumentException e) {
-            writeJson(response, HttpServletResponse.SC_UNAUTHORIZED, ApiResponse.fail("Invalid or expired token"));
+            writeJson(res, HttpServletResponse.SC_UNAUTHORIZED, ApiResponse.fail("Invalid or expired token"));
         }
     }
 
-    private void writeJson(HttpServletResponse response, int status, ApiResponse<?> body) throws IOException {
-        response.setStatus(status);
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        String json = """
-                {"success":%s,"message":%s,"data":null,"timestamp":"%s"}
-                """.formatted(
-                body.success(),
-                toJsonString(body.message()),
-                body.timestamp().toString()
-        );
-        response.getWriter().write(json);
+    private static String extractToken(HttpServletRequest req) {
+        String h = req.getHeader("Authorization");
+        if (h != null && h.startsWith("Bearer ")) return h.substring(7);
+        Cookie[] cs = req.getCookies();
+        if (cs != null) {
+            for (Cookie c : cs) if ("ACCESS_TOKEN".equals(c.getName())) return c.getValue();
+        }
+        return null;
     }
 
-    private String toJsonString(String s) {
+    private static Long parseUserId(Jws<Claims> jws) {
+        String sub = jws.getPayload().getSubject();
+        if (sub == null) throw new IllegalArgumentException("no subject");
+        try { return Long.valueOf(sub); }
+        catch (NumberFormatException e) { throw new IllegalArgumentException("bad subject"); }
+    }
+
+    /** ObjectMapper 없이 최소 JSON 응답 */
+    private void writeJson(HttpServletResponse res, int status, ApiResponse<?> body) throws IOException {
+        res.setStatus(status);
+        res.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        String json = """
+            {"success":%s,"message":%s,"data":null,"timestamp":"%s"}
+        """.formatted(body.success(), toJsonString(body.message()), body.timestamp());
+        res.getWriter().write(json);
+    }
+
+    private static String toJsonString(String s) {
         if (s == null) return "null";
-        String esc = s.replace("\\", "\\\\").replace("\"", "\\\"");
+        String esc = s.replace("\\","\\\\").replace("\"","\\\"");
         return "\"" + esc + "\"";
     }
 }
