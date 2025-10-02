@@ -10,15 +10,20 @@ import Page5 from './screens/Page5';
 import Page6 from './screens/Page6';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import GlobalStyle from './styles/GlobalStyle'; // ✅ 글로벌 스타일 불러오기
 
 const App = () => {
   return (
     <BrowserRouter>
-      <div style={{ 
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
+      {/* 전역 스타일 적용 */}
+      <GlobalStyle />
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <Header />
         <main style={{ flex: 1 }}>
           <Routes>

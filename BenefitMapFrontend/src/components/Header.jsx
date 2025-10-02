@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import BenefitMapLogo from '../assets/BenefitMapLogo.png';
 import menubar from '../assets/menubar.png';
@@ -124,10 +125,11 @@ const MenuIcon = styled.img`
 `;
 
 const Header = () => {
+  const navigate = useNavigate();
   return (
     <HeaderContainer>
       <LeftSection>
-        <Logo src={BenefitMapLogo} alt="Benefit Map" onError={(e) => console.log('Logo failed to load:', e)} />
+        <Logo src={BenefitMapLogo} alt="Benefit Map" onClick={() => navigate('/')} onError={(e) => console.log('Logo failed to load:', e)} />
         <Nav>
           <NavItem href="#service">복지 서비스</NavItem>
           <NavItem href="#algorithm">복지 알림</NavItem>
@@ -135,7 +137,7 @@ const Header = () => {
         </Nav>
       </LeftSection>
       <RightSection>
-        <LoginText>LOGIN</LoginText>
+        <LoginText onClick={() => navigate('/LoginPage')}>LOGIN</LoginText>
         <MenuIcon src={menubar} alt="Menu" onError={(e) => console.log('Menu icon failed to load:', e)} />
       </RightSection>
     </HeaderContainer>
