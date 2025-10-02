@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * OAuth2 로그인 성공 핸들러
- * - 사용자 upsert(DB 저장/갱신)
- * - Access/Refresh JWT 발급
- * - 보안 쿠키 설정 후 프론트로 리다이렉트
+ * OAuth2 로그인 성공 처리
+ * - 사용자 upsert
+ * - access/refresh JWT 발급
+ * - 보안 쿠키 설정 후 프론트 리다이렉트
  */
 @Component
 @RequiredArgsConstructor
@@ -42,11 +42,11 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProvider jwtProvider;
 
-    /** 로그인 성공 후 이동할 프론트 URL (application.properties에 app.oauth2.redirect로 명시) */
+    /** 로그인 성공 후 프론트 리다이렉트 URL */
     @Value("${app.oauth2.redirect:http://localhost:5173/oauth2/callback}")
     private String redirectUrl;
 
-    /** 로컬(HTTP) 테스트 시 false, 운영(HTTPS)에서는 true 권장 */
+    /** HTTPS 환경 권장: true → Secure 쿠키 + SameSite=None */
     @Value("${app.cookie.secure:true}")
     private boolean cookieSecure;
 
@@ -62,11 +62,11 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
             return;
         }
 
-        // 2) 제공자 프로필 추출
+        // 2) 프로필 추출
         OAuth2User principal = oauth2.getPrincipal();
         Map<String, Object> attr = principal.getAttributes();
 
-        String provider = normalizeProvider(oauth2.getAuthorizedClientRegistrationId()); // 예: google
+        String provider = normalizeProvider(oauth2.getAuthorizedClientRegistrationId());
         String sub      = Objects.toString(attr.get("sub"), null);
         String email    = Objects.toString(attr.get("email"), null);
         String name     = Objects.toString(attr.get("name"), "");
@@ -77,13 +77,12 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
             return;
         }
 
-        // 3) 사용자 upsert
+        // 3) 사용자 upsert (최초 로그인만 기본 role/status 설정)
         User user = userRepository.findByProviderAndProviderId(provider, sub)
                 .map(u -> {
                     u.setEmail(email);
                     if (name != null) u.setName(name);
                     if (picture != null) u.setImageUrl(picture);
-                    // 첫 로그인 이후 상태/권한은 유지
                     return u;
                 })
                 .orElseGet(() ->
@@ -101,11 +100,11 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
         user.setLastLoginAt(Instant.now());
         userRepository.save(user);
 
-        // 5) JWT 발급
+        // 4) JWT 발급
         String accessToken  = jwtProvider.createAccessToken(user.getId(), user.getRole().name());
         String refreshToken = jwtProvider.createRefreshToken(user.getId(), user.getRole().name());
 
-        // 6) Refresh 토큰 해시 저장(DB)
+        // 5) refresh 토큰 해시 저장(DB)
         String tokenHash = sha256Hex(refreshToken);
         refreshTokenRepository.save(
                 RefreshToken.builder()
@@ -115,16 +114,14 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
                         .build()
         );
 
-        // 7) 쿠키 생성(서버 전송 전용) — 로컬(HTTP)에서는 SameSite=Lax, 운영(HTTPS)에서는 None
+        // 6) 쿠키 생성 (HTTPOnly, 경로=/, SameSite 정책)
         String sameSite = cookieSecure ? "None" : "Lax";
         ResponseCookie accessCookie  = buildCookie("ACCESS_TOKEN", accessToken,  jwtProvider.getAccessTtlSeconds(), sameSite);
         ResponseCookie refreshCookie = buildCookie("REFRESH_TOKEN", refreshToken, jwtProvider.getRefreshTtlSeconds(), sameSite);
 
-        // 8) 쿠키 헤더 추가
+        // 7) 쿠키 헤더 추가 및 리다이렉트
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
-        // 9) 프론트로 리다이렉트
         response.sendRedirect(redirectUrl);
     }
 
@@ -134,7 +131,8 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
     }
 
     private ResponseCookie buildCookie(String name, String value, long maxAgeSeconds, String sameSite) {
-        // 개발 중 HTTP 환경에서는 Secure=false / SameSite=Lax를 권장
+        // 개발(HTTP): Secure=false / SameSite=Lax
+        // 운영(HTTPS): Secure=true / SameSite=None
         return ResponseCookie.from(name, value)
                 .path("/")
                 .httpOnly(true)
@@ -144,7 +142,7 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
                 .build();
     }
 
-    /** SHA-256 해시 유틸(리프레시 토큰 저장용) */
+    /** refresh 토큰 저장용 SHA-256 해시 */
     private static String sha256Hex(String s) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");

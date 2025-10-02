@@ -39,23 +39,24 @@ public class AuthController {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
 
+    /** HTTPS 권장: true → Secure 쿠키 + SameSite=None */
     @Value("${app.cookie.secure:true}")
     private boolean cookieSecure;
 
     @Operation(
-            // 전역 cookieAuth를 문서상 해제(REFRESH_TOKEN만 필요)
+            // 전역 cookieAuth 제외(이 엔드포인트는 REFRESH_TOKEN만 필요)
             security = { @SecurityRequirement(name = "") },
             summary = "액세스 토큰 재발급",
-            description = "브라우저의 REFRESH_TOKEN 쿠키를 검증해 ACCESS_TOKEN을 새로 발급합니다.",
+            description = "브라우저의 REFRESH_TOKEN 쿠키를 검증하여 ACCESS_TOKEN을 재발급합니다.",
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "200",
-                            description = "access token reissued",
+                            description = "액세스 토큰 재발급 성공",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = ApiResponse.class),
                                     examples = @ExampleObject(
-                                            name = "RefreshSuccess",
+                                            name = "재발급 성공",
                                             value = """
                                             {
                                               "success": true,
@@ -69,12 +70,12 @@ public class AuthController {
                     ),
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "401",
-                            description = "Missing/Invalid/Expired refresh",
+                            description = "리프레시 토큰 누락/유효하지 않음/만료됨",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = ApiResponse.class),
                                     examples = @ExampleObject(
-                                            name = "RefreshUnauthorized",
+                                            name = "리프레시실패",
                                             value = """
                                             {
                                               "success": false,
@@ -88,12 +89,12 @@ public class AuthController {
                     ),
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "403",
-                            description = "User not active",
+                            description = "사용자가 활성 상태가 아님",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = ApiResponse.class),
                                     examples = @ExampleObject(
-                                            name = "UserNotActive",
+                                            name = "사용자비활성",
                                             value = """
                                             {
                                               "success": false,
@@ -110,14 +111,14 @@ public class AuthController {
     @PostMapping("/refresh")
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<RefreshResult>> refresh(HttpServletRequest req) {
-        // 1) 쿠키에서 refresh 추출
+        // 1) REFRESH_TOKEN 쿠키 추출
         String refresh = readCookie(req, "REFRESH_TOKEN");
         if (refresh == null || refresh.isBlank()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.fail("Missing refresh"));
         }
 
-        // 2) 해시로 DB 조회 + 만료 확인
+        // 2) 해시 조회 + 만료 확인
         String hash = sha256Hex(refresh);
         Optional<RefreshToken> opt = refreshTokenRepository.findByTokenHash(hash);
         if (opt.isEmpty()) {
@@ -130,7 +131,7 @@ public class AuthController {
                     .body(ApiResponse.fail("Expired refresh"));
         }
 
-        // 3) 유저를 명시적으로 다시 조회 (LAZY 안전)
+        // 3) 유저 재조회
         Long userId = saved.getUser().getId();
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
@@ -142,7 +143,7 @@ public class AuthController {
                     .body(ApiResponse.fail("User suspended"));
         }
 
-        // 4) ACCESS_TOKEN 재발급 후 쿠키로 반환 (로컬 HTTP=Lax, 운영 HTTPS=None)
+        // 4) ACCESS_TOKEN 재발급(+ 쿠키)
         String newAccess = jwtProvider.createAccessToken(user.getId(), user.getRole().name());
         String sameSite = cookieSecure ? "None" : "Lax";
 
@@ -161,17 +162,17 @@ public class AuthController {
 
     @Operation(
             summary = "로그아웃",
-            description = "현재 기기의 REFRESH_TOKEN을 무효화하고, ACCESS_TOKEN/REFRESH_TOKEN 쿠키를 즉시 만료합니다.",
+            description = "현재 기기의 REFRESH_TOKEN을 무효화하고 ACCESS_TOKEN/REFRESH_TOKEN 쿠키를 즉시 만료합니다.",
             security = @SecurityRequirement(name = "cookieAuth"),
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "200",
-                            description = "OK",
+                            description = "로그아웃 성공",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = ApiResponse.class),
                                     examples = @ExampleObject(
-                                            name = "LogoutSuccess",
+                                            name = "로그아웃성공",
                                             value = """
                                             {
                                               "success": true,
@@ -186,7 +187,7 @@ public class AuthController {
             }
     )
     @PostMapping("/logout")
-    @Transactional // 삭제 쿼리 트랜잭션 보장
+    @Transactional // 삭제 트랜잭션 보장
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest req) {
         try {
             String refresh = readCookie(req, "REFRESH_TOKEN");
@@ -194,7 +195,7 @@ public class AuthController {
                 refreshTokenRepository.deleteByTokenHash(sha256Hex(refresh));
             }
         } catch (Exception ignore) {
-            // 과제용: 삭제 실패해도 쿠키만 비우고 성공 처리
+            // 데모/과제: 삭제 실패해도 쿠키 만료로 처리
         }
 
         ResponseCookie expiredAccess  = expiredCookie("ACCESS_TOKEN");
@@ -207,6 +208,8 @@ public class AuthController {
     }
 
     // ---- 내부 유틸 ----
+
+    /** 쿠키 값 읽기 */
     private static String readCookie(HttpServletRequest req, String name) {
         Cookie[] cookies = req.getCookies();
         if (cookies == null) return null;
@@ -214,6 +217,7 @@ public class AuthController {
         return null;
     }
 
+    /** SHA-256 HEX 해시 */
     private static String sha256Hex(String s) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -226,8 +230,9 @@ public class AuthController {
         }
     }
 
+    /** 만료 쿠키(즉시 삭제) */
     private ResponseCookie expiredCookie(String name) {
-        // 로컬(HTTP)=Lax, 운영(HTTPS)=None 로 만료 쿠키도 동일 정책 적용
+        // 로컬(HTTP)=Lax, 운영(HTTPS)=None 동일 적용
         String sameSite = cookieSecure ? "None" : "Lax";
         return ResponseCookie.from(name, "")
                 .httpOnly(true)
