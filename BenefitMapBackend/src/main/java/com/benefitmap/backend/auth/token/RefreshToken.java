@@ -7,10 +7,9 @@ import com.benefitmap.backend.user.entity.User;
 import java.time.Instant;
 
 /**
- * 리프레시 토큰 엔티티
- * - 원문 대신 SHA-256 해시를 저장
- * - 만료되면 레코드 삭제로 무효화
- * - 해시 유니크 제약, 만료 인덱스 적용
+ * Refresh Token 엔티티
+ * - 원문 대신 SHA-256 해시 저장
+ * - 만료 인덱스/유니크 제약 적용
  */
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
@@ -27,12 +26,12 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 소유 사용자 (지연 로딩) */
+    /** 소유 사용자 */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_refresh_user"))
     private User user;
 
-    /** SHA-256 HEX(64) 해시 — 원문 토큰은 저장하지 않음 */
+    /** SHA-256 HEX(64) 해시 */
     @Column(name = "token_hash", nullable = false, length = 64)
     private String tokenHash;
 
@@ -40,7 +39,7 @@ public class RefreshToken {
     @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
-    /** 폐기 시각 (로그아웃 등) */
+    /** 폐기 시각(로그아웃 등) */
     @Column(name = "revoked_at")
     private Instant revokedAt;
 

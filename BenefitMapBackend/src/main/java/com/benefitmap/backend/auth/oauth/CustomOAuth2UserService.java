@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * OAuth2 프로필을 불러오고, 제공자별로 principal name attribute를 안전하게 선택한다.
- * - Google: "sub"
- * - (확장 여지) GitHub: "id", Kakao: "id" 등
+ * OAuth2 프로필 로더
+ * - provider 별 principal name attribute 결정(기본: sub, Google: sub)
+ * - 권한은 빈 Set 유지(요구사항 기준)
  */
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -24,35 +24,28 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User delegate = super.loadUser(req);
         Map<String, Object> attrs = delegate.getAttributes();
 
-        // registrationId에 따라 name attribute key 선택
         String registrationId = req.getClientRegistration().getRegistrationId();
         String nameAttrKey = resolveNameAttributeKey(registrationId);
 
-        // 기본 키가 없으면 에러 처리(프로필 불완전)
+        // 필수 속성 누락 시 인증 실패
         if (attrs == null || !attrs.containsKey(nameAttrKey)) {
-            throw new OAuth2AuthenticationException(new OAuth2Error("invalid_user_info"),
-                    "Missing principal attribute '" + nameAttrKey + "' for provider '" + registrationId + "'");
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error("invalid_user_info"),
+                    "Missing principal attribute '" + nameAttrKey + "' for provider '" + registrationId + "'"
+            );
         }
 
-        // 권한은 과제 요구대로 비움(Set.of())
         return new DefaultOAuth2User(Set.of(), attrs, nameAttrKey);
     }
 
-    /**
-     * 제공자별 principal name attribute key를 결정한다.
-     * 필요 시 여기에 다른 소셜(provider) 분기를 추가.
-     */
+    /** provider 별 name attribute key */
     private String resolveNameAttributeKey(String registrationId) {
-        if (registrationId == null) return "sub"; // 안전 기본값
+        if (registrationId == null) return "sub";
         switch (registrationId.toLowerCase()) {
-            case "google":
-                return "sub";
-            // case "github": return "id";
+            case "google": return "sub";
             // case "kakao":  return "id";
             // case "naver":  return "id";
-            default:
-                // 미지정 provider는 우선 "sub"를 시도하고, 없으면 "id"를 시도
-                return "sub";
+            default: return "sub";
         }
     }
 }

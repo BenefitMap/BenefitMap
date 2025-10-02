@@ -14,28 +14,30 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * 전역 예외 처리기 (우리 컨트롤러에만 적용)
+ * 전역 예외 처리기 (컨트롤러 공통 응답 형식 유지)
  */
 @Slf4j
 @RestControllerAdvice(basePackages = "com.benefitmap.backend")
 public class GlobalExceptionHandler {
 
+    /** 가장 안쪽 원인 메시지 */
     private static String rootMsg(Throwable e) {
         Throwable t = e;
         while (t.getCause() != null) t = t.getCause();
         return t.getClass().getSimpleName() + ": " + (t.getMessage() == null ? "" : t.getMessage());
     }
 
-    /** 컨트롤러에서 명시적으로 상태코드를 지정한 경우(예: new ResponseStatusException(401, "Login required")) */
+    /** 컨트롤러에서 명시한 상태코드 전달 */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ApiResponse<Void>> handleRse(ResponseStatusException e) {
         var status = HttpStatus.resolve(e.getStatusCode().value());
-        String msg = e.getReason() != null ? e.getReason() : (status != null ? status.getReasonPhrase() : "error");
+        String msg = e.getReason() != null ? e.getReason()
+                : (status != null ? status.getReasonPhrase() : "error");
         log.warn("{} {}", e.getStatusCode(), msg);
         return ResponseEntity.status(e.getStatusCode()).body(ApiResponse.fail(msg));
     }
 
-    /** 잘못된 요청(비즈니스 유효성 실패 포함) */
+    /** 잘못된 요청(비즈니스 유효성 포함) */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> illegalArg(IllegalArgumentException e) {
         log.warn("400 IllegalArgument: {}", rootMsg(e), e);
@@ -59,7 +61,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.fail("malformed request"));
     }
 
-    /** 중복키/무결성 오류 */
+    /** 중복키/무결성 위반 */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> dataIntegrity(DataIntegrityViolationException e) {
         log.warn("409 DataIntegrity: {}", rootMsg(e), e);
@@ -75,7 +77,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.fail("not found"));
     }
 
-    /** 인증 토큰 문제 */
+    /** JWT 오류(서명/만료 등) */
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ApiResponse<Void>> jwt(JwtException e) {
         log.warn("401 JWT: {}", rootMsg(e));
@@ -91,7 +93,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.fail("forbidden"));
     }
 
-    /** 나머지 → 500 (원인 로그 남김) */
+    /** 기타 예외 → 500 */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> unknown(Exception e) {
         log.error("500 Internal: {}", rootMsg(e), e);
