@@ -793,7 +793,7 @@ const ServicePage = () => {
               <SearchButton onClick={handleSearch}>검색</SearchButton>
             </ButtonContainer>
           </SearchSection>
-
+          <SectionDivider />
           <ServiceDisplaySection>
             <ServiceSummary>
               <SummaryHeader>
