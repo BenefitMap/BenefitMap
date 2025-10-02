@@ -60,7 +60,7 @@ const MainPage = () => {
       <ButtonGrid>
         <PageButton to="/page1">📄 Page 1</PageButton>
         <PageButton to="/ServicePage">📄 ServicePage</PageButton>
-        <PageButton to="/page3">📄 Page 3</PageButton>
+        <PageButton to="/LoginPage">📄 LoginPage</PageButton>
         <PageButton to="/page4">📄 Page 4</PageButton>
         <PageButton to="/page5">📄 Page 5</PageButton>
         <PageButton to="/page6">📄 Page 6</PageButton>
