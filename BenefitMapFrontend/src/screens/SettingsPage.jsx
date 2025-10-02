@@ -15,28 +15,6 @@ const SettingsContainer = styled.div`
   padding: 80px 20px;
 `;
 
-// 공통 헤더
-const Header = styled.header`
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  letter-spacing: 2px;
-`;
-
-// 공통 푸터
-const Footer = styled.footer`
-  position: absolute;
-  bottom: 20px;
-  left: 40px;
-  font-size: 0.75rem;
-  color: #888;
-  
-  p {
-    margin: 4px 0;
-  }
-`;
 
 // 페이지 제목과 부제목을 감싸는 컨테이너
 const PageTitleContainer = styled.div`
@@ -247,7 +225,6 @@ function SettingsPage() {
 
   return (
     <SettingsContainer>
-      <Header>BENEFIT MAP</Header>
 
       <PageTitleContainer>
         <h2>혜택 맞춤 설정</h2>
@@ -304,12 +281,7 @@ function SettingsPage() {
         </SettingsBox>
       </SettingsMain>
       
-      <Footer>
-        <p>주소: 경기도 안양시 동안구 임곡로 29, 대림대학교 전산관</p>
-        <p>전화번호: 010-0000-0000</p>
-        <p>이메일: GOODDEVELOP@GMAIL.COM</p>
-        <p>© 2025 BENEFIT MAP. ALL RIGHTS RESERVED.</p>
-      </Footer>
+      
     </SettingsContainer>
   );
 }
