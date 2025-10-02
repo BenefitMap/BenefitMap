@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import Footer from '../components/Footer';
 
 const Container = styled.div`
   padding: 20px;
@@ -67,6 +68,7 @@ const MainPage = () => {
       </ButtonGrid>
     </Container>
   );
+  <Footer />
 };
 
 export default MainPage;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 
+
 const GlobalStyle = createGlobalStyle`
   @font-face {
     font-family: 'GowunBatang';
