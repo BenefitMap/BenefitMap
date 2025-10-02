@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainPage from './screens/MainPage';
 import Page1 from './screens/Page1';
-import Page2 from './screens/Page2';
+import Page2 from './screens/ServicePage';
 import Page3 from './screens/Page3';
 import Page4 from './screens/Page4';
 import Page5 from './screens/Page5';
