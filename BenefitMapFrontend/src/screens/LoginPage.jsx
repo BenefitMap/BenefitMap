@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import styled from 'styled-components';
 import GoogleLogo from '../assets/google-logo.svg';
 
@@ -6,9 +6,8 @@ import GoogleLogo from '../assets/google-logo.svg';
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 130px - 317px); /* 전체 높이에서 Header(130px)와 Footer(317px) 높이 제외 */
+  min-height: calc(100vh - 130px - 317px); /* Header(130px) + Footer(317px) 제외 */
 `;
-
 
 const MainContent = styled.main`
   flex-grow: 1;
@@ -24,6 +23,7 @@ const LoginBox = styled.div`
     font-weight: 500;
     margin-bottom: 12px;
   }
+
   p {
     color: #767676;
     width: 450px;
@@ -63,13 +63,16 @@ const GoogleLoginButton = styled.button`
   }
 `;
 
-
-  
-
 // --- 로그인 페이지 컴포넌트 ---
 function LoginPage() {
-  const navigate = useNavigate();
-  const handleLogin = () => navigate('/SettingsPage');
+  // ✅ 백엔드 기본 URL (Vite 환경변수 기반)
+  const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
+  // ✅ 구글 로그인 핸들러
+  const handleGoogleLogin = () => {
+    // Spring Security의 OAuth2 엔드포인트로 리디렉트
+    window.location.href = `${BACKEND_URL}/oauth2/authorization/google`;
+  };
 
   return (
     <PageContainer>
@@ -77,13 +80,12 @@ function LoginPage() {
         <LoginBox>
           <h1>로그인</h1>
           <p>놓치기 쉬운 복지 혜택, 맞춤 알림으로 설정하세요.</p>
-          <GoogleLoginButton onClick={handleLogin}>
+          <GoogleLoginButton onClick={handleGoogleLogin}>
             <img src={GoogleLogo} alt="Google logo" />
             Google 계정으로 로그인
           </GoogleLoginButton>
         </LoginBox>
       </MainContent>
-    
     </PageContainer>
   );
 }

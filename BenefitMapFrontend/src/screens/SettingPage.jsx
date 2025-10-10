@@ -1,7 +1,10 @@
 // 리액트 훅 import: useState(상태관리), useEffect(컴포넌트 생명주기관리), useRef(DOM 요소 직접 접근)
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 // CSS-in-JS 라이브러리 'styled-components' import
 import styled from 'styled-components';
+import UserInfo from '../components/UserInfo';
+import { isLoggedIn } from '../utils/googleAuth';
 
 // --- 스타일 컴포넌트 정의 ---
 // 각 HTML 태그에 스타일을 직접 적용한 리액트 컴포넌트를 생성합니다.
@@ -43,8 +46,8 @@ const SettingsBox = styled.form`
   // 폼 박스 내의 모든 label에 대한 공통 스타일
   & > .form-group > label, & > label {
     display: block;
-    margin-bottom: 10px;
-    font-weight: 500;
+    margin-bottom: 14px; /* 라벨과 입력 박스 간격을 넉넉하게 */
+    font-weight: 700; /* 라벨 굵게 */
     font-size: 0.9rem;
     color: #444;
   }
@@ -52,7 +55,7 @@ const SettingsBox = styled.form`
 
 // 폼 내의 각 입력 필드를 그룹화 (레이블 + 입력창)
 const FormGroup = styled.div`
-    margin-bottom: 24px;
+    margin-bottom: 28px; /* 그룹 간 간격 소폭 확대 */
 `;
 
 // 입력창들을 가로로 나란히 배치하기 위한 행
@@ -75,9 +78,39 @@ const StyledInput = styled.input`
   background-color: #ffffff;
   font-size: 1rem;
   color: #333;
+  font-weight: 700; /* 입력값을 굵게 표시 */
   &::placeholder {
     color: #999;
+    font-weight: 400; /* 플레이스홀더는 일반 두께로 */
   }
+`;
+
+// 나이 입력 컨테이너: 우측에 ▲ ▼ 컨트롤 배치
+const AgeInputContainer = styled.div`
+  position: relative;
+`;
+
+const AgeSpinGroup = styled.div`
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const AgeSpinButton = styled.button`
+  width: 24px;
+  height: 18px;
+  border: none;
+  background: #e9f6ee;
+  color: #2f8a57;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  &:hover { background: #d8f0e4; }
 `;
 
 // 커스텀 드롭다운 관련 스타일 컴포넌트들
@@ -119,6 +152,7 @@ const CheckboxLabel = styled.label`
     margin-right: 12px;
     width: 16px;
     height: 16px;
+    accent-color: #6DBE89; /* 선택된 체크박스를 초록색으로 표시 */
   }
 `;
 
@@ -204,10 +238,23 @@ function CustomCheckboxDropdown({ options, selectedItems, onSelectionChange, pla
 
 // --- 메인 설정 페이지 리액트 컴포넌트 ---
 function SettingsPage() {
+    const navigate = useNavigate();
+    
+    // 로그인 상태 확인 (더 관대한 조건)
+    useEffect(() => {
+        const accessToken = localStorage.getItem('access_token');
+        const userInfo = localStorage.getItem('user_info');
+        
+        // 토큰이나 사용자 정보가 없을 때만 로그인 페이지로 리다이렉트
+        if (!accessToken && !userInfo) {
+            navigate('/LoginPage');
+        }
+    }, [navigate]);
     // --- 상태 관리(useState) ---
     // 각 폼 필드의 선택된 값을 저장하기 위한 상태 변수들
     const [selectedRegion1, setSelectedRegion1] = useState([]);
     const [selectedRegion2, setSelectedRegion2] = useState([]);
+    const [region2Options, setRegion2Options] = useState([]);
     const [age, setAge] = useState('');
     const [selectedGender, setSelectedGender] = useState([]);
     const [selectedLifeCycle, setSelectedLifeCycle] = useState([]);
@@ -216,12 +263,90 @@ function SettingsPage() {
 
     // --- 옵션 데이터 ---
     // 각 드롭다운에 표시될 목록 데이터
-    const region1Options = ['서울특별시', '경기도', '인천광역시', '강원도', '충청북도', '충청남도'];
-    const region2Options = ['안양시', '수원시', '용인시', '성남시', '고양시'];
+    const region1Options = [
+        '서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시', '대전광역시', '울산광역시', '세종특별자치시',
+        '경기도', '강원도', '충청북도', '충청남도', '전라북도', '전라남도', '경상북도', '경상남도', '제주특별자치도'
+    ];
+
+    // 시/군/구 매핑 데이터
+    const regionMap = {
+        '서울특별시': ['종로구','중구','용산구','성동구','광진구','동대문구','중랑구','성북구','강북구','도봉구','노원구','은평구','서대문구','마포구','양천구','강서구','구로구','금천구','영등포구','동작구','관악구','서초구','강남구','송파구','강동구'],
+        '부산광역시': ['중구','서구','동구','영도구','부산진구','동래구','남구','북구','해운대구','사하구','금정구','강서구','연제구','수영구','사상구','기장군'],
+        '대구광역시': ['중구','동구','서구','남구','북구','수성구','달서구','달성군','군위군'],
+        '인천광역시': ['중구','동구','미추홀구','연수구','남동구','부평구','계양구','서구','강화군','옹진군'],
+        '광주광역시': ['동구','서구','남구','북구','광산구'],
+        '대전광역시': ['동구','중구','서구','유성구','대덕구'],
+        '울산광역시': ['중구','남구','동구','북구','울주군'],
+        '세종특별자치시': ['세종시'],
+        '경기도': ['수원시','성남시','의정부시','안양시','부천시','광명시','평택시','동두천시','안산시','고양시','과천시','구리시','남양주시','오산시','시흥시','군포시','의왕시','하남시','용인시','파주시','이천시','안성시','김포시','화성시','광주시','양주시','포천시','여주시','연천군','가평군','양평군'],
+        '강원도': ['춘천시','원주시','강릉시','동해시','태백시','속초시','삼척시','홍천군','횡성군','영월군','평창군','정선군','철원군','화천군','양구군','인제군','고성군','양양군'],
+        '충청북도': ['청주시','충주시','제천시','보은군','옥천군','영동군','증평군','진천군','괴산군','음성군','단양군'],
+        '충청남도': ['천안시','공주시','보령시','아산시','서산시','논산시','계룡시','당진시','금산군','부여군','서천군','청양군','홍성군','예산군','태안군'],
+        '전라북도': ['전주시','군산시','익산시','정읍시','남원시','김제시','완주군','진안군','무주군','장수군','임실군','순창군','고창군','부안군'],
+        '전라남도': ['목포시','여수시','순천시','나주시','광양시','담양군','곡성군','구례군','고흥군','보성군','화순군','장흥군','강진군','해남군','영암군','무안군','함평군','영광군','장성군','완도군','진도군','신안군'],
+        '경상북도': ['포항시','경주시','김천시','안동시','구미시','영주시','영천시','상주시','문경시','경산시','군위군','의성군','청송군','영양군','영덕군','청도군','고령군','성주군','칠곡군','예천군','봉화군','울진군','울릉군'],
+        '경상남도': ['창원시','진주시','통영시','사천시','김해시','밀양시','거제시','양산시','의령군','함안군','창녕군','고성군','남해군','하동군','산청군','함양군','거창군','합천군'],
+        '제주특별자치도': ['제주시','서귀포시']
+    };
+
+    // 시/군/구 옵션 갱신: 시/도 변경 시 시/군/구 초기화
+    useEffect(() => {
+        const province = selectedRegion1[0];
+        if (!province) {
+            setRegion2Options([]);
+            setSelectedRegion2([]);
+            return;
+        }
+        const cities = regionMap[province] || [];
+        setRegion2Options(cities);
+        setSelectedRegion2([]);
+    }, [selectedRegion1]);
     const genderOptions = ['남성', '여성'];
     const lifeCycleOptions = ['임신 및 출산', '영유아', '아동', '청소년', '청년', '중장년', '노년'];
     const householdOptions = ['저소득', '장애인', '한부모 및 조손', '다자녀', '다문화', '탈북민', '보훈대상자', '해당사항 없음'];
-    const interestOptions = ['주거', '건강', '교육', '금융', '문화'];
+    const interestOptions = [
+        '신체건강','정신건강','생활지원','주거','일자리','문화·여가','안전·위기','임신·출산','보육','교육','입양·위탁','보호·돌봄','서민금융','법률','에너지'
+    ];
+
+    // 나이 증감 핸들러
+    const parseAge = (v) => {
+        const n = parseInt(String(v).replace(/[^0-9]/g, ''), 10);
+        return Number.isFinite(n) ? n : 0;
+    };
+    const clampAge = (n) => Math.max(0, Math.min(150, n));
+    const incrementAge = () => setAge(prev => String(clampAge(parseAge(prev) + 1)));
+    const decrementAge = () => setAge(prev => String(clampAge(parseAge(prev) - 1)));
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const hasRegion = selectedRegion1.length > 0 && selectedRegion2.length > 0;
+        const hasAge = String(age).trim() !== '';
+        const hasGender = selectedGender.length > 0;
+        const hasLifeCycle = selectedLifeCycle.length > 0;
+        if (!(hasRegion && hasAge && hasGender && hasLifeCycle)) {
+            alert('필수 항목을 모두 입력해 주세요. (지역, 나이, 성별, 생애주기)');
+            return;
+        }
+        
+        // 설정값을 localStorage에 저장
+        const userSettings = {
+            region1: selectedRegion1[0] || '',
+            region2: selectedRegion2[0] || '',
+            age: age,
+            gender: selectedGender[0] || '',
+            lifeCycle: selectedLifeCycle.join(', '),
+            household: selectedHousehold.join(', '),
+            interest: selectedInterest.join(', ')
+        };
+        
+        localStorage.setItem('userSettings', JSON.stringify(userSettings));
+        
+        // 설정 완료 메시지 표시
+        alert('혜택 설정이 완료되었습니다! 마이페이지에서 확인해보세요.');
+        
+        // 혜택 설정 완료 후 마이페이지로 이동
+        navigate('/mypage');
+    };
 
   return (
     <SettingsContainer>
@@ -232,16 +357,17 @@ function SettingsPage() {
       </PageTitleContainer>
 
       <SettingsMain>
-        <SettingsBox>
+        <SettingsBox onSubmit={handleSubmit}>
+          <UserInfo />
           <FormGroup>
             <label>지역(필수)</label>
             <FormRow>
               <FormCol>
                 {/* 재사용 컴포넌트에 props를 전달하여 '시/도 선택' 드롭다운 렌더링 */}
-                <CustomCheckboxDropdown options={region1Options} selectedItems={selectedRegion1} onSelectionChange={setSelectedRegion1} placeholder="시/도 선택" />
+                <CustomCheckboxDropdown options={region1Options} selectedItems={selectedRegion1} onSelectionChange={setSelectedRegion1} placeholder="시/도 선택" isSingleSelect={true} />
               </FormCol>
               <FormCol>
-                <CustomCheckboxDropdown options={region2Options} selectedItems={selectedRegion2} onSelectionChange={setSelectedRegion2} placeholder="시/군/구 선택" />
+                <CustomCheckboxDropdown options={region2Options} selectedItems={selectedRegion2} onSelectionChange={setSelectedRegion2} placeholder="시/군/구 선택" isSingleSelect={true} />
               </FormCol>
             </FormRow>
           </FormGroup>
@@ -250,7 +376,13 @@ function SettingsPage() {
             <FormRow>
               <FormCol>
                 <label>나이(필수)</label>
-                <StyledInput type="text" placeholder="나이를 입력하세요" value={age} onChange={(e) => setAge(e.target.value)} />
+                <AgeInputContainer>
+                  <StyledInput type="text" placeholder="나이를 입력하세요" value={age} onChange={(e) => setAge(e.target.value)} style={{ paddingRight: '50px' }} />
+                  <AgeSpinGroup>
+                    <AgeSpinButton type="button" onClick={incrementAge}>▲</AgeSpinButton>
+                    <AgeSpinButton type="button" onClick={decrementAge}>▼</AgeSpinButton>
+                  </AgeSpinGroup>
+                </AgeInputContainer>
               </FormCol>
               <FormCol>
                 <label>성별(필수)</label>

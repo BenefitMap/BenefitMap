@@ -126,6 +126,14 @@ const MenuIcon = styled.img`
 
 const Header = () => {
   const navigate = useNavigate();
+  
+  // 로그인 상태 확인
+  const isLoggedIn = () => {
+    const accessToken = localStorage.getItem('access_token');
+    const userInfo = localStorage.getItem('user_info');
+    return !!(accessToken || userInfo);
+  };
+  
   return (
     <HeaderContainer>
       <LeftSection>
@@ -137,7 +145,11 @@ const Header = () => {
         </Nav>
       </LeftSection>
       <RightSection>
-        <LoginText onClick={() => navigate('/LoginPage')}>LOGIN</LoginText>
+        {isLoggedIn() ? (
+          <LoginText onClick={() => navigate('/mypage')}>마이페이지</LoginText>
+        ) : (
+          <LoginText onClick={() => navigate('/LoginPage')}>LOGIN</LoginText>
+        )}
         <MenuIcon src={menubar} alt="Menu" onError={(e) => console.log('Menu icon failed to load:', e)} />
       </RightSection>
     </HeaderContainer>
