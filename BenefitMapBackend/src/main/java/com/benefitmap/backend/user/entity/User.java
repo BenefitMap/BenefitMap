@@ -5,18 +5,19 @@ import com.benefitmap.backend.user.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * 사용자 엔티티
- *
- * - OAuth2 계정 연결: (provider, provider_id) 유니크
- * - 이메일 유니크(utf8mb4 인덱스 고려 191자)
- * - 권한/상태는 Enum STRING 저장, 기본 ROLE_USER / PENDING
- * - 생성/수정 시각 자동 설정
+ * - OAuth2 계정 연결: (provider, providerId) 유니크
+ * - 이메일 유니크 (인덱스 고려 → 191자 제한)
+ * - 권한/상태: Enum STRING 저장 (기본 ROLE_USER / PENDING)
+ * - 생성/수정 시각 자동 기록
  */
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Entity
 @Table(
@@ -28,7 +29,8 @@ import java.time.LocalDateTime;
 )
 public class User {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** OAuth2 제공자명 (예: google) */
@@ -39,41 +41,42 @@ public class User {
     @Column(name = "provider_id", length = 100)
     private String providerId;
 
-    /** 로그인/연락용 이메일 (유니크) */
+    /** 로그인/연락용 이메일 */
     @Column(nullable = false, length = 191)
     private String email;
 
-    @Column(length = 100)
     private String name;
 
-    @Column(name = "image_url", length = 512)
+    @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    /** 권한 */
+    /** 권한 (ROLE_USER 기본값) */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default
     private Role role = Role.ROLE_USER;
 
-    /** 가입/이용 상태 */
+    /** 가입 상태 (PENDING 기본값) */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default
     private UserStatus status = UserStatus.PENDING;
 
-    private LocalDateTime lastLoginAt;
+    /** 마지막 로그인 시각 */
+    private Instant lastLoginAt;
 
+    /** 생성/수정 시각 */
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
-    /** INSERT 시각 자동 설정 */
+    /** INSERT 시 자동 설정 */
     @PrePersist
-    void onCreate() { createdAt = updatedAt = LocalDateTime.now(); }
+    void onCreate() { createdAt = updatedAt = Instant.now(); }
 
-    /** UPDATE 시각 자동 설정 */
+    /** UPDATE 시 자동 설정 */
     @PreUpdate
-    void onUpdate() { updatedAt = LocalDateTime.now(); }
+    void onUpdate() { updatedAt = Instant.now(); }
 }

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
+import { hasUserSettings } from '../utils/auth';
 
 const Container = styled.div`
   display: flex;
@@ -46,29 +47,38 @@ function SignupComplete() {
     const loggedIn = searchParams.get('loggedIn');
     
     if (loggedIn === 'true') {
-      // 로그인 상태를 로컬 스토리지에 저장
-      localStorage.setItem('access_token', 'google_oauth_token');
-      localStorage.setItem('user_info', JSON.stringify({
-        name: 'Google User',
-        email: 'user@google.com',
-        picture: 'https://via.placeholder.com/40'
-      }));
+      // 설정 정보가 완전하면 메인페이지로, 없거나 불완전하면 설정페이지로
+      if (hasUserSettings()) {
+        // 설정 완료 후 성공 메시지 표시 후 메인페이지로 이동
+        const timer = setTimeout(() => {
+          navigate('/', { replace: true });
+        }, 2000);
+        return () => clearTimeout(timer);
+      } else {
+        // 설정이 완료되지 않은 경우 설정페이지로 이동 (loggedIn 파라미터 제거)
+        navigate('/SettingPage', { replace: true });
+      }
     }
-    
-    // 3초 후 자동으로 설정 페이지로 이동
-    const timer = setTimeout(() => {
-      navigate('/SettingPage');
-    }, 3000);
-
-    return () => clearTimeout(timer);
   }, [navigate, searchParams]);
+
+  const loggedIn = searchParams.get('loggedIn');
+  const isSettingsComplete = hasUserSettings();
 
   return (
     <Container>
-      <Title>로그인이 완료되었습니다.</Title>
+      <Title>
+        {isSettingsComplete ? '설정이 완료되었습니다!' : '로그인이 완료되었습니다.'}
+      </Title>
       <SubText>BENEFIT MAP에 오신 것을 환영합니다!</SubText>
-      <SubText>복지 혜택과 일정을 한눈에 확인해보세요.</SubText>
-      <Button onClick={() => navigate('/SettingPage')}>설정 페이지로 이동</Button>
+      <SubText>
+        {isSettingsComplete 
+          ? '이제 개인 맞춤형 혜택 서비스를 이용하실 수 있습니다.' 
+          : '복지 혜택과 일정을 한눈에 확인해보세요.'
+        }
+      </SubText>
+      {!isSettingsComplete && (
+        <Button onClick={() => navigate('/SettingPage')}>혜택 설정하러 가기</Button>
+      )}
     </Container>
   );
 }

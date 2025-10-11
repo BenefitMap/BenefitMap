@@ -10,20 +10,25 @@ import org.springframework.context.annotation.Configuration;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 /**
- * OpenAPI 기본 설정
- * - cookieAuth: ACCESS_TOKEN 쿠키로 인증
+ * OpenAPI 설정
+ * - cookieAuth: ACCESS_TOKEN 쿠키 인증 스킴 등록
  */
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "Benefit Map API", version = "v1",
-                description = "Google OIDC + JWT(cookie) based API"),
-        servers = { @Server(url = "http://localhost:8080", description = "Local") },
+        info = @Info(
+                title = "Benefit Map API",
+                version = "v1",
+                description = "Google OIDC + JWT(cookie) 기반 API"
+        ),
+        servers = {
+                @Server(url = "http://localhost:8080", description = "Local")
+        },
         security = { @SecurityRequirement(name = "cookieAuth") }
 )
 @SecurityScheme(
-        name = "cookieAuth",               // @SecurityRequirement 에서 참조할 이름
-        type = SecuritySchemeType.APIKEY,  // 쿠키 인증은 APIKEY 타입 + in=COOKIE 로 표현
+        name = "cookieAuth",               // 인증 이름
+        type = SecuritySchemeType.APIKEY,  // 쿠키 인증 = APIKEY 타입
         in = SecuritySchemeIn.COOKIE,
-        paramName = "ACCESS_TOKEN"         // 쿠키 이름
+        paramName = "ACCESS_TOKEN"         // 쿠키 키 이름
 )
 public class OpenApiConfig {}

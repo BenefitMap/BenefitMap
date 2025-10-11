@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import BenefitMapLogo from '../assets/BenefitMapLogo.png';
 import menubar from '../assets/menubar.png';
+import { isLoggedIn, getUserInfo, handleLogout, fetchUserInfo } from '../utils/auth';
 
 const HeaderContainer = styled.header`
   width: 100%;
@@ -94,6 +95,57 @@ const RightSection = styled.div`
   }
 `;
 
+const UserInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  
+  @media (max-width: 768px) {
+    gap: 10px;
+  }
+`;
+
+const UserName = styled.span`
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+`;
+
+const UserAvatar = styled.img`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+  }
+`;
+
+const DefaultAvatar = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #91D0A6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+`;
+
 const LoginText = styled.span`
   font-size: 18px;
   color: #000000;
@@ -108,6 +160,26 @@ const LoginText = styled.span`
   @media (max-width: 768px) {
     font-size: 14px;
     letter-spacing: 1px;
+  }
+`;
+
+const LogoutButton = styled.button`
+  font-size: 14px;
+  color: #666;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  
+  &:hover {
+    background: #f5f5f5;
+    color: #333;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 12px;
+    padding: 2px 6px;
   }
 `;
 
@@ -126,12 +198,47 @@ const MenuIcon = styled.img`
 
 const Header = () => {
   const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   
-  // 로그인 상태 확인
-  const isLoggedIn = () => {
-    const accessToken = localStorage.getItem('access_token');
-    const userInfo = localStorage.getItem('user_info');
-    return !!(accessToken || userInfo);
+  useEffect(() => {
+    const loadUserInfo = async () => {
+      if (isLoggedIn()) {
+        setIsLoading(true);
+        try {
+          // 먼저 localStorage에서 확인
+          const localUserInfo = getUserInfo();
+          if (localUserInfo) {
+            setUserInfo(localUserInfo);
+          }
+          
+          // 백엔드에서 최신 정보 가져오기
+          const latestUserInfo = await fetchUserInfo();
+          if (latestUserInfo) {
+            setUserInfo({
+              name: latestUserInfo.name,
+              email: latestUserInfo.email,
+              picture: latestUserInfo.imageUrl
+            });
+          }
+        } catch (error) {
+          console.error('사용자 정보 로드 실패:', error);
+          // localStorage 정보라도 표시
+          const localUserInfo = getUserInfo();
+          if (localUserInfo) {
+            setUserInfo(localUserInfo);
+          }
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadUserInfo();
+  }, []);
+  
+  const onLogout = () => {
+    handleLogout(navigate);
   };
   
   return (
@@ -146,7 +253,17 @@ const Header = () => {
       </LeftSection>
       <RightSection>
         {isLoggedIn() ? (
-          <LoginText onClick={() => navigate('/mypage')}>마이페이지</LoginText>
+          <UserInfo>
+            {userInfo?.picture ? (
+              <UserAvatar src={userInfo.picture} alt="User Avatar" />
+            ) : (
+              <DefaultAvatar>
+                {userInfo?.name?.charAt(0)?.toUpperCase() || 'U'}
+              </DefaultAvatar>
+            )}
+            <UserName>{userInfo?.name || '사용자'}</UserName>
+            <LogoutButton onClick={onLogout}>로그아웃</LogoutButton>
+          </UserInfo>
         ) : (
           <LoginText onClick={() => navigate('/LoginPage')}>LOGIN</LoginText>
         )}

@@ -37,7 +37,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    /** 로컬(HTTP) 테스트 시 false, 운영(HTTPS)에서는 true 권장 */
+    /** HTTPS 권장: true → Secure 쿠키 + SameSite=None */
     @Value("${app.cookie.secure:true}")
     private boolean cookieSecure;
 
@@ -103,7 +103,7 @@ public class UserController {
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "200",
-                            description = "OK",
+                            description = "회원탈퇴 성공",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = ApiResponse.class),
@@ -152,11 +152,8 @@ public class UserController {
     // --- 내부 유틸 ---
 
     /**
-     * SecurityContext에서 userId를 빠르게 추출한다.
-     * 1) principal이 Number(기본 정책) → 바로 반환
-     * 2) principal이 String → Long 파싱
-     * 3) Authentication#getName() 시도
-     * 4) (최후) principal.getId() 리플렉션
+     * SecurityContext에서 userId 추출
+     * - principal(Number/String) 또는 getName()/getId() 리플렉션
      */
     private Long currentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -164,18 +161,13 @@ public class UserController {
 
         Object principal = auth.getPrincipal();
 
-        // 1) principal이 숫자인 경우 (JwtAuthenticationFilter에서 기본 제공)
-        if (principal instanceof Number n) return n.longValue();
-
-        // 2) principal이 문자열인 경우
-        if (principal instanceof String s) {
+        if (principal instanceof Number n) return n.longValue();       // Number
+        if (principal instanceof String s) {                           // String
             try { return Long.parseLong(s); } catch (Exception ignored) {}
         }
+        try { return Long.parseLong(auth.getName()); } catch (Exception ignored) {} // getName()
 
-        // 3) Authentication#getName() 시도
-        try { return Long.parseLong(auth.getName()); } catch (Exception ignored) {}
-
-        // 4) (최후) 커스텀 principal.getId() 리플렉션
+        // 마지막 시도: getId() 존재 시 사용
         try {
             var m = principal.getClass().getMethod("getId");
             Object v = m.invoke(principal);
@@ -186,7 +178,7 @@ public class UserController {
         return null;
     }
 
-    /** SameSite: 로컬(HTTP)=Lax, 운영(HTTPS)=None 로 만료 쿠키 생성 후 200 OK(JSON) */
+    /** 만료 쿠키 적용 후 200 OK 반환 */
     private ResponseEntity<ApiResponse<Void>> okWithExpiredCookies(String message) {
         String sameSite = cookieSecure ? "None" : "Lax";
 

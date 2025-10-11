@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { checkAuthAndRedirect } from '../utils/auth';
 
 // 스타일 컴포넌트 정의
 const MyPageContainer = styled.div`
@@ -219,14 +220,9 @@ function MyPage() {
     }
   }, []);
 
-  // 로그인 상태 확인
+  // 로그인 상태 및 혜택 설정 완료 여부 확인
   useEffect(() => {
-    const accessToken = localStorage.getItem('access_token');
-    const userInfo = localStorage.getItem('user_info');
-    
-    if (!accessToken && !userInfo) {
-      navigate('/LoginPage');
-    }
+    checkAuthAndRedirect(navigate);
   }, [navigate]);
 
   const handleInputChange = (field, value) => {
