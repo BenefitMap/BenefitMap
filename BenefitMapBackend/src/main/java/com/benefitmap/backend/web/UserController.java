@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -39,6 +40,61 @@ public class UserController {
     /** 로컬(HTTP) 테스트 시 false, 운영(HTTPS)에서는 true 권장 */
     @Value("${app.cookie.secure:true}")
     private boolean cookieSecure;
+
+    @Operation(
+            summary = "내 정보 조회",
+            description = "로그인한 사용자의 기본 정보를 반환합니다.",
+            security = @SecurityRequirement(name = "cookieAuth"),
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "사용자 정보 조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class),
+                                    examples = @ExampleObject(
+                                            name = "UserInfoSuccess",
+                                            value = """
+                                            {
+                                              "success": true,
+                                              "message": "사용자 정보 조회 성공",
+                                              "data": {
+                                                "id": 1,
+                                                "name": "홍길동",
+                                                "email": "user@example.com",
+                                                "imageUrl": "https://example.com/profile.jpg",
+                                                "provider": "google"
+                                              },
+                                              "timestamp": "2025-01-27T00:00:00Z"
+                                            }
+                                            """
+                                    )
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "401",
+                            description = "인증되지 않은 사용자",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserInfo>> getMyInfo() {
+        Long userId = currentUserId();
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.fail("인증되지 않은 사용자"));
+        }
+
+        return userRepository.findById(userId)
+                .map(user -> ResponseEntity.ok(ApiResponse.ok("사용자 정보 조회 성공", 
+                        new UserInfo(user.getId(), user.getName(), user.getEmail(), user.getImageUrl(), user.getProvider()))))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.fail("사용자를 찾을 수 없습니다")));
+    }
 
     @Operation(
             summary = "회원 탈퇴",
@@ -155,4 +211,13 @@ public class UserController {
                 .header(HttpHeaders.SET_COOKIE, expiredRefresh.toString())
                 .body(ApiResponse.ok(message, null));
     }
+
+    // 사용자 정보 응답 DTO
+    public record UserInfo(
+            Long id,
+            String name,
+            String email,
+            String imageUrl,
+            String provider
+    ) {}
 }
