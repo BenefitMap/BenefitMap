@@ -1,6 +1,5 @@
 import { createGlobalStyle } from 'styled-components';
 
-// 더 안전한 GlobalStyle 구현
 const GlobalStyle = createGlobalStyle`
   * {
     margin: 0;
@@ -16,12 +15,14 @@ const GlobalStyle = createGlobalStyle`
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden; /* 가로 스크롤 방지 */
   }
 
   #root {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background-color: #ffffff;
   }
 
   button {

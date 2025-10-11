@@ -410,6 +410,7 @@ const ViewDetailsButton = styled.button`
   width: 100%;
   transition: background-color 0.2s;
   font-weight: 400;
+  margin-top: auto;
 
   &:hover {
     background-color: #8a8a8a;
@@ -426,7 +427,7 @@ const AddToCalendarButton = styled.button`
   width: 100%;
   transition: background-color 0.2s;
   font-weight: 400;
-  margin-top: 8px;
+  margin-top: 10px;
 
   &:hover {
     background-color: #45a049;

@@ -34,9 +34,7 @@ const BackButton = styled.button`
 
 const DetailCard = styled.div`
   background-color: white;
-  border-radius: 16px;
   padding: ${spacing.xxl};
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   margin-bottom: ${spacing.xl};
 `;
 
@@ -381,13 +379,13 @@ const ServiceDetailPage = () => {
               disabled={isAddingToCalendar}
             >
               {isAddingToCalendar ? (
-                <>⏳ 캘린더에 추가 중...</>
+                <>캘린더에 추가 중...</>
               ) : (
-                <>📅 캘린더에 추가</>
+                <>캘린더에 추가</>
               )}
             </AddToCalendarButton>
             <ContactButton onClick={handleContact}>
-              📞 문의하기
+              문의하기
             </ContactButton>
           </ButtonContainer>
         </DetailCard>
