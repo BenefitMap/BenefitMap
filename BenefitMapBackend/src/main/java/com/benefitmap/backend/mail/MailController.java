@@ -1,5 +1,6 @@
 package com.benefitmap.backend.mail;
 
+import com.benefitmap.backend.mail.dto.SendMailRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -73,13 +74,13 @@ public class MailController {
         try {
             // HTML 형식으로 마감일 알림 이메일 생성
             String htmlContent = MailTemplates.d3Reminder(
-                request.subject.replace("[BenefitMap] ", "").replace(" 신청 마감 임박 알림", ""),
+                request.subject().replace("[BenefitMap] ", "").replace(" 신청 마감 임박 알림", ""),
                 "2025-12-31", // 실제로는 request에서 파싱
-                "https://benefitmap.com/service/" + request.body // 실제로는 서비스 ID에서 생성
+                "https://benefitmap.com/service/" + request.body() // 실제로는 서비스 ID에서 생성
             );
             
-            mailService.sendHtml(request.to, request.subject, htmlContent);
-            return ResponseEntity.ok("마감일 알림 이메일이 발송되었습니다: " + request.to);
+            mailService.sendHtml(request.to(), request.subject(), htmlContent);
+            return ResponseEntity.ok("마감일 알림 이메일이 발송되었습니다: " + request.to());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("이메일 발송 실패: " + e.getMessage());
         }
