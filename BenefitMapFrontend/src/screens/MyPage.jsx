@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { checkAuthAndRedirect } from '../utils/auth';
+import { checkAuthAndRedirect, getUserInfo } from '../utils/auth';
+import MailNotification from '../components/MailNotification';
 
 // 스타일 컴포넌트 정의
 const MyPageContainer = styled.div`
@@ -32,44 +33,41 @@ const MainContent = styled.div`
 
 const ProfileSection = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   margin-bottom: 40px;
   position: relative;
+  gap: 20px;
 `;
 
-const ProfileIcon = styled.div`
+const ProfileImage = styled.img`
   width: 120px;
   height: 120px;
-  background-color: #666;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 20px;
-  
-  &::before {
-    content: '👤';
-    font-size: 60px;
-    color: white;
-  }
+  object-fit: cover;
+  border: 3px solid #91D0A6;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 `;
 
 const EditButton = styled.button`
-  background-color: #e0e0e0;
+  background-color: #91D0A6;
   border: none;
   border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  color: #555;
+  padding: 12px 24px;
+  font-size: 1rem;
+  color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: background-color 0.2s;
+  gap: 8px;
+  transition: all 0.2s;
+  font-weight: 500;
   
   &:hover {
-    background-color: #d0d0d0;
+    background-color: #7BB899;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(145, 208, 166, 0.3);
   }
 `;
 
@@ -272,7 +270,7 @@ function MyPage() {
   const lifeCycleOptions = ['임신 및 출산', '영유아', '아동', '청소년', '청년', '중장년', '노년'];
   const householdOptions = ['저소득', '장애인', '한부모 및 조손', '다자녀', '다문화', '탈북민', '보훈대상자', '해당사항 없음'];
   const interestOptions = [
-    '신체건강','정신건강','생활지원','주거','일자리','문화·여가','안전·위기','임신·출산','보육','교육','입양·위탁','보호·돌봄','서민금융','법률','에너지'
+    '신체건강','정신건강','생활지원','주거','일자리','문화·여가','안전·위기','임신·출산','보육','교육','입양·위탁','보호·돌봄','서민금융','법률','에너지','해당사항 없음'
   ];
 
   // 현재 선택된 시/도에 따른 시/군/구 옵션
@@ -284,9 +282,15 @@ function MyPage() {
       
       <MainContent>
         <ProfileSection>
-          <ProfileIcon />
+          <ProfileImage 
+            src={getUserInfo()?.picture || '/src/assets/mypage.png'} 
+            alt="프로필 사진"
+            onError={(e) => {
+              e.target.src = '/src/assets/mypage.png';
+            }}
+          />
           <EditButton onClick={handleEdit}>
-            ✏️ 수정
+            ✏️ 정보 수정
           </EditButton>
         </ProfileSection>
 
@@ -478,6 +482,9 @@ function MyPage() {
           </Section>
         </ContentGrid>
       </MainContent>
+      
+      {/* 메일 알림 테스트 섹션 */}
+      <MailNotification />
     </MyPageContainer>
   );
 }

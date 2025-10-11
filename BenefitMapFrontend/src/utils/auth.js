@@ -94,6 +94,112 @@ export const fetchUserInfo = async () => {
   }
 };
 
+// 온보딩 관련 API 함수들
+export const fetchLifecycleTags = async () => {
+  try {
+    const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${BACKEND_URL}/api/tags/lifecycle`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('생애주기 태그 조회 실패');
+    }
+
+    const result = await response.json();
+    return result.success ? result.data : [];
+  } catch (error) {
+    console.error('생애주기 태그 가져오기 오류:', error);
+    return [];
+  }
+};
+
+export const fetchHouseholdTags = async () => {
+  try {
+    const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${BACKEND_URL}/api/tags/household`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('가구상황 태그 조회 실패');
+    }
+
+    const result = await response.json();
+    return result.success ? result.data : [];
+  } catch (error) {
+    console.error('가구상황 태그 가져오기 오류:', error);
+    return [];
+  }
+};
+
+export const fetchInterestTags = async () => {
+  try {
+    const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${BACKEND_URL}/api/tags/interest`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('관심주제 태그 조회 실패');
+    }
+
+    const result = await response.json();
+    return result.success ? result.data : [];
+  } catch (error) {
+    console.error('관심주제 태그 가져오기 오류:', error);
+    return [];
+  }
+};
+
+export const saveOnboarding = async (onboardingData) => {
+  try {
+    const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    
+    // "해당사항 없음" 태그 필터링
+    const filteredData = {
+      ...onboardingData,
+      householdCodes: onboardingData.householdCodes?.filter(code => code !== 'NONE') || [],
+      interestCodes: onboardingData.interestCodes?.filter(code => code !== 'NONE') || []
+    };
+    
+    // 디버깅: 전송되는 데이터 확인
+    console.log('전송되는 온보딩 데이터:', JSON.stringify(filteredData, null, 2));
+    
+    const response = await fetch(`${BACKEND_URL}/api/onboarding`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(filteredData),
+    });
+
+    if (!response.ok) {
+      const errorResult = await response.json();
+      throw new Error(errorResult.message || '온보딩 저장 실패');
+    }
+
+    const result = await response.json();
+    return result.success ? result.data : null;
+  } catch (error) {
+    console.error('온보딩 저장 오류:', error);
+    throw error;
+  }
+};
+
 /**
  * 로그아웃 처리
  * @param {Function} navigate - React Router의 navigate 함수

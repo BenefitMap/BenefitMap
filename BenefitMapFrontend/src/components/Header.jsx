@@ -1,273 +1,171 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import BenefitMapLogo from '../assets/BenefitMapLogo.png';
-import menubar from '../assets/menubar.png';
-import { isLoggedIn, getUserInfo, handleLogout, fetchUserInfo } from '../utils/auth';
+import mypageIcon from '../assets/mypage.png';
+import { handleLogout } from '../utils/auth';
+import { colors, fonts, spacing, breakpoints, Dropdown, DropdownItem } from '../styles/CommonStyles';
+import { useAuth } from '../hooks/useAuth';
+import { useClickOutside } from '../hooks/useClickOutside';
 
+// --- 스타일 컴포넌트 ---
 const HeaderContainer = styled.header`
   width: 100%;
   height: 130px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #d0d0d0;
+  padding: 0 ${spacing.xxl};
+  background-color: ${colors.background};
+  border-bottom: 1px solid ${colors.border};
   box-sizing: border-box;
   
-  @media (max-width: 1200px) {
-    padding: 0 20px;
+  @media (max-width: ${breakpoints.desktop}) { 
+    padding: 0 ${spacing.lg}; 
   }
-  
-  @media (max-width: 768px) {
-    height: 80px;
-    padding: 0 15px;
+  @media (max-width: ${breakpoints.mobile}) { 
+    height: 80px; 
+    padding: 0 ${spacing.md}; 
   }
 `;
 
 const LeftSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 100px;
-  
-  @media (max-width: 1200px) {
-    gap: 50px;
-  }
-  
-  @media (max-width: 768px) {
-    gap: 20px;
-  }
+  gap: ${spacing.xxl};
 `;
 
 const Logo = styled.img`
   height: 32px;
   cursor: pointer;
   display: block;
-  
-  @media (max-width: 768px) {
-    height: 24px;
-  }
 `;
 
 const Nav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 70px;
-  
-  @media (max-width: 1200px) {
-    gap: 40px;
-  }
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
+  gap: ${spacing.xl};
 `;
 
 const NavItem = styled.a`
-  font-size: 18px;
-  color: #000000;
+  font-size: ${fonts.sizes.large};
+  color: ${colors.text};
   text-decoration: none;
   cursor: pointer;
-  font-weight: 400;
-  white-space: nowrap;
+  font-family: ${fonts.primary};
+  transition: color 0.2s ease;
   
   &:hover {
-    opacity: 0.7;
-  }
-  
-  @media (max-width: 1200px) {
-    font-size: 16px;
+    color: ${colors.primary};
   }
 `;
 
 const RightSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 50px;
-  
-  @media (max-width: 1200px) {
-    gap: 30px;
-  }
-  
-  @media (max-width: 768px) {
-    gap: 15px;
-  }
-`;
-
-const UserInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  
-  @media (max-width: 768px) {
-    gap: 10px;
-  }
-`;
-
-const UserName = styled.span`
-  font-size: 16px;
-  color: #333;
-  font-weight: 500;
-  
-  @media (max-width: 768px) {
-    font-size: 14px;
-  }
-`;
-
-const UserAvatar = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  
-  @media (max-width: 768px) {
-    width: 28px;
-    height: 28px;
-  }
-`;
-
-const DefaultAvatar = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: #91D0A6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: bold;
-  color: white;
-  
-  @media (max-width: 768px) {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-  }
+  gap: ${spacing.lg};
 `;
 
 const LoginText = styled.span`
-  font-size: 18px;
-  color: #000000;
-  font-weight: 400;
+  font-size: ${fonts.sizes.large};
+  color: ${colors.text};
   letter-spacing: 2px;
   cursor: pointer;
+  font-family: ${fonts.primary};
+  font-weight: ${fonts.weights.medium};
+  transition: color 0.2s ease;
   
   &:hover {
-    opacity: 0.7;
-  }
-  
-  @media (max-width: 768px) {
-    font-size: 14px;
-    letter-spacing: 1px;
+    color: ${colors.primary};
   }
 `;
 
-const LogoutButton = styled.button`
-  font-size: 14px;
-  color: #666;
-  background: none;
-  border: none;
+const ProfileImage = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
+  border: 2px solid ${colors.primary};
+  object-fit: cover;
+  transition: all 0.2s ease;
   
   &:hover {
-    background: #f5f5f5;
-    color: #333;
-  }
-  
-  @media (max-width: 768px) {
-    font-size: 12px;
-    padding: 2px 6px;
+    border-color: ${colors.primaryHover};
+    box-shadow: 0 2px 8px ${colors.shadowHover};
   }
 `;
 
-const MenuIcon = styled.img`
-  width: 35px;
-  height: 35px;
-  cursor: pointer;
-  object-fit: contain;
-  display: block;
-  
-  @media (max-width: 768px) {
-    width: 28px;
-    height: 28px;
-  }
+const ProfileDropdown = styled(Dropdown)`
+  top: 60px;
 `;
 
+const StyledDropdownItem = styled(DropdownItem)`
+  gap: ${spacing.sm};
+  padding: ${spacing.sm} ${spacing.md};
+  font-size: ${fonts.sizes.small};
+  color: ${colors.text};
+`;
+
+
+
+
+// --- 메인 Header 컴포넌트 ---
 const Header = () => {
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   
-  useEffect(() => {
-    const loadUserInfo = async () => {
-      if (isLoggedIn()) {
-        setIsLoading(true);
-        try {
-          // 먼저 localStorage에서 확인
-          const localUserInfo = getUserInfo();
-          if (localUserInfo) {
-            setUserInfo(localUserInfo);
-          }
-          
-          // 백엔드에서 최신 정보 가져오기
-          const latestUserInfo = await fetchUserInfo();
-          if (latestUserInfo) {
-            setUserInfo({
-              name: latestUserInfo.name,
-              email: latestUserInfo.email,
-              picture: latestUserInfo.imageUrl
-            });
-          }
-        } catch (error) {
-          console.error('사용자 정보 로드 실패:', error);
-          // localStorage 정보라도 표시
-          const localUserInfo = getUserInfo();
-          if (localUserInfo) {
-            setUserInfo(localUserInfo);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
+  // 커스텀 훅 사용
+  const { isAuthenticated, user } = useAuth();
+  const profileRef = useClickOutside(() => setIsProfileDropdownOpen(false));
 
-    loadUserInfo();
+  // 프로필 드롭다운 토글 함수 최적화
+  const toggleProfileDropdown = useCallback(() => {
+    setIsProfileDropdownOpen(prev => !prev);
   }, []);
-  
-  const onLogout = () => {
+
+  // 마이페이지 이동 함수 최적화
+  const handleMyPageClick = useCallback(() => {
+    navigate('/mypage');
+    setIsProfileDropdownOpen(false);
+  }, [navigate]);
+
+  // 로그아웃 함수 최적화
+  const handleLogoutClick = useCallback(() => {
     handleLogout(navigate);
-  };
-  
+    setIsProfileDropdownOpen(false);
+  }, [navigate]);
+
   return (
     <HeaderContainer>
       <LeftSection>
-        <Logo src={BenefitMapLogo} alt="Benefit Map" onClick={() => navigate('/')} onError={(e) => console.log('Logo failed to load:', e)} />
+        <Logo src={BenefitMapLogo} alt="Benefit Map" onClick={() => navigate('/')} />
         <Nav>
-          <NavItem href="#service">복지 서비스</NavItem>
-          <NavItem href="#algorithm">복지 알림</NavItem>
-          <NavItem href="#calendar">알림 캘린더</NavItem>
+          <NavItem onClick={() => navigate('/ServicePage')}>복지 서비스</NavItem>
+          <NavItem onClick={() => navigate('/calendar')}>알림 캘린더</NavItem>
         </Nav>
       </LeftSection>
       <RightSection>
-        {isLoggedIn() ? (
-          <UserInfo>
-            {userInfo?.picture ? (
-              <UserAvatar src={userInfo.picture} alt="User Avatar" />
-            ) : (
-              <DefaultAvatar>
-                {userInfo?.name?.charAt(0)?.toUpperCase() || 'U'}
-              </DefaultAvatar>
+        {isAuthenticated ? (
+          <div ref={profileRef} style={{ position: 'relative' }}>
+            <ProfileImage 
+              src={user?.picture || mypageIcon} 
+              alt="Profile" 
+              onClick={toggleProfileDropdown}
+            />
+            {isProfileDropdownOpen && (
+              <ProfileDropdown>
+                <StyledDropdownItem onClick={handleMyPageClick}>
+                  👤 마이페이지
+                </StyledDropdownItem>
+                <StyledDropdownItem onClick={handleLogoutClick}>
+                  🚪 로그아웃
+                </StyledDropdownItem>
+              </ProfileDropdown>
             )}
-            <UserName>{userInfo?.name || '사용자'}</UserName>
-            <LogoutButton onClick={onLogout}>로그아웃</LogoutButton>
-          </UserInfo>
+          </div>
         ) : (
           <LoginText onClick={() => navigate('/LoginPage')}>LOGIN</LoginText>
         )}
-        <MenuIcon src={menubar} alt="Menu" onError={(e) => console.log('Menu icon failed to load:', e)} />
       </RightSection>
     </HeaderContainer>
   );

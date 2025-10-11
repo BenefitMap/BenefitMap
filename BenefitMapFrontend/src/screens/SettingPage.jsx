@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { fetchLifecycleTags, fetchHouseholdTags, fetchInterestTags, saveOnboarding } from '../utils/auth';
 
 // --- 스타일 컴포넌트 정의 ---
 const SettingsContainer = styled.div`
@@ -430,6 +431,12 @@ function SettingsPage() {
   const [selectedLifeCycle, setSelectedLifeCycle] = useState([]);
   const [selectedHousehold, setSelectedHousehold] = useState([]);
   const [selectedInterest, setSelectedInterest] = useState([]);
+  
+  // 백엔드에서 가져온 태그 데이터
+  const [lifeCycleOptions, setLifeCycleOptions] = useState([]);
+  const [householdOptions, setHouseholdOptions] = useState([]);
+  const [interestOptions, setInterestOptions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const region1Options = [
     '서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시', '대전광역시', '울산광역시', '세종특별자치시',
@@ -469,11 +476,38 @@ function SettingsPage() {
   }, [selectedRegion1]);
 
   const genderOptions = ['남성', '여성'];
-  const lifeCycleOptions = ['임신 및 출산', '영유아', '아동', '청소년', '청년', '중장년', '노년'];
-  const householdOptions = ['저소득', '장애인', '한부모 및 조손', '다자녀', '다문화', '탈북민', '보훈대상자', '해당사항 없음'];
-  const interestOptions = [
-    '신체건강','정신건강','생활지원','주거','일자리','문화·여가','안전·위기','임신·출산','보육','교육','입양·위탁','보호·돌봄','서민금융','법률','에너지','해당사항 없음'
-  ];
+  // 백엔드에서 태그 데이터 가져오기
+  useEffect(() => {
+    const loadTags = async () => {
+      try {
+        setLoading(true);
+        const [lifeCycleData, householdData, interestData] = await Promise.all([
+          fetchLifecycleTags(),
+          fetchHouseholdTags(),
+          fetchInterestTags()
+        ]);
+        
+        // 백엔드 데이터를 프론트엔드 형식으로 변환하고 "해당사항 없음" 옵션 추가
+        console.log('백엔드에서 받은 생애주기 데이터:', lifeCycleData);
+        console.log('백엔드에서 받은 가구상황 데이터:', householdData);
+        console.log('백엔드에서 받은 관심주제 데이터:', interestData);
+        
+        setLifeCycleOptions(lifeCycleData.map(tag => tag.nameKo));
+        setHouseholdOptions([...householdData.map(tag => tag.nameKo), '해당사항 없음']);
+        setInterestOptions([...interestData.map(tag => tag.nameKo), '해당사항 없음']);
+      } catch (error) {
+        console.error('태그 데이터 로딩 실패:', error);
+        // 실패 시 기본값 사용
+        setLifeCycleOptions(['임신·출산', '영유아', '아동', '청소년', '청년', '중장년', '노년']);
+        setHouseholdOptions(['저소득', '장애인', '한부모·조손', '다자녀', '다문화·탈북민', '보호대상자', '해당사항 없음']);
+        setInterestOptions(['신체건강','정신건강','생활지원','주거','일자리','문화·여가','안전·위기','임신·출산','보육','교육','입양·위탁','보호·돌봄','서민금융','법률','에너지','해당사항 없음']);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadTags();
+  }, []);
 
   const handleAgeChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
@@ -515,7 +549,7 @@ function SettingsPage() {
   const isGenderCompleted = selectedGender.length > 0;
   const isLifeCycleCompleted = selectedLifeCycle.length > 0;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!isRegionCompleted) {
@@ -539,19 +573,92 @@ function SettingsPage() {
       return;
     }
     
-    const userSettings = {
-      region1: selectedRegion1[0] || '',
-      region2: selectedRegion2[0] || '',
-      age: age,
-      gender: selectedGender[0] || '',
-      lifeCycle: selectedLifeCycle.join(', '),
-      household: selectedHousehold.join(', '),
-      interest: selectedInterest.join(', ')
-    };
-    
-    localStorage.setItem('userSettings', JSON.stringify(userSettings));
-    
-    navigate('/signup-complete?loggedIn=true');
+    try {
+      // 백엔드 API 형식에 맞게 데이터 변환
+      const currentYear = new Date().getFullYear();
+      const birthYear = currentYear - parseInt(age);
+      const birthDate = `${birthYear}-01-01`; // 정확한 생년월일이 없으므로 1월 1일로 설정
+      
+      const onboardingData = {
+        profile: {
+          gender: selectedGender[0] === '남성' ? 'MALE' : 'FEMALE',
+          birthDate: birthDate,
+          regionDo: selectedRegion1[0] || '',
+          regionSi: selectedRegion2[0] || ''
+        },
+        lifecycleCodes: selectedLifeCycle.map(name => {
+          // 백엔드 태그 코드 매핑 (실제로는 백엔드에서 nameKo로 검색해야 함)
+          const codeMap = {
+            '임신·출산': 'PREGNANCY_BIRTH',
+            '영유아': 'INFANT',
+            '아동': 'CHILD',
+            '청소년': 'TEEN',
+            '청년': 'YOUTH',
+            '중장년': 'MIDDLE_AGED',
+            '노년': 'SENIOR'
+          };
+          return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
+        }),
+        householdCodes: selectedHousehold
+          .filter(name => name !== '해당사항 없음') // "해당사항 없음" 필터링
+          .map(name => {
+            const codeMap = {
+              '저소득': 'LOW_INCOME',
+              '장애인': 'DISABLED',
+              '한부모·조손': 'SINGLE_PARENT',
+              '다자녀': 'MULTI_CHILDREN',
+              '다문화·탈북민': 'MULTICULTURAL_NK',
+              '보호대상자': 'PROTECTED'
+            };
+            const code = codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
+            console.log(`가구상황 태그 매핑: "${name}" -> "${code}"`);
+            return code;
+          }),
+        interestCodes: selectedInterest.map(name => {
+          const codeMap = {
+            '신체건강': 'PHYSICAL_HEALTH',
+            '정신건강': 'MENTAL_HEALTH',
+            '생활지원': 'LIVING_SUPPORT',
+            '주거': 'HOUSING',
+            '일자리': 'JOBS',
+            '문화·여가': 'CULTURE_LEISURE',
+            '안전·위기': 'SAFETY_CRISIS',
+            '임신·출산': 'PREGNANCY_BIRTH',
+            '보육': 'CHILDCARE',
+            '교육': 'EDUCATION',
+            '입양·위탁': 'ADOPTION_TRUST',
+            '보호·돌봄': 'CARE_PROTECT',
+            '서민금융': 'MICRO_FINANCE',
+            '법률': 'LAW',
+            '에너지': 'ENERGY',
+            '해당사항 없음': 'NONE'
+          };
+          return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
+        })
+      };
+      
+      // 백엔드에 온보딩 데이터 저장
+      await saveOnboarding(onboardingData);
+      
+      // 기존 localStorage 방식도 유지 (호환성)
+      const userSettings = {
+        region1: selectedRegion1[0] || '',
+        region2: selectedRegion2[0] || '',
+        age: age,
+        gender: selectedGender[0] || '',
+        lifeCycle: selectedLifeCycle.join(', '),
+        household: selectedHousehold.join(', '),
+        interest: selectedInterest.join(', ')
+      };
+      
+      localStorage.setItem('userSettings', JSON.stringify(userSettings));
+      
+      // 로그인 상태 강제 업데이트를 위해 페이지 새로고침
+      window.location.href = '/signup-complete?loggedIn=true';
+    } catch (error) {
+      console.error('온보딩 저장 실패:', error);
+      alert('설정 저장 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
   };
 
   return (
@@ -567,7 +674,8 @@ function SettingsPage() {
 
           <ProgressContainer>
             <ProgressTitle>
-              {progress === 0 ? '정보 입력 시작하기' : 
+              {loading ? '데이터 로딩 중...' :
+               progress === 0 ? '정보 입력 시작하기' : 
                progress < 50 ? '기본 정보 입력 중' :
                progress < 100 ? '거의 완료되었습니다' : 
                '모든 정보 입력 완료'}

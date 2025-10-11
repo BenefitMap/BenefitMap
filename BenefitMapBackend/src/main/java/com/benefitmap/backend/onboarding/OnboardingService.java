@@ -44,14 +44,26 @@ public class OnboardingService {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
+        // 디버깅: 받은 요청 데이터 로깅
+        System.out.println("받은 온보딩 요청:");
+        System.out.println("생애주기 코드: " + req.lifecycleCodes());
+        System.out.println("가구상황 코드: " + req.householdCodes());
+        System.out.println("관심주제 코드: " + req.interestCodes());
+
         // 태그 유효성 검사
         var life = lifecycleRepo.findByCodeIn(req.lifecycleCodes());
+        System.out.println("찾은 생애주기 태그 수: " + life.size() + ", 요청 수: " + req.lifecycleCodes().size());
         if (life.size() != req.lifecycleCodes().size()) {
             throw new IllegalArgumentException("유효하지 않은 생애주기 태그가 포함되어 있습니다.");
         }
 
-        var house = householdRepo.findByCodeIn(req.householdCodes());
-        if (house.size() != req.householdCodes().size()) {
+        var householdCodes = Optional.ofNullable(req.householdCodes()).orElse(List.of());
+        var house = householdCodes.isEmpty()
+                ? List.<HouseholdTag>of()
+                : householdRepo.findByCodeIn(householdCodes);
+        System.out.println("찾은 가구상황 태그 수: " + house.size() + ", 요청 수: " + householdCodes.size());
+        System.out.println("찾은 가구상황 태그: " + house.stream().map(h -> h.getCode()).toList());
+        if (house.size() != householdCodes.size()) {
             throw new IllegalArgumentException("유효하지 않은 가구상황 태그가 포함되어 있습니다.");
         }
 

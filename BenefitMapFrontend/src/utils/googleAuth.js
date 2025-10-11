@@ -1,5 +1,4 @@
-// 구글 OAuth 유틸리티 함수들 (프론트엔드 전용)
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'your_google_client_id_here';
+// 구글 OAuth 유틸리티 함수들 (백엔드 OAuth2 엔드포인트 사용)
 
 /**
  * 구글 OAuth 로그인 처리 (백엔드 엔드포인트 사용)
@@ -15,49 +14,12 @@ export const handleGoogleLogin = async () => {
 };
 
 /**
- * 구글 OAuth 토큰으로 사용자 정보 가져오기
+ * 구글 OAuth 콜백 처리 (백엔드에서 처리되므로 사용하지 않음)
+ * @deprecated 백엔드 OAuth2 엔드포인트를 사용하므로 이 함수는 사용하지 않습니다.
  */
 export const getUserInfoFromGoogle = async (code) => {
-  try {
-    // 구글 API로 사용자 정보 가져오기
-    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        client_id: GOOGLE_CLIENT_ID,
-        client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || 'your_client_secret',
-        code: code,
-        grant_type: 'authorization_code',
-        redirect_uri: window.location.origin + '/oauth2/callback',
-      }),
-    });
-
-    const tokenData = await tokenResponse.json();
-    
-    if (tokenData.error) {
-      throw new Error(tokenData.error_description || '토큰 교환 실패');
-    }
-
-    // 사용자 정보 가져오기
-    const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: {
-        'Authorization': `Bearer ${tokenData.access_token}`,
-      },
-    });
-
-    const userInfo = await userResponse.json();
-    
-    return {
-      ...userInfo,
-      accessToken: tokenData.access_token,
-      refreshToken: tokenData.refresh_token,
-    };
-  } catch (error) {
-    console.error('사용자 정보 가져오기 오류:', error);
-    throw error;
-  }
+  console.warn('getUserInfoFromGoogle은 더 이상 사용되지 않습니다. 백엔드 OAuth2 엔드포인트를 사용하세요.');
+  throw new Error('이 함수는 더 이상 사용되지 않습니다.');
 };
 
 /**

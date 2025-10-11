@@ -4,7 +4,7 @@ import styled from 'styled-components';
 // Removed local GlobalStyle to ensure app-wide font (GowunBatang) applies
 
 const Container = styled.div`
-  min-height: calc(100vh - 130px - 317px); /* 전체 높이에서 Header(130px)와 Footer(317px) 높이 제외 */
+  min-height: 100vh;
   background-color: #f8f9fa;
   padding: 20px;
 `;
@@ -64,11 +64,24 @@ const FilterColumn = styled.div`
 `;
 
 const FilterTitle = styled.h3`
+  position: relative;
   font-size: 18px;
   font-weight: bold;
   color: #333;
   margin-bottom: 18px;
   text-align: center;
+
+  /* ✅ 밑줄 추가 */
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    opacity: 0.2;
+    background-color: #8a8a8a;
+  }
 `;
 
 const CheckboxList = styled.div`
@@ -283,46 +296,35 @@ const SortButton = styled.button`
   }
 `;
 
-const CategoryTabContainer = styled.div`
-  display: flex;
-  border: 1px solid #e0e0e0;
-  background-color: white;
+const TabContainer = styled.div`
+  width: 100%;
 `;
 
-const CategoryTab = styled.div`
+const TabHeader = styled.div`
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+`;
+
+const TabButton = styled.button`
   flex: 1;
-  text-align: center;
-  padding: 15px 20px;
-  background-color: ${props => props.active ? '#f5f5f5' : 'white'};
+  padding: 10px 16px;
+  background: ${({ active }) => (active ? "#f0f0f0" : "#fff")};
+  border: none;
+  border-right: ${({ position }) => (position !== "right" ? "1px solid #ddd" : "none")};
+  font-weight: ${({ active }) => (active ? "bold" : "normal")};
   cursor: pointer;
-  transition: all 0.2s;
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 5px;
-  font-size: 14px;
-  color: #666;
-  
-  &:not(:last-child) {
-    border-right: 1px solid #e0e0e0;
-  }
-  
-  &:hover {
-    background-color: #f9f9f9;
+  gap: 6px;
+
+  span {
+    font-weight: normal;
+    color: #666;
   }
 `;
 
-const CategoryTabName = styled.span`
-  font-size: 14px;
-  color: #666;
-  font-weight: 400;
-`;
-
-const CategoryTabCount = styled.span`
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-`;
 
 const ServiceCardGrid = styled.div`
   display: grid;
@@ -445,7 +447,7 @@ const ServicePage = () => {
     local: 0,
     private: 0
   });
-  const [loading] = useState(false); // setLoading 사용하지 않으므로 제거
+  const [loading, setLoading] = useState(false);
 
   const loadDummyData = () => {
     const dummyServices = [
@@ -599,8 +601,7 @@ const ServicePage = () => {
           } else {
             setCurrentLocation('현재 위치를 확인하지 못했어요.');
           }
-        } catch (error) {
-          console.error('위치 정보 오류:', error);
+        } catch (e) {
           setCurrentLocation('위치 정보를 가져오는 중 오류가 발생했어요.');
         }
       },
@@ -794,7 +795,7 @@ const ServicePage = () => {
               <SearchButton onClick={handleSearch}>검색</SearchButton>
             </ButtonContainer>
           </SearchSection>
-
+          <SectionDivider />
           <ServiceDisplaySection>
             <ServiceSummary>
               <SummaryHeader>
@@ -817,29 +818,32 @@ const ServicePage = () => {
                 </SortOptions>
               </SummaryHeader>
               
-              <CategoryTabContainer>
-                <CategoryTab 
-                  active={activeCategory === 'central'}
-                  onClick={() => setActiveCategory('central')}
-                >
-                  <CategoryTabName>중앙부처</CategoryTabName>
-                  <CategoryTabCount>{serviceSummary.central.toLocaleString()}</CategoryTabCount>
-                </CategoryTab>
-                <CategoryTab 
-                  active={activeCategory === 'local'}
-                  onClick={() => setActiveCategory('local')}
-                >
-                  <CategoryTabName>지자체</CategoryTabName>
-                  <CategoryTabCount>{serviceSummary.local.toLocaleString()}</CategoryTabCount>
-                </CategoryTab>
-                <CategoryTab 
-                  active={activeCategory === 'private'}
-                  onClick={() => setActiveCategory('private')}
-                >
-                  <CategoryTabName>민간</CategoryTabName>
-                  <CategoryTabCount>{serviceSummary.private.toLocaleString()}</CategoryTabCount>
-                </CategoryTab>
-              </CategoryTabContainer>
+              <TabContainer>
+  <TabHeader>
+    <TabButton
+      active={activeCategory === 'central'}
+      onClick={() => setActiveCategory('central')}
+      position="left"
+    >
+      중앙부처 <span>{serviceSummary.central.toLocaleString()}</span>
+    </TabButton>
+    <TabButton
+      active={activeCategory === 'local'}
+      onClick={() => setActiveCategory('local')}
+      position="center"
+    >
+      지자체 <span>{serviceSummary.local.toLocaleString()}</span>
+    </TabButton>
+    <TabButton
+      active={activeCategory === 'private'}
+      onClick={() => setActiveCategory('private')}
+      position="right"
+    >
+      민간 <span>{serviceSummary.private.toLocaleString()}</span>
+    </TabButton>
+  </TabHeader>
+</TabContainer>
+
             </ServiceSummary>
 
             {loading ? (

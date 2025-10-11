@@ -19,9 +19,9 @@ public record OnboardingRequest(
         List<@NotBlank String> lifecycleCodes,
 
         /** 가구상황 태그 코드 목록
-         *  - 최소 1개 이상 선택해야 함
+         *  - 선택 사항(0개 이상 가능)
          */
-        @Size(min = 1, message = "가구상황 태그는 최소 1개 이상 선택하세요.")
+        @Size(min = 0)
         List<@NotBlank String> householdCodes,
 
         /** 관심주제 태그 코드 목록
