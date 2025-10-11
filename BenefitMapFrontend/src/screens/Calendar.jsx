@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ServiceNotificationModal from '../components/ServiceNotificationModal';
+import FontSizeControls from '../components/FontSizeControls';
 import { useAuth } from '../hooks/useAuth';
 
 const Container = styled.div`
@@ -23,7 +24,7 @@ const CalendarHeader = styled.div`
 const NavigationButton = styled.button`
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: calc(20px * var(--font-size-multiplier));
   color: #666;
   cursor: pointer;
   padding: 8px 16px;
@@ -35,7 +36,7 @@ const NavigationButton = styled.button`
 `;
 
 const CalendarTitle = styled.h1`
-  font-size: 24px;
+  font-size: calc(24px * var(--font-size-multiplier));
   margin: 0 40px;
   color: #333;
   font-weight: 500;
@@ -50,7 +51,7 @@ const EditButton = styled.button`
   border: none;
   border-radius: 25px;
   padding: 12px 20px;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-size-multiplier));
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -68,6 +69,8 @@ const CalendarWrapper = styled.div`
   width: 100%;
   background: white;
   overflow: hidden;
+  will-change: auto; /* 브라우저 최적화 힌트 */
+  contain: layout style; /* 레이아웃 격리 */
 `;
 
 const CalendarHeaderGrid = styled.div`
@@ -81,7 +84,7 @@ const DayHeader = styled.div`
   padding: 15px 0;
   text-align: center;
   font-weight: 400;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-size-multiplier));
   color: ${props => {
     if (props.isSunday) return 'red';
     if (props.isSaturday) return 'blue';
@@ -92,15 +95,15 @@ const DayHeader = styled.div`
 const CalendarGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: repeat(5, 120px);
+  grid-template-rows: repeat(5, calc(120px * var(--font-size-multiplier)));
 `;
 
 const DateCell = styled.div`
   position: relative;
   border-bottom: 1px solid #d0d0d0;
-  padding: 6px;
+  padding: calc(6px * var(--font-size-multiplier));
   background-color: ${props => props.isOtherMonth ? '#f5f5f5' : 'white'};
-  min-height: 120px;
+  min-height: calc(120px * var(--font-size-multiplier));
   
   &:nth-last-child(-n+7) {
     border-bottom: none;
@@ -108,7 +111,7 @@ const DateCell = styled.div`
 `;
 
 const DateNumber = styled.div`
-  font-size: 14px;
+  font-size: calc(14px * var(--font-size-multiplier));
   font-weight: ${props => props.isToday ? 'bold' : '400'};
   color: ${props => {
     if (props.isToday) return '#fff';
@@ -119,17 +122,17 @@ const DateNumber = styled.div`
   }};
   background-color: ${props => props.isToday ? '#dc3545' : 'transparent'};
   border-radius: ${props => props.isToday ? '50%' : '0'};
-  width: ${props => props.isToday ? '24px' : 'auto'};
-  height: ${props => props.isToday ? '24px' : 'auto'};
+  width: ${props => props.isToday ? 'calc(24px * var(--font-size-multiplier))' : 'auto'};
+  height: ${props => props.isToday ? 'calc(24px * var(--font-size-multiplier))' : 'auto'};
   display: ${props => props.isToday ? 'flex' : 'block'};
   align-items: ${props => props.isToday ? 'center' : 'auto'};
   justify-content: ${props => props.isToday ? 'center' : 'auto'};
-  margin-bottom: 6px;
+  margin-bottom: calc(6px * var(--font-size-multiplier));
   text-align: left;
 `;
 
 const HolidayText = styled.div`
-  font-size: 11px;
+  font-size: calc(11px * var(--font-size-multiplier));
   color: #ff6b6b;
   font-weight: 400;
   display: inline-block;
@@ -140,19 +143,25 @@ const MultiDayEventBar = styled.div`
   background-color: #90ee90;
   padding: 4px 8px;
   margin-bottom: 3px;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-size-multiplier));
   color: #2d5016;
   font-weight: 400;
   cursor: pointer;
   position: absolute;
   left: 8px;
     right: 8px;
-  top: ${props => 30 + (props.rowIndex * 20)}px;
-  height: 18px;
+  top: ${props => `calc(30px * var(--font-size-multiplier) + ${props.rowIndex * 20}px * var(--font-size-multiplier))`};
+  min-height: calc(18px * var(--font-size-multiplier));
+  height: auto;
   display: flex;
   align-items: center;
-  border-radius: 3px;
+  border-radius: calc(3px * var(--font-size-multiplier));
   z-index: 1;
+  padding: calc(2px * var(--font-size-multiplier)) calc(6px * var(--font-size-multiplier));
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   
   &:hover {
     background-color: #7fd97f;
@@ -167,24 +176,31 @@ const SpanningEventBar = styled.div`
   }};
   padding: 4px 8px;
   margin-bottom: 3px;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-size-multiplier));
   color: #2d5016;
   font-weight: 400;
   cursor: ${props => props.editMode ? 'pointer' : 'default'};
   position: absolute;
   left: ${props => props.isFirst ? '8px' : '0px'};
   right: ${props => props.isLast ? '8px' : '0px'};
-  top: ${props => 30 + (props.stackIndex * 20)}px;
-  height: 18px;
+  z-index: 1;
+  top: ${props => `calc(30px * var(--font-size-multiplier) + ${props.stackIndex * 20}px * var(--font-size-multiplier))`};
+  min-height: calc(18px * var(--font-size-multiplier));
+  height: auto;
   display: flex;
   align-items: center;
   border-radius: ${props => {
-    if (props.isFirst && props.isLast) return '8px'; // 하루짜리 서비스는 전체 둥글게
-    if (props.isFirst) return '8px 0 0 8px'; // 첫 번째 날짜는 왼쪽만 둥글게
-    if (props.isLast) return '0 8px 8px 0'; // 마지막 날짜는 오른쪽만 둥글게
+    if (props.isFirst && props.isLast) return 'calc(8px * var(--font-size-multiplier))'; // 하루짜리 서비스는 전체 둥글게
+    if (props.isFirst) return 'calc(8px * var(--font-size-multiplier)) 0 0 calc(8px * var(--font-size-multiplier))'; // 첫 번째 날짜는 왼쪽만 둥글게
+    if (props.isLast) return '0 calc(8px * var(--font-size-multiplier)) calc(8px * var(--font-size-multiplier)) 0'; // 마지막 날짜는 오른쪽만 둥글게
     return '0'; // 중간 날짜들은 직각
   }};
   z-index: 1;
+  padding: calc(2px * var(--font-size-multiplier)) calc(6px * var(--font-size-multiplier));
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   opacity: ${props => props.editMode ? '0.8' : '1'};
   border: ${props => props.editMode ? '2px dashed #dc3545' : 'none'};
     
@@ -225,14 +241,14 @@ const ModalHeader = styled.div`
   background-color: #4a9d5f;
   color: white;
   padding: 20px 24px;
-  font-size: 18px;
+  font-size: calc(18px * var(--font-size-multiplier));
   font-weight: 600;
   text-align: center;
 `;
 
 const ModalBody = styled.div`
   padding: 24px;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-size-multiplier));
   color: #333;
   line-height: 1.5;
   text-align: center;
@@ -249,7 +265,7 @@ const ModalButton = styled.button`
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-size-multiplier));
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -309,7 +325,8 @@ const Calendar = () => {
       span: service.applicationPeriod ? 
         Math.ceil((new Date(service.applicationPeriod.endDate) - new Date(service.applicationPeriod.startDate)) / (1000 * 60 * 60 * 24)) + 1 : 1,
       serviceId: service.id,
-      addedOrder: index // 추가 순서 저장
+      addedOrder: index, // 추가 순서 저장
+      globalStackIndex: index // 전역 스택 인덱스 - 서비스별로 일관된 위치 보장
     }));
 
     // 날짜별로 서비스 매핑
@@ -328,9 +345,17 @@ const Calendar = () => {
         
         servicesMap[dateKey].push({
           ...service,
-          rowIndex: servicesMap[dateKey].length
+          globalStackIndex: service.globalStackIndex // 전역 스택 인덱스는 유지
         });
       }
+    });
+
+    // 각 날짜별로 서비스를 globalStackIndex 순서로 정렬하고 상대적 rowIndex 할당
+    Object.keys(servicesMap).forEach(dateKey => {
+      servicesMap[dateKey].sort((a, b) => a.globalStackIndex - b.globalStackIndex);
+      servicesMap[dateKey].forEach((service, index) => {
+        service.rowIndex = index; // 정렬 후 순서대로 상대적 rowIndex 할당
+      });
     });
 
     return servicesMap;
@@ -353,7 +378,8 @@ const Calendar = () => {
         span: service.applicationPeriod ? 
           Math.ceil((new Date(service.applicationPeriod.endDate) - new Date(service.applicationPeriod.startDate)) / (1000 * 60 * 60 * 24)) + 1 : 1,
         serviceId: service.id,
-        addedOrder: index // 추가 순서 저장
+        addedOrder: index, // 추가 순서 저장
+        globalStackIndex: index // 전역 스택 인덱스 - 서비스별로 일관된 위치 보장
       }));
 
       // 날짜별로 서비스 매핑
@@ -372,9 +398,17 @@ const Calendar = () => {
           
           servicesMap[dateKey].push({
             ...service,
-            rowIndex: servicesMap[dateKey].length
+            globalStackIndex: service.globalStackIndex // 전역 스택 인덱스는 유지
           });
         }
+      });
+
+      // 각 날짜별로 서비스를 globalStackIndex 순서로 정렬하고 상대적 rowIndex 할당
+      Object.keys(servicesMap).forEach(dateKey => {
+        servicesMap[dateKey].sort((a, b) => a.globalStackIndex - b.globalStackIndex);
+        servicesMap[dateKey].forEach((service, index) => {
+          service.rowIndex = index; // 정렬 후 순서대로 상대적 rowIndex 할당
+        });
       });
 
       setWelfareServices(servicesMap);
@@ -391,12 +425,12 @@ const Calendar = () => {
     };
   }, []);
 
-  // 페이지 로드 시 화면 중앙으로 스크롤 (로그인된 경우만)
+  // 페이지 로드 시 화면 중앙으로 스크롤 (로그인된 경우만, 월 변경 시에는 스크롤하지 않음)
   useEffect(() => {
     // 로그인하지 않은 경우 스크롤하지 않음
     if (!isAuthenticated) return;
     
-    // 페이지 로드 후 약간의 지연을 두고 스크롤
+    // 초기 로드 시에만 스크롤 (월 변경 시에는 스크롤하지 않음)
     const timer = setTimeout(() => {
       const calendarElement = document.querySelector('[data-calendar-container]');
       if (calendarElement) {
@@ -414,7 +448,7 @@ const Calendar = () => {
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [currentDate, isAuthenticated]); // currentDate와 isAuthenticated가 변경될 때마다 실행
+  }, [isAuthenticated]); // isAuthenticated만 의존성으로 설정하여 월 변경 시 스크롤 방지
 
   // 복지 서비스 삭제 함수
   const deleteWelfareService = (serviceId) => {
@@ -656,7 +690,7 @@ const Calendar = () => {
                 border: 'none',
                 borderRadius: '8px',
                 padding: '12px 24px',
-                fontSize: '16px',
+                fontSize: 'calc(16px * var(--font-size-multiplier))',
                 fontWeight: '500',
                 cursor: 'pointer',
                 transition: 'background-color 0.2s'
@@ -800,6 +834,7 @@ const Calendar = () => {
         service={selectedService}
         onSave={handleNotificationSave}
       />
+      <FontSizeControls />
     </Container>
   );
 };

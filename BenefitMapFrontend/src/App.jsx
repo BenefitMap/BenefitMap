@@ -5,6 +5,9 @@ import styled from 'styled-components';
 // Styles
 import GlobalStyle from './styles/GlobalStyle';
 
+// Contexts
+import { FontSizeProvider } from './contexts/FontSizeContext';
+
 // Components
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -23,26 +26,28 @@ import ServiceDetailPage from './screens/ServiceDetailPage';
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <GlobalStyle />
-      <AppLayout>
-        <Header />
-        <Main>
-                 <Routes>
-                   <Route path="/" element={<MainPage />} />
-                   <Route path="/ServicePage" element={<ServicePage />} />
-                   <Route path="/service/:id" element={<ServiceDetailPage />} />
-                   <Route path="/LoginPage" element={<LoginPage />} />
-                   <Route path="/SettingPage" element={<SettingPage />} />
-                   <Route path="/calendar" element={<Calendar />} />
-                   <Route path="/signup-complete" element={<SignupComplete />} />
-                   <Route path="/oauth2/callback" element={<OAuthCallback />} />
-                   <Route path="/mypage" element={<MyPage />} />
-                 </Routes>
-        </Main>
-        <Footer />
-      </AppLayout>
-    </BrowserRouter>
+    <FontSizeProvider>
+      <BrowserRouter>
+        <GlobalStyle />
+        <AppLayout>
+          <Header />
+          <Main>
+            <Routes>
+              <Route path="/" element={<MainPage />} />
+              <Route path="/ServicePage" element={<ServicePage />} />
+              <Route path="/service/:id" element={<ServiceDetailPage />} />
+              <Route path="/LoginPage" element={<LoginPage />} />
+              <Route path="/SettingPage" element={<SettingPage />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/signup-complete" element={<SignupComplete />} />
+              <Route path="/oauth2/callback" element={<OAuthCallback />} />
+              <Route path="/mypage" element={<MyPage />} />
+            </Routes>
+          </Main>
+          <Footer />
+        </AppLayout>
+      </BrowserRouter>
+    </FontSizeProvider>
   );
 };
 
