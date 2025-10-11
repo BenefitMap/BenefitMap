@@ -1,190 +1,106 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-
-// 폰트 정의
-const FontStyle = `
-  @font-face {
-    font-family: 'GowunBatang';
-    src: url('./fonts/GowunBatang.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-  }
-`;
+import ServiceNotificationModal from '../components/ServiceNotificationModal';
+import { useAuth } from '../hooks/useAuth';
 
 const Container = styled.div`
-  ${FontStyle}
   width: 100%;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 32px;
-  background-color: white;
-  min-height: calc(100vh - 130px - 317px); /* 전체 높이에서 Header(130px)와 Footer(317px) 높이 제외 */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-  font-family: 'GowunBatang', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 40px 20px;
+  background-color: #fafafa;
+  min-height: calc(100vh - 130px - 317px);
 `;
 
 const CalendarHeader = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  max-width: 1200px;
-  margin-bottom: 20px;
-  position: relative;
+  margin-bottom: 30px;
 `;
 
 const NavigationButton = styled.button`
-  background: rgba(255, 255, 255, 0.9);
+  background: none;
   border: none;
   font-size: 20px;
-  color: #4CAF50;
+  color: #666;
   cursor: pointer;
-  padding: 12px 16px;
-  border-radius: 16px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  padding: 8px 16px;
+  transition: all 0.2s ease;
   
   &:hover {
-    background: rgba(76, 175, 80, 0.1);
-    color: #45a049;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.2);
+    color: #333;
   }
 `;
 
 const CalendarTitle = styled.h1`
-  font-size: 32px;
-  margin: 0 30px;
+  font-size: 24px;
+  margin: 0 40px;
   color: #333;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-weight: 500;
 `;
 
 const EditButton = styled.button`
   position: fixed;
-  bottom: 40px;
-  right: 40px;
-  background-color: #4CAF50;
+  bottom: 30px;
+  right: 30px;
+  background-color: ${props => props.children === '캘린더 수정' ? '#4a9d5f' : '#dc3545'};
   color: white;
   border: none;
-  padding: 18px 28px;
-  border-radius: 24px;
-  font-size: 15px;
-  font-weight: 600;
+  border-radius: 25px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 
-    0 8px 25px rgba(76, 175, 80, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
-  z-index: 100;
-  letter-spacing: 0.3px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
   
   &:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 
-      0 12px 35px rgba(76, 175, 80, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.2);
+    background-color: ${props => props.children === '캘린더 수정' ? '#3d8450' : '#c82333'};
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   }
 `;
-
-const ToggleButton = styled.button`
-  position: fixed;
-  bottom: 40px;
-  right: 200px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 18px 28px;
-  border-radius: 24px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 
-    0 8px 25px rgba(76, 175, 80, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
-  z-index: 100;
-  letter-spacing: 0.3px;
-  
-  &:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 
-      0 12px 35px rgba(76, 175, 80, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.2);
-  }
-`;
-
 
 const CalendarWrapper = styled.div`
   width: 100%;
-  max-width: 1200px;
-  border: none;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
+  background: white;
   overflow: hidden;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 
-      0 32px 64px -12px rgba(0, 0, 0, 0.35),
-      0 0 0 1px rgba(255, 255, 255, 0.3);
-  }
 `;
 
 const CalendarHeaderGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  background-color: #4CAF50;
-  border-bottom: none;
+  background-color: white;
+  border-bottom: 1px solid #d0d0d0;
 `;
 
 const DayHeader = styled.div`
-  padding: 20px 15px;
+  padding: 15px 0;
   text-align: center;
-  font-weight: 600;
-  font-size: 15px;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  letter-spacing: 0.5px;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  
-  &:last-child {
-    border-right: none;
-  }
+  font-weight: 400;
+  font-size: 14px;
+  color: ${props => {
+    if (props.isSunday) return 'red';
+    if (props.isSaturday) return 'blue';
+    return '#666';
+  }};
 `;
 
 const CalendarGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: ${props => props.isVertical ? 'repeat(8, 160px)' : 'repeat(5, 120px)'};
+  grid-template-rows: repeat(5, 120px);
 `;
 
 const DateCell = styled.div`
   position: relative;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  border-right: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 12px;
-  min-height: ${props => props.isVertical ? '160px' : '120px'};
-  background-color: ${props => props.isOtherMonth ? 'rgba(248, 250, 252, 0.5)' : 'rgba(255, 255, 255, 0.8)'};
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background-color: rgba(99, 102, 241, 0.05);
-    transform: scale(1.02);
-  }
-  
-  &:nth-child(7n) {
-    border-right: none;
-  }
+  border-bottom: 1px solid #d0d0d0;
+  padding: 6px;
+  background-color: ${props => props.isOtherMonth ? '#f5f5f5' : 'white'};
+  min-height: 120px;
   
   &:nth-last-child(-n+7) {
     border-bottom: none;
@@ -192,315 +108,411 @@ const DateCell = styled.div`
 `;
 
 const DateNumber = styled.div`
-  font-size: 17px;
-  font-weight: 600;
-  color: ${props => 
-    props.isOtherMonth ? '#a0aec0' :
-    props.isHoliday ? '#f56565' :
-    props.isSunday ? '#f56565' : 
-    props.isSaturday ? '#4299e1' : '#2d3748'};
-  margin-bottom: 8px;
-  line-height: 1.2;
-  position: relative;
-  display: inline-block;
-  
-  ${props => props.isToday && `
-    background-color: #e53e3e !important;
-    color: white !important;
-    font-weight: 700 !important;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    box-shadow: 0 4px 12px rgba(229, 62, 62, 0.4);
-  `}
+  font-size: 14px;
+  font-weight: ${props => props.isToday ? 'bold' : '400'};
+  color: ${props => {
+    if (props.isToday) return '#fff';
+    if (props.isOtherMonth) return '#bbb';
+    if (props.isSunday) return 'red';
+    if (props.isSaturday) return 'blue';
+    return '#666';
+  }};
+  background-color: ${props => props.isToday ? '#dc3545' : 'transparent'};
+  border-radius: ${props => props.isToday ? '50%' : '0'};
+  width: ${props => props.isToday ? '24px' : 'auto'};
+  height: ${props => props.isToday ? '24px' : 'auto'};
+  display: ${props => props.isToday ? 'flex' : 'block'};
+  align-items: ${props => props.isToday ? 'center' : 'auto'};
+  justify-content: ${props => props.isToday ? 'center' : 'auto'};
+  margin-bottom: 6px;
+  text-align: left;
 `;
 
 const HolidayText = styled.div`
   font-size: 11px;
-  color: #e53e3e;
-  margin-top: 3px;
-  font-weight: 500;
+  color: #ff6b6b;
+  font-weight: 400;
+  display: inline-block;
+  margin-left: 8px;
 `;
 
-const WelfareBar = styled.div`
-  background-color: ${props => {
-    const intensity = props.intensity || 1;
-    const baseColor = [76, 175, 80]; // #4CAF50의 RGB 값
-    const darkenFactor = Math.min(intensity * 0.15, 0.6); // 최대 60%까지 어둡게
-    const newColor = baseColor.map(c => Math.round(c * (1 - darkenFactor)));
-    return `rgb(${newColor.join(', ')})`;
-  }};
-  height: 20px;
-  border-radius: 12px;
-  margin: 3px 0;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.8);
-  font-weight: 600;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+const MultiDayEventBar = styled.div`
+  background-color: #90ee90;
+  padding: 4px 8px;
+  margin-bottom: 3px;
+  font-size: 11px;
+  color: #2d5016;
+  font-weight: 400;
+  cursor: pointer;
   position: absolute;
   left: 8px;
-  cursor: ${props => props.editMode ? 'pointer' : 'default'};
-  transition: all 0.3s;
-  
-  &:hover {
-    background-color: ${props => props.editMode ? '#45a049' : '#4CAF50'};
-    transform: ${props => props.editMode ? 'translateY(-1px)' : 'none'};
-  }
-  
-  &.welfare1 {
-    top: 50px;
     right: 8px;
-  }
-  
-  &.welfare2 {
-    top: 75px;
-    right: 8px;
-  }
-  
-  &.welfare3 {
-    top: 100px;
-    right: 8px;
-  }
-`;
-
-const MultiDayWelfare = styled.div`
-  background-color: ${props => {
-    const intensity = props.intensity || 1;
-    const baseColor = [76, 175, 80]; // #4CAF50의 RGB 값
-    const darkenFactor = Math.min(intensity * 0.15, 0.6); // 최대 60%까지 어둡게
-    const newColor = baseColor.map(c => Math.round(c * (1 - darkenFactor)));
-    return `rgb(${newColor.join(', ')})`;
-  }};
-  height: 20px;
-  border-radius: 12px;
-  margin: 3px 0;
+  top: ${props => 30 + (props.rowIndex * 20)}px;
+  height: 18px;
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.8);
-  font-weight: 600;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-  position: absolute;
-  left: 8px;
+  border-radius: 3px;
   z-index: 1;
-  cursor: ${props => props.editMode ? 'pointer' : 'default'};
-  transition: all 0.3s;
   
   &:hover {
-    background-color: ${props => props.editMode ? '#45a049' : '#4CAF50'};
-    transform: ${props => props.editMode ? 'translateY(-1px)' : 'none'};
-  }
-  
-  &.span-2 {
-    width: calc(200% + 20px);
-  }
-  
-  &.span-3 {
-    width: calc(300% + 40px);
-  }
-  
-  &.span-4 {
-    width: calc(400% + 60px);
-  }
-  
-  &.span-5 {
-    width: calc(500% + 80px);
-  }
-  
-  &.span-6 {
-    width: calc(600% + 100px);
-  }
-  
-  &.span-7 {
-    width: calc(700% + 120px);
-  }
-  
-  &.welfare1 {
-    top: 50px;
-  }
-  
-  &.welfare2 {
-    top: 75px;
-  }
-  
-  &.welfare3 {
-    top: 100px;
+    background-color: #7fd97f;
   }
 `;
 
-// 모달 스타일
+const SpanningEventBar = styled.div`
+  background-color: ${props => {
+    const baseColor = 144; // #90ee90의 green 값
+    const intensity = Math.max(0, baseColor - (props.stackIndex * 20)); // 스택 인덱스에 따라 진하게
+    return `rgb(${intensity}, ${intensity + 50}, ${intensity})`;
+  }};
+  padding: 4px 8px;
+  margin-bottom: 3px;
+  font-size: 11px;
+  color: #2d5016;
+  font-weight: 400;
+  cursor: ${props => props.editMode ? 'pointer' : 'default'};
+  position: absolute;
+  left: ${props => props.isFirst ? '8px' : '0px'};
+  right: ${props => props.isLast ? '8px' : '0px'};
+  top: ${props => 30 + (props.stackIndex * 20)}px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  border-radius: ${props => {
+    if (props.isFirst && props.isLast) return '8px'; // 하루짜리 서비스는 전체 둥글게
+    if (props.isFirst) return '8px 0 0 8px'; // 첫 번째 날짜는 왼쪽만 둥글게
+    if (props.isLast) return '0 8px 8px 0'; // 마지막 날짜는 오른쪽만 둥글게
+    return '0'; // 중간 날짜들은 직각
+  }};
+  z-index: 1;
+  opacity: ${props => props.editMode ? '0.8' : '1'};
+  border: ${props => props.editMode ? '2px dashed #dc3545' : 'none'};
+    
+    &:hover {
+    background-color: ${props => {
+      const baseColor = 127; // hover 시 더 진한 색상
+      const intensity = Math.max(0, baseColor - (props.stackIndex * 20));
+      return `rgb(${intensity}, ${intensity + 30}, ${intensity})`;
+    }};
+    opacity: ${props => props.editMode ? '1' : '0.9'};
+  }
+`;
+
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
+  justify-content: center;
+  z-index: 10000;
 `;
 
 const ModalContent = styled.div`
-  background-color: #4CAF50;
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  max-width: 450px;
+  background-color: white;
+  border-radius: 12px;
+  padding: 0;
+  max-width: 400px;
   width: 90%;
-  text-align: center;
-  border: 3px solid #45a049;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 `;
 
-const ModalTitle = styled.h3`
-  margin: 0 0 30px 0;
+const ModalHeader = styled.div`
+  background-color: #4a9d5f;
   color: white;
-  font-size: 20px;
+  padding: 20px 24px;
+  font-size: 18px;
   font-weight: 600;
-  line-height: 1.4;
+  text-align: center;
 `;
 
-const ModalButtons = styled.div`
+const ModalBody = styled.div`
+  padding: 24px;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.5;
+  text-align: center;
+`;
+
+const ModalFooter = styled.div`
+  padding: 0 24px 24px 24px;
   display: flex;
-  gap: 15px;
+  gap: 12px;
   justify-content: center;
-  margin-top: 25px;
 `;
 
 const ModalButton = styled.button`
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
   min-width: 80px;
   
-  &.delete {
-    background-color: white;
-    color: #4CAF50;
+  &.confirm {
+    background-color: #4a9d5f;
+    color: white;
     
     &:hover {
-      background-color: #f5f5f5;
-      transform: translateY(-2px);
+      background-color: #3d8450;
+      transform: translateY(-1px);
     }
   }
   
   &.cancel {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: #6c757d;
     color: white;
-    border: 2px solid white;
     
     &:hover {
-      background-color: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
+      background-color: #5a6268;
+      transform: translateY(-1px);
     }
   }
 `;
 
-const Page4 = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [editMode, setEditMode] = useState(false);
-  const [isVertical, setIsVertical] = useState(false);
-  const [welfareServices, setWelfareServices] = useState({
-    '2025-9-12': [{ id: 1, text: '청년주택신청', span: 7 }],
-    '2025-5-15': [{ id: 2, text: '생계급여 신청' }],
-    '2025-6-1': [{ id: 3, text: '청년수당 접수', span: 10 }],
-    '2025-7-20': [{ id: 4, text: '의료급여 신청', span: 5 }],
+const Calendar = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, isLoading } = useAuth();
+  const [currentDate, setCurrentDate] = useState(() => {
+    // targetDate가 있으면 해당 날짜로, 없으면 현재 날짜로 초기화
+    const targetDate = location.state?.targetDate;
+    return targetDate ? new Date(targetDate) : new Date();
   });
-  const [showModal, setShowModal] = useState(false);
-  const [selectedWelfare, setSelectedWelfare] = useState(null);
-  
+  const [editMode, setEditMode] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState(null);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+
   const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
-  const monthNames = [
-    '1월', '2월', '3월', '4월', '5월', '6월',
-    '7월', '8월', '9월', '10월', '11월', '12월'
-  ];
-
-  // 2020-2030년 한국 공휴일 데이터
-  const holidays = {
-    // 2020년
-    '2020-1-1': '신정', '2020-1-24': '설날연휴', '2020-1-25': '설날연휴', '2020-1-26': '설날', '2020-1-27': '설날연휴',
-    '2020-3-1': '삼일절', '2020-4-30': '부처님오신날', '2020-5-5': '어린이날', '2020-6-6': '현충일',
-    '2020-8-15': '광복절', '2020-9-30': '추석연휴', '2020-10-1': '추석', '2020-10-2': '추석연휴',
-    '2020-10-3': '개천절', '2020-10-9': '한글날', '2020-12-25': '크리스마스',
-
-    // 2021년
-    '2021-1-1': '신정', '2021-2-11': '설날연휴', '2021-2-12': '설날', '2021-2-13': '설날연휴',
-    '2021-3-1': '삼일절', '2021-5-5': '어린이날', '2021-5-19': '부처님오신날', '2021-6-6': '현충일',
-    '2021-8-15': '광복절', '2021-9-20': '추석연휴', '2021-9-21': '추석', '2021-9-22': '추석연휴',
-    '2021-10-3': '개천절', '2021-10-9': '한글날', '2021-12-25': '크리스마스',
+  
+  // 로컬 스토리지에서 데이터를 읽어와서 캘린더 데이터 생성
+  const [welfareServices, setWelfareServices] = useState(() => {
+    const savedServices = JSON.parse(localStorage.getItem('calendarServices') || '[]');
     
-    // 2022년
-    '2022-1-1': '신정', '2022-1-31': '설날연휴', '2022-2-1': '설날', '2022-2-2': '설날연휴',
-    '2022-3-1': '삼일절', '2022-5-5': '어린이날', '2022-5-8': '부처님오신날', '2022-6-6': '현충일',
-    '2022-8-15': '광복절', '2022-9-9': '추석연휴', '2022-9-10': '추석연휴', '2022-9-11': '추석', '2022-9-12': '추석연휴',
-    '2022-10-3': '개천절', '2022-10-9': '한글날', '2022-12-25': '크리스마스',
+    // 로컬 스토리지에서 불러온 서비스들만 사용
+    const allServices = savedServices.map((service, index) => ({
+      id: service.id,
+      text: service.title,
+      applicationPeriod: service.applicationPeriod,
+      isMultiDay: service.applicationPeriod ? 
+        new Date(service.applicationPeriod.startDate).getTime() !== new Date(service.applicationPeriod.endDate).getTime() : false,
+      startDate: service.applicationPeriod.startDate,
+      endDate: service.applicationPeriod.endDate,
+      span: service.applicationPeriod ? 
+        Math.ceil((new Date(service.applicationPeriod.endDate) - new Date(service.applicationPeriod.startDate)) / (1000 * 60 * 60 * 24)) + 1 : 1,
+      serviceId: service.id,
+      addedOrder: index // 추가 순서 저장
+    }));
 
-    // 2023년
-    '2023-1-1': '신정', '2023-1-21': '설날연휴', '2023-1-22': '설날', '2023-1-23': '설날연휴', '2023-1-24': '설날연휴',
-    '2023-3-1': '삼일절', '2023-5-5': '어린이날', '2023-5-27': '부처님오신날', '2023-6-6': '현충일',
-    '2023-8-15': '광복절', '2023-9-28': '추석연휴', '2023-9-29': '추석', '2023-9-30': '추석연휴',
-    '2023-10-3': '개천절', '2023-10-9': '한글날', '2023-12-25': '크리스마스',
+    // 날짜별로 서비스 매핑
+    const servicesMap = {};
+    
+    allServices.forEach(service => {
+      const startDate = new Date(service.startDate);
+      const endDate = new Date(service.endDate);
+      
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateKey = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+        
+        if (!servicesMap[dateKey]) {
+          servicesMap[dateKey] = [];
+        }
+        
+        servicesMap[dateKey].push({
+          ...service,
+          rowIndex: servicesMap[dateKey].length
+        });
+      }
+    });
 
-    // 2024년
-    '2024-1-1': '신정', '2024-2-9': '설날연휴', '2024-2-10': '설날연휴', '2024-2-11': '설날', '2024-2-12': '설날연휴',
-    '2024-3-1': '삼일절', '2024-4-10': '국회의원선거일', '2024-5-5': '어린이날', '2024-5-15': '부처님오신날', '2024-6-6': '현충일',
-    '2024-8-15': '광복절', '2024-9-16': '추석연휴', '2024-9-17': '추석', '2024-9-18': '추석연휴',
-    '2024-10-3': '개천절', '2024-10-9': '한글날', '2024-12-25': '크리스마스',
+    return servicesMap;
+  });
 
-    // 2025년
-    '2025-1-1': '신정', '2025-1-28': '설날연휴', '2025-1-29': '설날', '2025-1-30': '설날연휴',
-    '2025-3-1': '삼일절', '2025-5-5': '어린이날', '2025-5-13': '부처님오신날', '2025-6-6': '현충일',
-    '2025-8-15': '광복절', '2025-10-5': '추석연휴', '2025-10-6': '추석', '2025-10-7': '추석연휴', '2025-10-8': '추석연휴',
-    '2025-10-3': '개천절', '2025-10-9': '한글날', '2025-12-25': '크리스마스',
+  // 로컬 스토리지 변경 감지
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedServices = JSON.parse(localStorage.getItem('calendarServices') || '[]');
+      
+      // 로컬 스토리지에서 불러온 서비스들만 사용
+      const allServices = savedServices.map((service, index) => ({
+        id: service.id,
+        text: service.title,
+        applicationPeriod: service.applicationPeriod,
+        isMultiDay: service.applicationPeriod ? 
+          new Date(service.applicationPeriod.startDate).getTime() !== new Date(service.applicationPeriod.endDate).getTime() : false,
+        startDate: service.applicationPeriod.startDate,
+        endDate: service.applicationPeriod.endDate,
+        span: service.applicationPeriod ? 
+          Math.ceil((new Date(service.applicationPeriod.endDate) - new Date(service.applicationPeriod.startDate)) / (1000 * 60 * 60 * 24)) + 1 : 1,
+        serviceId: service.id,
+        addedOrder: index // 추가 순서 저장
+      }));
 
-    // 2026년
-    '2026-1-1': '신정', '2026-2-16': '설날연휴', '2026-2-17': '설날', '2026-2-18': '설날연휴',
-    '2026-3-1': '삼일절', '2026-5-5': '어린이날', '2026-5-2': '부처님오신날', '2026-6-6': '현충일',
-    '2026-8-15': '광복절', '2026-9-24': '추석연휴', '2026-9-25': '추석', '2026-9-26': '추석연휴',
-    '2026-10-3': '개천절', '2026-10-9': '한글날', '2026-12-25': '크리스마스',
+      // 날짜별로 서비스 매핑
+      const servicesMap = {};
+      
+      allServices.forEach(service => {
+        const startDate = new Date(service.startDate);
+        const endDate = new Date(service.endDate);
+        
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+          const dateKey = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+          
+          if (!servicesMap[dateKey]) {
+            servicesMap[dateKey] = [];
+          }
+          
+          servicesMap[dateKey].push({
+            ...service,
+            rowIndex: servicesMap[dateKey].length
+          });
+        }
+      });
 
-    // 2027년
-    '2027-1-1': '신정', '2027-2-6': '설날연휴', '2027-2-7': '설날', '2027-2-8': '설날연휴',
-    '2027-3-1': '삼일절', '2027-5-5': '어린이날', '2027-5-21': '부처님오신날', '2027-6-6': '현충일',
-    '2027-8-15': '광복절', '2027-10-14': '추석연휴', '2027-10-15': '추석', '2027-10-16': '추석연휴',
-    '2027-10-3': '개천절', '2027-10-9': '한글날', '2027-12-25': '크리스마스',
+      setWelfareServices(servicesMap);
+    };
 
-    // 2028년
-    '2028-1-1': '신정', '2028-1-26': '설날연휴', '2028-1-27': '설날', '2028-1-28': '설날연휴',
-    '2028-3-1': '삼일절', '2028-5-5': '어린이날', '2028-5-10': '부처님오신날', '2028-6-6': '현충일',
-    '2028-8-15': '광복절', '2028-10-2': '추석연휴', '2028-10-3': '추석', '2028-10-4': '추석연휴',
-    '2028-10-9': '한글날', '2028-12-25': '크리스마스',
+    // storage 이벤트 리스너 등록
+    window.addEventListener('storage', handleStorageChange);
+    
+    // 컴포넌트 마운트 시에도 한 번 실행
+    handleStorageChange();
 
-    // 2029년
-    '2029-1-1': '신정', '2029-2-12': '설날연휴', '2029-2-13': '설날', '2029-2-14': '설날연휴',
-    '2029-3-1': '삼일절', '2029-5-5': '어린이날', '2029-5-28': '부처님오신날', '2029-6-6': '현충일',
-    '2029-8-15': '광복절', '2029-9-21': '추석연휴', '2029-9-22': '추석', '2029-9-23': '추석연휴',
-    '2029-10-3': '개천절', '2029-10-9': '한글날', '2029-12-25': '크리스마스',
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
-    // 2030년
-    '2030-1-1': '신정', '2030-2-2': '설날연휴', '2030-2-3': '설날', '2030-2-4': '설날연휴',
-    '2030-3-1': '삼일절', '2030-5-5': '어린이날', '2030-5-17': '부처님오신날', '2030-6-6': '현충일',
-    '2030-8-15': '광복절', '2030-9-11': '추석연휴', '2030-9-12': '추석', '2030-9-13': '추석연휴',
-    '2030-10-3': '개천절', '2030-10-9': '한글날', '2030-12-25': '크리스마스'
+  // 페이지 로드 시 화면 중앙으로 스크롤 (로그인된 경우만)
+  useEffect(() => {
+    // 로그인하지 않은 경우 스크롤하지 않음
+    if (!isAuthenticated) return;
+    
+    // 페이지 로드 후 약간의 지연을 두고 스크롤
+    const timer = setTimeout(() => {
+      const calendarElement = document.querySelector('[data-calendar-container]');
+      if (calendarElement) {
+        calendarElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      } else {
+        // 대체 방법: 전체 페이지를 중앙으로 스크롤
+        window.scrollTo({ 
+          top: window.innerHeight * 0.3, 
+          behavior: 'smooth' 
+        });
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [currentDate, isAuthenticated]); // currentDate와 isAuthenticated가 변경될 때마다 실행
+
+  // 복지 서비스 삭제 함수
+  const deleteWelfareService = (serviceId) => {
+    const existingServices = JSON.parse(localStorage.getItem('calendarServices') || '[]');
+    const updatedServices = existingServices.filter(service => service.id !== serviceId);
+    localStorage.setItem('calendarServices', JSON.stringify(updatedServices));
+    
+    // 로컬 스토리지 변경 이벤트를 수동으로 트리거
+    window.dispatchEvent(new Event('storage'));
+    
+    alert('복지 서비스가 삭제되었습니다.');
   };
 
-  // 오늘 날짜
-  const today = new Date();
-  const todayString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-  
-  // 년도/월 변경 함수
+  // 서비스 클릭 핸들러 (수정 모드일 때 삭제, 일반 모드일 때 알림 설정)
+  const handleServiceClick = (service) => {
+    if (editMode) {
+      setServiceToDelete(service);
+      setShowDeleteModal(true);
+    } else {
+      // 서비스 정보를 가져와서 모달에 전달
+      const serviceData = {
+        id: service.id,
+        title: service.text,
+        applicationPeriod: service.applicationPeriod,
+        department: service.department || '담당부서 정보 없음',
+        description: service.description || ''
+      };
+      setSelectedService(serviceData);
+      setShowNotificationModal(true);
+    }
+  };
+
+  // 삭제 확인 핸들러
+  const handleConfirmDelete = () => {
+    if (serviceToDelete) {
+      deleteWelfareService(serviceToDelete.id);
+      setShowDeleteModal(false);
+      setServiceToDelete(null);
+    }
+  };
+
+  // 삭제 취소 핸들러
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setServiceToDelete(null);
+  };
+
+  // 알림 설정 저장 핸들러
+  const handleNotificationSave = (serviceId, settings) => {
+    console.log(`서비스 ${serviceId}의 알림 설정이 저장되었습니다:`, settings);
+    // 여기서 추가적인 로직을 수행할 수 있습니다 (예: 서버에 저장)
+  };
+
+  // 알림 설정 모달 닫기
+  const handleCloseNotificationModal = () => {
+    setShowNotificationModal(false);
+    setSelectedService(null);
+  };
+
+  const holidays = {
+    // 2024년 휴일
+    '2024-1-1': '신정',
+    '2024-2-9': '설날연휴',
+    '2024-2-10': '설날연휴',
+    '2024-2-11': '설날',
+    '2024-2-12': '설날연휴',
+    '2024-3-1': '삼일절',
+    '2024-4-10': '국회의원선거일',
+    '2024-5-5': '어린이날',
+    '2024-5-15': '부처님오신날',
+    '2024-6-6': '현충일',
+    '2024-8-15': '광복절',
+    '2024-9-16': '추석연휴',
+    '2024-9-17': '추석',
+    '2024-9-18': '추석연휴',
+    '2024-10-3': '개천절',
+    '2024-10-9': '한글날',
+    '2024-12-25': '크리스마스',
+    
+    // 2025년 휴일
+    '2025-1-1': '신정',
+    '2025-1-28': '설날연휴',
+    '2025-1-29': '설날',
+    '2025-1-30': '설날연휴',
+    '2025-3-1': '삼일절',
+    '2025-5-5': '어린이날',
+    '2025-5-13': '부처님오신날',
+    '2025-6-6': '현충일',
+    '2025-8-15': '광복절',
+    '2025-10-5': '추석연휴',
+    '2025-10-6': '추석',
+    '2025-10-7': '추석연휴',
+    '2025-10-8': '추석연휴',
+    '2025-10-3': '개천절',
+    '2025-10-9': '한글날',
+    '2025-12-25': '크리스마스'
+  };
+
   const changeMonth = (direction) => {
     setCurrentDate(prevDate => {
       const newDate = new Date(prevDate);
@@ -513,217 +525,283 @@ const Page4 = () => {
     });
   };
   
-  // 복지 서비스 삭제 함수
-  const deleteWelfareService = (dateKey, serviceId) => {
-    setWelfareServices(prevServices => {
-      const newServices = { ...prevServices };
-      if (newServices[dateKey]) {
-        newServices[dateKey] = newServices[dateKey].filter(service => service.id !== serviceId);
-        if (newServices[dateKey].length === 0) {
-          delete newServices[dateKey];
-        }
-      }
-      return newServices;
-    });
-    setShowModal(false);
-    setSelectedWelfare(null);
-  };
-  
-  // 복지 서비스 클릭 핸들러
-  const handleWelfareClick = (welfare, dateKey) => {
-    if (editMode) {
-      setSelectedWelfare({ ...welfare, dateKey });
-      setShowModal(true);
-    }
-  };
-  
-  // 캘린더 데이터 생성 함수
-  const generateCalendarData = (isVertical) => {
+  const generateCalendarData = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     
-    // 해당 월의 첫 번째 날과 마지막 날
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    
-    // 첫 번째 날의 요일 (0=일요일, 6=토요일)
     const firstDayOfWeek = firstDay.getDay();
-    
-    // 해당 월의 날짜 수
     const daysInMonth = lastDay.getDate();
     
-    // 캘린더 데이터 생성
+    // 오늘 날짜 정보
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+    
     const calendarData = [];
     
-    // 이전 달의 빈 날짜들 (숨김 처리)
-    for (let i = 0; i < firstDayOfWeek; i++) {
+    // 이전 달의 마지막 날들
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
       calendarData.push({ 
-        date: '', 
+        date: prevMonthLastDay - i, 
         isOtherMonth: true,
+        isToday: false,
         services: []
       });
     }
     
-    // 해당 월의 날짜들
+    // 현재 월의 날짜들
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = `${year}-${month + 1}-${day}`;
       const dayServices = welfareServices[dateKey] || [];
+      const isToday = isCurrentMonth && day === today.getDate();
       
       calendarData.push({ 
         date: day, 
         isOtherMonth: false,
-        services: dayServices.map((service, index) => ({
-          ...service,
-          class: `welfare${(index % 3) + 1}`
-        }))
+        isToday: isToday,
+        services: dayServices,
+        dateKey: dateKey
       });
     }
     
     // 다음 달의 날짜들
-    const nextMonth = month === 11 ? 0 : month + 1;
-    const nextYear = month === 11 ? year + 1 : year;
-    const remainingCells = (isVertical ? 56 : 35) - calendarData.length; // 세로버전: 8주=56개, 기본버전: 5주=35개
-    
+    const remainingCells = 35 - calendarData.length;
     for (let day = 1; day <= remainingCells; day++) {
-      const dateKey = `${nextYear}-${nextMonth + 1}-${day}`;
-      const dayServices = welfareServices[dateKey] || [];
-      
       calendarData.push({ 
         date: day, 
         isOtherMonth: true,
-        services: dayServices.map((service, index) => ({
-          ...service,
-          class: `welfare${(index % 3) + 1}`
-        }))
+        isToday: false,
+        services: []
       });
     }
     
     return calendarData;
   };
   
-  const calendarData = generateCalendarData(isVertical);
+  const calendarData = generateCalendarData();
+
+  // 디버깅: 로그인 상태 확인
+  console.log('Calendar Debug - isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
+  console.log('Calendar Debug - localStorage access_token:', !!localStorage.getItem('access_token'));
+  console.log('Calendar Debug - localStorage user_info:', !!localStorage.getItem('user_info'));
+  console.log('Calendar Debug - userSettings:', !!localStorage.getItem('userSettings'));
+
+  // 로딩 중인 경우 로딩 화면 표시
+  if (isLoading) {
+    return (
+      <Container>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          minHeight: '60vh',
+          textAlign: 'center',
+          fontSize: '18px',
+          color: '#666'
+        }}>
+          로딩 중...
+        </div>
+      </Container>
+    );
+  }
+  
+  // 로그인하지 않은 경우 로그인 안내 화면 표시
+  if (!isAuthenticated) {
+    return (
+      <Container>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          minHeight: '100vh', // 전체 화면 높이로 변경
+          textAlign: 'center',
+          padding: '40px 20px',
+          position: 'relative',
+          top: '-80px' // 헤더 높이만큼 위로 이동
+        }}>
+          <div style={{
+            backgroundColor: '#f8f9fa',
+            borderRadius: '16px',
+            padding: '40px 60px',
+            maxWidth: '600px',
+            width: '100%',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+            border: '1px solid #e9ecef'
+          }}>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '600',
+              color: '#333',
+              marginBottom: '16px'
+            }}>
+              로그인 및 설정이 필요합니다
+            </h2>
+            <p style={{
+              fontSize: '16px',
+              color: '#666',
+              marginBottom: '24px',
+              lineHeight: '1.5'
+            }}>
+              캘린더 기능을 사용하려면<br />
+              로그인과 개인 맞춤형 설정을 완료해주세요.
+            </p>
+            <button
+              onClick={() => navigate('/LoginPage')}
+              style={{
+                backgroundColor: '#4a9d5f',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '12px 24px',
+                fontSize: '16px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#3d8450'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#4a9d5f'}
+            >
+              로그인하러 가기
+            </button>
+          </div>
+        </div>
+      </Container>
+    );
+  }
 
   return (
-    <Container>
+    <Container data-calendar-container>
       <CalendarHeader>
         <NavigationButton onClick={() => changeMonth('prev')}>
           ◀
         </NavigationButton>
         <CalendarTitle>
-          {currentDate.getFullYear()}년 {monthNames[currentDate.getMonth()]}
+          {currentDate.getFullYear()}년 {currentDate.getMonth() + 1}월
         </CalendarTitle>
         <NavigationButton onClick={() => changeMonth('next')}>
           ▶
         </NavigationButton>
-        <ToggleButton onClick={() => setIsVertical(!isVertical)}>
-          {isVertical ? '기본 버전' : '세로 버전'}
-        </ToggleButton>
-        <EditButton onClick={() => setEditMode(!editMode)}>
-          {editMode ? '편집 완료' : '캘린더 수정'}
-        </EditButton>
       </CalendarHeader>
+      
       <CalendarWrapper>
         <CalendarHeaderGrid>
           {daysOfWeek.map((day, index) => (
-            <DayHeader key={index} day={day}>{day}</DayHeader>
+            <DayHeader 
+              key={index} 
+              isSunday={index === 0} 
+              isSaturday={index === 6}
+            >
+              {day}
+            </DayHeader>
           ))}
         </CalendarHeaderGrid>
-        <CalendarGrid isVertical={isVertical}>
+        
+        <CalendarGrid>
           {calendarData.map((cell, index) => {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1;
-            const actualYear = cell.isOtherMonth ? 
-              (index < 7 ? (month === 1 ? year - 1 : year) : (month === 12 ? year + 1 : year)) : 
-              year;
-            const actualMonth = cell.isOtherMonth ? 
-              (index < 7 ? (month === 1 ? 12 : month - 1) : (month === 12 ? 1 : month + 1)) : 
-              month;
-            const dateKey = `${actualYear}-${actualMonth}-${cell.date}`;
-            
-            // 요일 계산 (0=일요일, 6=토요일)
             const dayOfWeek = index % 7;
             const isSunday = dayOfWeek === 0;
             const isSaturday = dayOfWeek === 6;
-            
-            // 공휴일 체크
-            const holidayName = holidays[dateKey];
-            const isHoliday = !!holidayName;
-            
-            // 오늘 날짜 체크
-            const isToday = dateKey === todayString;
+            const holidayName = cell.dateKey ? holidays[cell.dateKey] : null;
             
             return (
-              <DateCell key={index} isOtherMonth={cell.isOtherMonth} isVertical={isVertical}>
+              <DateCell key={index} isOtherMonth={cell.isOtherMonth} isToday={cell.isToday}>
+                {cell.date && (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
                 <DateNumber 
                   isSunday={isSunday} 
                   isSaturday={isSaturday}
-                  isHoliday={isHoliday}
-                  isToday={isToday}
                   isOtherMonth={cell.isOtherMonth}
+                  isToday={cell.isToday}
                 >
                   {cell.date}
                 </DateNumber>
-                {holidayName && !cell.isOtherMonth && <HolidayText>{holidayName}</HolidayText>}
+                      
+                      {holidayName && !cell.isOtherMonth && (
+                        <HolidayText>{holidayName}</HolidayText>
+                      )}
+                    </div>
+                    
                 {cell.services.map((service, serviceIndex) => {
-                  // 해당 날짜의 총 일정 개수를 기반으로 intensity 계산
-                  const intensity = serviceIndex + 1;
-                  
-                  return service.span ? (
-                    <MultiDayWelfare 
-                      key={serviceIndex} 
-                      className={`${service.class} span-${service.span}`}
+                      // applicationPeriod에서 날짜 정보 가져오기
+                      const startDate = new Date(service.applicationPeriod?.startDate || service.startDate);
+                      const endDate = new Date(service.applicationPeriod?.endDate || service.endDate);
+                      const currentCellDate = new Date(cell.dateKey);
+                      
+                      // 날짜만 비교 (시간 정보 제거)
+                      const startDateOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+                      const endDateOnly = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+                      const currentDateOnly = new Date(currentCellDate.getFullYear(), currentCellDate.getMonth(), currentCellDate.getDate());
+                      
+                      const isFirst = currentDateOnly.getTime() === startDateOnly.getTime();
+                      const isLast = currentDateOnly.getTime() === endDateOnly.getTime();
+                      
+                      // 디버깅용 로그 (개발 중에만 사용)
+                      if (service.text && cell.dateKey && (isFirst || isLast)) {
+                        console.log(`서비스: ${service.text}, 날짜: ${cell.dateKey}, isFirst: ${isFirst}, isLast: ${isLast}`);
+                        console.log(`startDateOnly: ${startDateOnly.toISOString()}, endDateOnly: ${endDateOnly.toISOString()}, currentDateOnly: ${currentDateOnly.toISOString()}`);
+                      }
+                      
+                      return (
+                        <SpanningEventBar 
+                          key={`${service.id}-${serviceIndex}`}
+                          stackIndex={service.rowIndex}
+                          isFirst={isFirst}
+                          isLast={isLast}
                       editMode={editMode}
-                      intensity={intensity}
-                      onClick={() => handleWelfareClick(service, dateKey)}
-                    >
-                      {service.text}
-                    </MultiDayWelfare>
-                  ) : (
-                    <WelfareBar 
-                      key={serviceIndex} 
-                      className={service.class}
-                      editMode={editMode}
-                      intensity={intensity}
-                      onClick={() => handleWelfareClick(service, dateKey)}
-                    >
-                      {service.text}
-                    </WelfareBar>
+                          onClick={() => handleServiceClick(service)}
+                        >
+                          {isFirst ? service.text : ''}
+                        </SpanningEventBar>
                   );
                 })}
+                  </>
+                )}
               </DateCell>
             );
           })}
         </CalendarGrid>
       </CalendarWrapper>
       
-      {showModal && selectedWelfare && (
+      <EditButton onClick={() => setEditMode(!editMode)}>
+        {editMode ? '완료' : '캘린더 수정'}
+      </EditButton>
+      
+      {/* 삭제 확인 모달 */}
+      {showDeleteModal && (
         <ModalOverlay>
           <ModalContent>
-            <ModalTitle>
-              {selectedWelfare.text} 서비스를<br />삭제하시겠습니까?
-            </ModalTitle>
-            <ModalButtons>
-              <ModalButton 
-                className="cancel"
-                onClick={() => {
-                  setShowModal(false);
-                  setSelectedWelfare(null);
-                }}
-              >
+            <ModalHeader>
+              캘린더 알림 서비스
+            </ModalHeader>
+            <ModalBody>
+              "{serviceToDelete?.text}" 캘린더 서비스를<br />
+              삭제하시겠습니까?
+            </ModalBody>
+            <ModalFooter>
+              <ModalButton className="cancel" onClick={handleCancelDelete}>
                 취소
               </ModalButton>
-              <ModalButton 
-                className="delete"
-                onClick={() => deleteWelfareService(selectedWelfare.dateKey, selectedWelfare.id)}
-              >
+              <ModalButton className="confirm" onClick={handleConfirmDelete}>
                 삭제
               </ModalButton>
-            </ModalButtons>
+            </ModalFooter>
           </ModalContent>
         </ModalOverlay>
       )}
+
+      {/* 서비스별 알림 설정 모달 */}
+      <ServiceNotificationModal
+        isOpen={showNotificationModal}
+        onClose={handleCloseNotificationModal}
+        service={selectedService}
+        onSave={handleNotificationSave}
+      />
     </Container>
   );
 };
 
-export default Page4;
+export default Calendar;

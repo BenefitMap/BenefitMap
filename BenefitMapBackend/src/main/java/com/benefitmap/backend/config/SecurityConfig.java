@@ -63,6 +63,10 @@ public class SecurityConfig {
                         .requestMatchers("/auth/refresh").permitAll()  // 쿠키 기반 재발급
                         .requestMatchers("/auth/logout").authenticated()
                         .requestMatchers("/auth/**").permitAll()       // 기타 /auth/** 공개(필요 시 조정)
+                        
+                        // 사용자 정보 조회 (임시로 공개)
+                        .requestMatchers("/user/me").permitAll()
+                        .requestMatchers("/user/onboarding-status").permitAll()
 
                         // 온보딩(PENDING 허용)
                         .requestMatchers(HttpMethod.GET, "/api/tags/**")

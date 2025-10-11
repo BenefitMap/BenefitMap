@@ -32,5 +32,6 @@ public class LifecycleTag {
     private Short displayOrder;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean active = true;
 }

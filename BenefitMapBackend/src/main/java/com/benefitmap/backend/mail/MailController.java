@@ -1,5 +1,6 @@
 package com.benefitmap.backend.mail;
 
+import com.benefitmap.backend.mail.dto.SendMailRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,13 +45,45 @@ public class MailController {
     public ResponseEntity<String> testHtml(@RequestParam String to) {
         String subject = "BenefitMap 메일 테스트 (HTML)";
         String html = """
-            <div style="font-family:system-ui,Segoe UI,Roboto,Apple SD Gothic Neo;">
-              <h2>✅ HTML 메일 테스트</h2>
-              <p>이 메일이 보이면 SMTP 설정이 정상입니다.</p>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #4a9d5f;">BenefitMap HTML 메일 테스트</h2>
+                <p>안녕하세요! HTML 메일 테스트입니다.</p>
+                <div style="background-color: #f0f8f0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <h3>테스트 내용</h3>
+                    <ul>
+                        <li>HTML 태그 지원</li>
+                        <li>스타일 적용</li>
+                        <li>한글 인코딩</li>
+                    </ul>
+                </div>
+                <p style="color: #666; font-size: 12px;">본 메일은 BenefitMap 테스트용입니다.</p>
             </div>
-        """;
+            """;
         mailService.sendHtml(to, subject, html);
         return ResponseEntity.ok("SENT(HTML) -> " + to);
+    }
+
+    /**
+     * 복지서비스 마감일 알림 이메일 발송
+     *
+     * @param request 알림 이메일 발송 요청
+     * @return 발송 결과
+     */
+    @PostMapping("/deadline-notification")
+    public ResponseEntity<String> sendDeadlineNotification(@RequestBody SendMailRequest request) {
+        try {
+            // HTML 형식으로 마감일 알림 이메일 생성
+            String htmlContent = MailTemplates.d3Reminder(
+                request.subject().replace("[BenefitMap] ", "").replace(" 신청 마감 임박 알림", ""),
+                "2025-12-31", // 실제로는 request에서 파싱
+                "https://benefitmap.com/service/" + request.body() // 실제로는 서비스 ID에서 생성
+            );
+            
+            mailService.sendHtml(request.to(), request.subject(), htmlContent);
+            return ResponseEntity.ok("마감일 알림 이메일이 발송되었습니다: " + request.to());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("이메일 발송 실패: " + e.getMessage());
+        }
     }
 
     /**

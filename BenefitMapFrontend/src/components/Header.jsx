@@ -1,273 +1,570 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import BenefitMapLogo from '../assets/BenefitMapLogo.png';
-import menubar from '../assets/menubar.png';
-import { isLoggedIn, getUserInfo, handleLogout, fetchUserInfo } from '../utils/auth';
+import mypageIcon from '../assets/mypage.png';
+import { handleLogout } from '../utils/auth';
+import { colors, fonts, spacing, breakpoints, Dropdown, DropdownItem } from '../styles/CommonStyles';
+import { useAuth } from '../hooks/useAuth';
+import { useClickOutside } from '../hooks/useClickOutside';
+import { useNotifications } from '../hooks/useNotifications';
 
+// --- 스타일 컴포넌트 ---
 const HeaderContainer = styled.header`
   width: 100%;
   height: 130px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #d0d0d0;
+  padding: 0 ${spacing.xxl};
+  background-color: ${colors.background};
+  border-bottom: 1px solid ${colors.border};
   box-sizing: border-box;
   
-  @media (max-width: 1200px) {
-    padding: 0 20px;
+  @media (max-width: ${breakpoints.desktop}) { 
+    padding: 0 ${spacing.lg}; 
   }
-  
-  @media (max-width: 768px) {
-    height: 80px;
-    padding: 0 15px;
+  @media (max-width: ${breakpoints.mobile}) { 
+    height: 80px; 
+    padding: 0 ${spacing.md}; 
   }
 `;
 
 const LeftSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 100px;
-  
-  @media (max-width: 1200px) {
-    gap: 50px;
-  }
-  
-  @media (max-width: 768px) {
-    gap: 20px;
-  }
+  gap: ${spacing.xxl};
 `;
 
 const Logo = styled.img`
   height: 32px;
   cursor: pointer;
   display: block;
-  
-  @media (max-width: 768px) {
-    height: 24px;
-  }
 `;
 
 const Nav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 70px;
-  
-  @media (max-width: 1200px) {
-    gap: 40px;
-  }
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
+  gap: ${spacing.xl};
 `;
 
 const NavItem = styled.a`
-  font-size: 18px;
-  color: #000000;
+  font-size: ${fonts.sizes.large};
+  color: ${colors.text};
   text-decoration: none;
   cursor: pointer;
-  font-weight: 400;
-  white-space: nowrap;
+  font-family: ${fonts.primary};
+  transition: color 0.2s ease;
   
   &:hover {
-    opacity: 0.7;
-  }
-  
-  @media (max-width: 1200px) {
-    font-size: 16px;
+    color: ${colors.primary};
   }
 `;
 
 const RightSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 50px;
-  
-  @media (max-width: 1200px) {
-    gap: 30px;
-  }
-  
-  @media (max-width: 768px) {
-    gap: 15px;
-  }
-`;
-
-const UserInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  
-  @media (max-width: 768px) {
-    gap: 10px;
-  }
-`;
-
-const UserName = styled.span`
-  font-size: 16px;
-  color: #333;
-  font-weight: 500;
-  
-  @media (max-width: 768px) {
-    font-size: 14px;
-  }
-`;
-
-const UserAvatar = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  
-  @media (max-width: 768px) {
-    width: 28px;
-    height: 28px;
-  }
-`;
-
-const DefaultAvatar = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: #91D0A6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: bold;
-  color: white;
-  
-  @media (max-width: 768px) {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-  }
+  gap: ${spacing.lg};
 `;
 
 const LoginText = styled.span`
-  font-size: 18px;
-  color: #000000;
-  font-weight: 400;
+  font-size: ${fonts.sizes.large};
+  color: ${colors.text};
   letter-spacing: 2px;
   cursor: pointer;
+  font-family: ${fonts.primary};
+  font-weight: ${fonts.weights.medium};
+  transition: color 0.2s ease;
   
   &:hover {
-    opacity: 0.7;
-  }
-  
-  @media (max-width: 768px) {
-    font-size: 14px;
-    letter-spacing: 1px;
+    color: ${colors.primary};
   }
 `;
 
-const LogoutButton = styled.button`
-  font-size: 14px;
-  color: #666;
+const ProfileImage = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid ${colors.primary};
+  object-fit: cover;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: ${colors.primaryHover};
+    box-shadow: 0 2px 8px ${colors.shadowHover};
+  }
+`;
+
+const ProfileDropdown = styled(Dropdown)`
+  top: 60px;
+`;
+
+const StyledDropdownItem = styled(DropdownItem)`
+  gap: ${spacing.sm};
+  padding: ${spacing.sm} ${spacing.md};
+  font-size: ${fonts.sizes.small};
+  color: ${colors.text};
+`;
+
+const NotificationIcon = styled.div`
+  position: relative;
+  cursor: pointer;
+  padding: ${spacing.sm};
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  
+  &:hover {
+    background-color: #f5f5f5;
+  }
+`;
+
+const NotificationBadge = styled.div`
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background-color: #ff4444;
+  border-radius: 50%;
+  border: 2px solid ${colors.background};
+`;
+
+const NotificationDropdown = styled(Dropdown)`
+  top: 50px;
+  right: 0;
+  min-width: 300px;
+  max-width: 400px;
+`;
+
+const NotificationItem = styled.div`
+  padding: ${spacing.md};
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: #f9f9f9;
+  }
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const NotificationTitle = styled.div`
+  font-weight: ${fonts.weights.medium};
+  font-size: ${fonts.sizes.small};
+  color: ${colors.text};
+  margin-bottom: ${spacing.xs};
+`;
+
+const NotificationContent = styled.div`
+  font-size: ${fonts.sizes.small};
+  color: ${colors.textSecondary};
+  line-height: 1.4;
+`;
+
+const NotificationTime = styled.div`
+  font-size: ${fonts.sizes.small};
+  color: ${colors.textSecondary};
+  margin-top: ${spacing.xs};
+`;
+
+const NotificationHeader = styled.div`
+  padding: ${spacing.md};
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const NotificationHeaderTitle = styled.div`
+  font-weight: ${fonts.weights.medium};
+  font-size: ${fonts.sizes.medium};
+  color: ${colors.text};
+`;
+
+const MarkAllReadButton = styled.button`
+  background: none;
+  border: none;
+  color: ${colors.primary};
+  font-size: ${fonts.sizes.small};
+  cursor: pointer;
+  padding: ${spacing.xs};
+  
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const NotificationItemTitle = styled.div`
+  font-weight: ${fonts.weights.medium};
+  font-size: ${fonts.sizes.small};
+  color: ${colors.text};
+  margin-bottom: ${spacing.xs};
+`;
+
+const NotificationItemHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: ${spacing.xs};
+`;
+
+const NotificationActions = styled.div`
+  display: flex;
+  gap: ${spacing.xs};
+`;
+
+const ActionButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: ${spacing.xs};
   border-radius: 4px;
+  font-size: 12px;
+  transition: background-color 0.2s;
   
   &:hover {
-    background: #f5f5f5;
-    color: #333;
-  }
-  
-  @media (max-width: 768px) {
-    font-size: 12px;
-    padding: 2px 6px;
+    background-color: #f0f0f0;
   }
 `;
 
-const MenuIcon = styled.img`
-  width: 35px;
-  height: 35px;
+const DeleteButton = styled(ActionButton)`
+  color: #ff4444;
+  
+  &:hover {
+    background-color: #ffe6e6;
+  }
+`;
+
+const RestoreButton = styled(ActionButton)`
+  color: ${colors.primary};
+  
+  &:hover {
+    background-color: #f0f8f0;
+  }
+`;
+
+const TrashToggleButton = styled.button`
+  background: none;
+  border: none;
+  color: ${colors.primary};
+  font-size: ${fonts.sizes.small};
   cursor: pointer;
-  object-fit: contain;
-  display: block;
+  padding: ${spacing.xs};
   
-  @media (max-width: 768px) {
-    width: 28px;
-    height: 28px;
+  &:hover {
+    text-decoration: underline;
   }
 `;
 
+const TrashHeader = styled.div`
+  padding: ${spacing.md};
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f8f8;
+`;
+
+const TrashTitle = styled.div`
+  font-weight: ${fonts.weights.medium};
+  font-size: ${fonts.sizes.small};
+  color: ${colors.text};
+`;
+
+const ClearAllButton = styled.button`
+  background: none;
+  border: none;
+  color: #ff4444;
+  font-size: ${fonts.sizes.small};
+  cursor: pointer;
+  padding: ${spacing.xs};
+  
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const BackToNotificationsButton = styled.button`
+  background: none;
+  border: none;
+  color: ${colors.primary};
+  font-size: ${fonts.sizes.small};
+  cursor: pointer;
+  padding: ${spacing.xs};
+  
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+
+
+
+// --- 메인 Header 컴포넌트 ---
 const Header = () => {
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
+  const [showDeletedNotifications, setShowDeletedNotifications] = useState(false);
   
-  useEffect(() => {
-    const loadUserInfo = async () => {
-      if (isLoggedIn()) {
-        setIsLoading(true);
-        try {
-          // 먼저 localStorage에서 확인
-          const localUserInfo = getUserInfo();
-          if (localUserInfo) {
-            setUserInfo(localUserInfo);
-          }
-          
-          // 백엔드에서 최신 정보 가져오기
-          const latestUserInfo = await fetchUserInfo();
-          if (latestUserInfo) {
-            setUserInfo({
-              name: latestUserInfo.name,
-              email: latestUserInfo.email,
-              picture: latestUserInfo.imageUrl
-            });
-          }
-        } catch (error) {
-          console.error('사용자 정보 로드 실패:', error);
-          // localStorage 정보라도 표시
-          const localUserInfo = getUserInfo();
-          if (localUserInfo) {
-            setUserInfo(localUserInfo);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
+  // 커스텀 훅 사용
+  const { isAuthenticated, user, logout } = useAuth();
+  const { 
+    notifications, 
+    deletedNotifications,
+    unreadCount, 
+    markAsRead, 
+    markAllAsRead,
+    deleteNotification,
+    restoreNotification,
+    permanentlyDeleteNotification,
+    clearDeletedNotifications,
+    checkDeadlineNotifications
+  } = useNotifications();
+  const profileRef = useClickOutside(() => setIsProfileDropdownOpen(false));
+  const notificationRef = useClickOutside(() => setIsNotificationDropdownOpen(false));
 
-    loadUserInfo();
+  // 마감일 체크 (컴포넌트 마운트 시 및 주기적으로)
+  useEffect(() => {
+    if (isAuthenticated) {
+      // 초기 마감일 체크
+      checkDeadlineNotifications();
+      
+      // 5분마다 마감일 체크 (실제로는 더 긴 간격이 좋을 수 있음)
+      const interval = setInterval(() => {
+        checkDeadlineNotifications();
+      }, 5 * 60 * 1000); // 5분
+
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, checkDeadlineNotifications]);
+
+  // 프로필 드롭다운 토글 함수 최적화
+  const toggleProfileDropdown = useCallback(() => {
+    setIsProfileDropdownOpen(prev => !prev);
+    setIsNotificationDropdownOpen(false); // 다른 드롭다운 닫기
   }, []);
-  
-  const onLogout = () => {
-    handleLogout(navigate);
-  };
-  
+
+  // 알림 드롭다운 토글 함수
+  const toggleNotificationDropdown = useCallback(() => {
+    setIsNotificationDropdownOpen(prev => !prev);
+    setIsProfileDropdownOpen(false); // 다른 드롭다운 닫기
+  }, []);
+
+  // 알림 클릭 핸들러
+  const handleNotificationClick = useCallback((notification) => {
+    // 알림을 읽음 처리
+    markAsRead(notification.id);
+    
+    // 알림 타입에 따라 다른 페이지로 이동
+    switch (notification.type) {
+      case 'deadline':
+        navigate('/calendar');
+        break;
+      case 'new_benefit':
+        navigate('/ServicePage');
+        break;
+      case 'application':
+        navigate('/ServicePage');
+        break;
+      default:
+        navigate('/mypage');
+    }
+    
+    setIsNotificationDropdownOpen(false);
+  }, [markAsRead, navigate]);
+
+  // 알림 삭제 핸들러
+  const handleDeleteNotification = useCallback((e, notificationId) => {
+    e.stopPropagation(); // 부모 클릭 이벤트 방지
+    deleteNotification(notificationId);
+  }, [deleteNotification]);
+
+  // 삭제된 알림 복구 핸들러
+  const handleRestoreNotification = useCallback((e, notificationId) => {
+    e.stopPropagation();
+    restoreNotification(notificationId);
+  }, [restoreNotification]);
+
+  // 영구 삭제 핸들러
+  const handlePermanentlyDeleteNotification = useCallback((e, notificationId) => {
+    e.stopPropagation();
+    permanentlyDeleteNotification(notificationId);
+  }, [permanentlyDeleteNotification]);
+
+  // 마이페이지 이동 함수 최적화
+  const handleMyPageClick = useCallback(() => {
+    navigate('/mypage');
+    setIsProfileDropdownOpen(false);
+  }, [navigate]);
+
+  // 로그아웃 함수 최적화
+  const handleLogoutClick = useCallback(() => {
+    logout(); // useAuth의 logout 함수 사용
+    navigate('/', { replace: true }); // 페이지 새로고침 없이 이동
+    setIsProfileDropdownOpen(false);
+  }, [logout, navigate]);
+
   return (
     <HeaderContainer>
       <LeftSection>
-        <Logo src={BenefitMapLogo} alt="Benefit Map" onClick={() => navigate('/')} onError={(e) => console.log('Logo failed to load:', e)} />
+        <Logo src={BenefitMapLogo} alt="Benefit Map" onClick={() => navigate('/')} />
         <Nav>
-          <NavItem href="#service">복지 서비스</NavItem>
-          <NavItem href="#algorithm">복지 알림</NavItem>
-          <NavItem href="#calendar">알림 캘린더</NavItem>
+          <NavItem onClick={() => navigate('/ServicePage')}>복지 서비스</NavItem>
+          <NavItem onClick={() => navigate('/calendar')}>알림 캘린더</NavItem>
         </Nav>
       </LeftSection>
       <RightSection>
-        {isLoggedIn() ? (
-          <UserInfo>
-            {userInfo?.picture ? (
-              <UserAvatar src={userInfo.picture} alt="User Avatar" />
-            ) : (
-              <DefaultAvatar>
-                {userInfo?.name?.charAt(0)?.toUpperCase() || 'U'}
-              </DefaultAvatar>
-            )}
-            <UserName>{userInfo?.name || '사용자'}</UserName>
-            <LogoutButton onClick={onLogout}>로그아웃</LogoutButton>
-          </UserInfo>
+        {isAuthenticated ? (
+          <>
+            {/* 알림 아이콘 */}
+            <div ref={notificationRef} style={{ position: 'relative' }}>
+              <NotificationIcon onClick={toggleNotificationDropdown}>
+                🔔
+              </NotificationIcon>
+              {unreadCount > 0 && <NotificationBadge />}
+              {isNotificationDropdownOpen && (
+                <NotificationDropdown>
+                  <NotificationHeader>
+                    <NotificationHeaderTitle>알림</NotificationHeaderTitle>
+                    <div style={{ display: 'flex', gap: spacing.sm, alignItems: 'center' }}>
+                      {unreadCount > 0 && (
+                        <MarkAllReadButton onClick={markAllAsRead}>
+                          모두 읽음
+                        </MarkAllReadButton>
+                      )}
+                      <TrashToggleButton 
+                        onClick={() => setShowDeletedNotifications(true)}
+                      >
+                        🗑️ {deletedNotifications.length > 0 ? `(${deletedNotifications.length})` : '휴지통'}
+                      </TrashToggleButton>
+                    </div>
+                  </NotificationHeader>
+                  
+                  {showDeletedNotifications ? (
+                    <>
+                      <TrashHeader>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
+                          <BackToNotificationsButton 
+                            onClick={() => setShowDeletedNotifications(false)}
+                          >
+                            ← 알림으로
+                          </BackToNotificationsButton>
+                          <TrashTitle>휴지통</TrashTitle>
+                        </div>
+                        {deletedNotifications.length > 0 && (
+                          <ClearAllButton onClick={clearDeletedNotifications}>
+                            모두 삭제
+                          </ClearAllButton>
+                        )}
+                      </TrashHeader>
+                      {deletedNotifications.length > 0 ? (
+                        deletedNotifications.map((notification) => (
+                          <NotificationItem 
+                            key={notification.id}
+                            style={{ 
+                              backgroundColor: '#f8f8f8',
+                              opacity: 0.7
+                            }}
+                          >
+                            <NotificationItemHeader>
+                              <NotificationItemTitle>{notification.title}</NotificationItemTitle>
+                              <NotificationActions>
+                                <RestoreButton 
+                                  onClick={(e) => handleRestoreNotification(e, notification.id)}
+                                  title="복구"
+                                >
+                                  ↩️
+                                </RestoreButton>
+                                <DeleteButton 
+                                  onClick={(e) => handlePermanentlyDeleteNotification(e, notification.id)}
+                                  title="영구 삭제"
+                                >
+                                  🗑️
+                                </DeleteButton>
+                              </NotificationActions>
+                            </NotificationItemHeader>
+                            <NotificationContent>{notification.content}</NotificationContent>
+                            <NotificationTime>
+                              삭제됨: {new Date(notification.deletedAt).toLocaleString()}
+                            </NotificationTime>
+                          </NotificationItem>
+                        ))
+                      ) : (
+                        <NotificationItem>
+                          <NotificationContent>휴지통이 비어있습니다.</NotificationContent>
+                        </NotificationItem>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {notifications.length > 0 ? (
+                        notifications.map((notification) => (
+                          <NotificationItem 
+                            key={notification.id}
+                            onClick={() => handleNotificationClick(notification)}
+                            style={{ 
+                              backgroundColor: notification.isRead ? 'transparent' : '#f8f9fa' 
+                            }}
+                          >
+                            <NotificationItemHeader>
+                              <NotificationItemTitle>{notification.title}</NotificationItemTitle>
+                              <NotificationActions>
+                                <DeleteButton 
+                                  onClick={(e) => handleDeleteNotification(e, notification.id)}
+                                  title="삭제"
+                                >
+                                  🗑️
+                                </DeleteButton>
+                              </NotificationActions>
+                            </NotificationItemHeader>
+                            <NotificationContent>{notification.content}</NotificationContent>
+                            <NotificationTime>{notification.time}</NotificationTime>
+                          </NotificationItem>
+                        ))
+                      ) : (
+                        <NotificationItem>
+                          <NotificationContent>새로운 알림이 없습니다.</NotificationContent>
+                        </NotificationItem>
+                      )}
+                    </>
+                  )}
+                </NotificationDropdown>
+              )}
+            </div>
+
+            {/* 프로필 이미지 */}
+            <div ref={profileRef} style={{ position: 'relative' }}>
+              <ProfileImage 
+                src={user?.picture || mypageIcon} 
+                alt="Profile" 
+                onClick={toggleProfileDropdown}
+              />
+              {isProfileDropdownOpen && (
+                <ProfileDropdown>
+                  <StyledDropdownItem onClick={handleMyPageClick}>
+                    👤 마이페이지
+                  </StyledDropdownItem>
+                  <StyledDropdownItem onClick={handleLogoutClick}>
+                    🚪 로그아웃
+                  </StyledDropdownItem>
+                </ProfileDropdown>
+              )}
+            </div>
+          </>
         ) : (
           <LoginText onClick={() => navigate('/LoginPage')}>LOGIN</LoginText>
         )}
-        <MenuIcon src={menubar} alt="Menu" onError={(e) => console.log('Menu icon failed to load:', e)} />
       </RightSection>
     </HeaderContainer>
   );

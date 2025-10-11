@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { checkAuthAndRedirect } from '../utils/auth';
+import { checkAuthAndRedirect, getUserInfo } from '../utils/auth';
 
 // 스타일 컴포넌트 정의
 const MyPageContainer = styled.div`
@@ -9,117 +9,114 @@ const MyPageContainer = styled.div`
   flex-direction: column;
   min-height: calc(100vh - 130px - 317px);
   align-items: center;
-  padding: 40px 20px;
+  padding: 20px 20px;
 `;
 
 const PageTitle = styled.h1`
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   font-weight: 400;
   color: #333;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   text-align: center;
 `;
 
 const MainContent = styled.div`
   background-color: #91D0A6;
-  border-radius: 20px;
-  padding: 40px;
+  border-radius: 16px;
+  padding: 25px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1000px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   position: relative;
 `;
 
 const ProfileSection = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-bottom: 40px;
+  margin-bottom: 25px;
   position: relative;
+  gap: 15px;
 `;
 
-const ProfileIcon = styled.div`
-  width: 120px;
-  height: 120px;
-  background-color: #666;
+const ProfileImage = styled.img`
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 20px;
-  
-  &::before {
-    content: '👤';
-    font-size: 60px;
-    color: white;
-  }
+  object-fit: cover;
+  border: 2px solid #91D0A6;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 `;
 
 const EditButton = styled.button`
-  background-color: #e0e0e0;
+  background-color: #91D0A6;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   padding: 8px 16px;
   font-size: 0.9rem;
-  color: #555;
+  color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  font-weight: 500;
   
   &:hover {
-    background-color: #d0d0d0;
+    background-color: #7BB899;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(145, 208, 166, 0.3);
   }
 `;
 
 const ContentGrid = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 20px;
+  gap: 15px;
   
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
   }
 `;
 
 const Section = styled.div`
   background-color: white;
-  border-radius: 12px;
-  padding: 30px;
+  border-radius: 10px;
+  padding: 20px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   flex: 1;
-  min-height: 500px;
+  min-height: 400px;
 `;
 
 const SectionTitle = styled.h3`
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: 400;
   color: #333;
-  margin-bottom: 25px;
+  margin-bottom: 18px;
   border-bottom: 2px solid #91D0A6;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 `;
 
 const Label = styled.label`
   display: block;
   font-weight: 400;
   color: #555;
-  margin-bottom: 8px;
-  font-size: 0.95rem;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 12px 16px;
+  padding: 8px 12px;
   border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
   color: #333;
   background-color: #f9f9f9;
   
@@ -132,10 +129,10 @@ const Input = styled.input`
 
 const Select = styled.select`
   width: 100%;
-  padding: 12px 16px;
+  padding: 8px 12px;
   border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
   color: #333;
   background-color: #f9f9f9;
   cursor: pointer;
@@ -151,12 +148,12 @@ const SaveButton = styled.button`
   background-color: #6DBE89;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 12px 30px;
-  font-size: 1rem;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 20px;
+  margin-top: 15px;
   transition: background-color 0.2s;
   
   &:hover {
@@ -170,23 +167,23 @@ const AgeInputContainer = styled.div`
 
 const AgeSpinGroup = styled.div`
   position: absolute;
-  right: 8px;
+  right: 6px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 `;
 
 const AgeSpinButton = styled.button`
-  width: 24px;
-  height: 18px;
+  width: 20px;
+  height: 14px;
   border: none;
   background: #e9f6ee;
   color: #2f8a57;
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 10px;
   line-height: 1;
   &:hover { background: #d8f0e4; }
 `;
@@ -272,7 +269,7 @@ function MyPage() {
   const lifeCycleOptions = ['임신 및 출산', '영유아', '아동', '청소년', '청년', '중장년', '노년'];
   const householdOptions = ['저소득', '장애인', '한부모 및 조손', '다자녀', '다문화', '탈북민', '보훈대상자', '해당사항 없음'];
   const interestOptions = [
-    '신체건강','정신건강','생활지원','주거','일자리','문화·여가','안전·위기','임신·출산','보육','교육','입양·위탁','보호·돌봄','서민금융','법률','에너지'
+    '신체건강','정신건강','생활지원','주거','일자리','문화·여가','안전·위기','임신·출산','보육','교육','입양·위탁','보호·돌봄','서민금융','법률','에너지','해당사항 없음'
   ];
 
   // 현재 선택된 시/도에 따른 시/군/구 옵션
@@ -284,9 +281,15 @@ function MyPage() {
       
       <MainContent>
         <ProfileSection>
-          <ProfileIcon />
+          <ProfileImage 
+            src={getUserInfo()?.picture || '/src/assets/mypage.png'} 
+            alt="프로필 사진"
+            onError={(e) => {
+              e.target.src = '/src/assets/mypage.png';
+            }}
+          />
           <EditButton onClick={handleEdit}>
-            ✏️ 수정
+            ✏️ 정보 수정
           </EditButton>
         </ProfileSection>
 
@@ -317,7 +320,7 @@ function MyPage() {
                       onChange={(e) => handleInputChange('age', e.target.value)}
                       disabled={!isEditing}
                       placeholder="나이를 입력하세요"
-                      style={{ paddingRight: '50px' }}
+                      style={{ paddingRight: '35px' }}
                     />
                     <AgeSpinGroup>
                       <AgeSpinButton 

@@ -43,6 +43,7 @@ dependencies {
 
 	// === DB ===
 	runtimeOnly 'com.mysql:mysql-connector-j' // BOM이 관리하므로 버전 생략 OK
+	runtimeOnly 'com.h2database:h2' // H2 인메모리 DB (개발용)
 
 	// === 문서화 ===
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")

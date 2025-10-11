@@ -43,6 +43,7 @@ pnpm-debug.log*
 **/.gradle/
 **/build/
 **/target/
+**/bin/
 *.log
 # Eclipse 류 대비(혹시 쓸 경우)
 **/.classpath

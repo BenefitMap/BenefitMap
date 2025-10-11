@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { useAuth } from '../hooks/useAuth';
 
 // Removed local GlobalStyle to ensure app-wide font (GowunBatang) applies
 
 const Container = styled.div`
-  min-height: calc(100vh - 130px - 317px); /* 전체 높이에서 Header(130px)와 Footer(317px) 높이 제외 */
+  min-height: 100vh;
   background-color: #f8f9fa;
   padding: 20px;
 `;
@@ -64,11 +66,24 @@ const FilterColumn = styled.div`
 `;
 
 const FilterTitle = styled.h3`
+  position: relative;
   font-size: 18px;
   font-weight: bold;
   color: #333;
   margin-bottom: 18px;
   text-align: center;
+
+  /* ✅ 밑줄 추가 */
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    opacity: 0.2;
+    background-color: #8a8a8a;
+  }
 `;
 
 const CheckboxList = styled.div`
@@ -283,46 +298,35 @@ const SortButton = styled.button`
   }
 `;
 
-const CategoryTabContainer = styled.div`
-  display: flex;
-  border: 1px solid #e0e0e0;
-  background-color: white;
+const TabContainer = styled.div`
+  width: 100%;
 `;
 
-const CategoryTab = styled.div`
+const TabHeader = styled.div`
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+`;
+
+const TabButton = styled.button`
   flex: 1;
-  text-align: center;
-  padding: 15px 20px;
-  background-color: ${props => props.active ? '#f5f5f5' : 'white'};
+  padding: 10px 16px;
+  background: ${({ active }) => (active ? "#f0f0f0" : "#fff")};
+  border: none;
+  border-right: ${({ position }) => (position !== "right" ? "1px solid #ddd" : "none")};
+  font-weight: ${({ active }) => (active ? "bold" : "normal")};
   cursor: pointer;
-  transition: all 0.2s;
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 5px;
-  font-size: 14px;
-  color: #666;
-  
-  &:not(:last-child) {
-    border-right: 1px solid #e0e0e0;
-  }
-  
-  &:hover {
-    background-color: #f9f9f9;
+  gap: 6px;
+
+  span {
+    font-weight: normal;
+    color: #666;
   }
 `;
 
-const CategoryTabName = styled.span`
-  font-size: 14px;
-  color: #666;
-  font-weight: 400;
-`;
-
-const CategoryTabCount = styled.span`
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-`;
 
 const ServiceCardGrid = styled.div`
   display: grid;
@@ -412,6 +416,24 @@ const ViewDetailsButton = styled.button`
   }
 `;
 
+const AddToCalendarButton = styled.button`
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+  font-weight: 400;
+  margin-top: 8px;
+
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+
+
 const LoadingSpinner = styled.div`
   display: flex;
   justify-content: center;
@@ -422,6 +444,8 @@ const LoadingSpinner = styled.div`
 `;
 
 const ServicePage = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [selectedFilters, setSelectedFilters] = useState({
     lifeCycle: [],
     household: [],
@@ -445,7 +469,39 @@ const ServicePage = () => {
     local: 0,
     private: 0
   });
-  const [loading] = useState(false); // setLoading 사용하지 않으므로 제거
+  const [loading, setLoading] = useState(false);
+
+  // 8월-12월 사이의 랜덤 날짜 생성 함수
+  const generateRandomDate = () => {
+    const year = 2025;
+    const startMonth = 7; // 8월 (0부터 시작)
+    const endMonth = 11; // 12월 (0부터 시작)
+    
+    // 랜덤 월 선택
+    const randomMonth = Math.floor(Math.random() * (endMonth - startMonth + 1)) + startMonth;
+    
+    // 해당 월의 일수 계산
+    const daysInMonth = new Date(year, randomMonth + 1, 0).getDate();
+    
+    // 랜덤 일 선택
+    const randomDay = Math.floor(Math.random() * daysInMonth) + 1;
+    
+    return new Date(year, randomMonth, randomDay);
+  };
+
+  // 1~12일 간격의 랜덤 서비스 기간 생성 함수
+  const generateServicePeriod = () => {
+    const startDate = generateRandomDate();
+    const duration = Math.floor(Math.random() * 12) + 1; // 1~12일
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + duration - 1);
+    
+    return {
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0],
+      isOngoing: false
+    };
+  };
 
   const loadDummyData = () => {
     const dummyServices = [
@@ -457,7 +513,8 @@ const ServicePage = () => {
         department: '보건복지부 장애인자립기반과',
         cycle: '1회성',
         type: '현금대여(융자)',
-        contact: '129'
+        contact: '129',
+        applicationPeriod: generateServicePeriod()
       },
       {
         id: 2,
@@ -467,7 +524,8 @@ const ServicePage = () => {
         department: '산업통상자원부 에너지복지과',
         cycle: '매년',
         type: '시설개선',
-        contact: '1600-3190'
+        contact: '1600-3190',
+        applicationPeriod: generateServicePeriod()
       },
       {
         id: 3,
@@ -477,7 +535,8 @@ const ServicePage = () => {
         department: '국토교통부 주택기금과',
         cycle: '1회성',
         type: '현금대여(융자)',
-        contact: '1599-0001'
+        contact: '1599-0001',
+        applicationPeriod: generateServicePeriod()
       },
       {
         id: 4,
@@ -487,7 +546,8 @@ const ServicePage = () => {
         department: '여성가족부 가족정책과',
         cycle: '수시',
         type: '서비스',
-        contact: '1577-2514'
+        contact: '1577-2514',
+        applicationPeriod: generateServicePeriod()
       },
       {
         id: 5,
@@ -497,7 +557,8 @@ const ServicePage = () => {
         department: '여성가족부 청소년정책과',
         cycle: '매년',
         type: '서비스',
-        contact: '1388'
+        contact: '1388',
+        applicationPeriod: generateServicePeriod()
       },
       {
         id: 6,
@@ -507,7 +568,8 @@ const ServicePage = () => {
         department: '보건복지부 요양보험제도과',
         cycle: '수시',
         type: '현금/서비스',
-        contact: '1577-1000'
+        contact: '1577-1000',
+        applicationPeriod: generateServicePeriod()
       },
       {
         id: 7,
@@ -517,7 +579,8 @@ const ServicePage = () => {
         department: '보건복지부 복지정책과',
         cycle: '1회성',
         type: '현금/서비스',
-        contact: '129'
+        contact: '129',
+        applicationPeriod: generateServicePeriod()
       },
       {
         id: 8,
@@ -527,7 +590,8 @@ const ServicePage = () => {
         department: '여성가족부 다문화가족정책과',
         cycle: '수시',
         type: '서비스',
-        contact: '1577-1366'
+        contact: '1577-1366',
+        applicationPeriod: generateServicePeriod()
       },
       {
         id: 9,
@@ -537,7 +601,8 @@ const ServicePage = () => {
         department: '국가보훈부 보상정책과',
         cycle: '매월',
         type: '현금',
-        contact: '1577-0606'
+        contact: '1577-0606',
+        applicationPeriod: generateServicePeriod()
       }
     ];
 
@@ -599,8 +664,7 @@ const ServicePage = () => {
           } else {
             setCurrentLocation('현재 위치를 확인하지 못했어요.');
           }
-        } catch (error) {
-          console.error('위치 정보 오류:', error);
+        } catch (e) {
           setCurrentLocation('위치 정보를 가져오는 중 오류가 발생했어요.');
         }
       },
@@ -670,6 +734,66 @@ const ServicePage = () => {
   const handleSearch = () => {
     console.log('검색 조건:', { selectedFilters, searchForm });
     loadDummyData();
+  };
+
+  const handleViewDetails = (service) => {
+    navigate(`/service/${service.id}`, { state: { service } });
+  };
+
+  const handleAddToCalendar = (service) => {
+    // 로그인 체크
+    if (!isAuthenticated) {
+      const shouldLogin = window.confirm(
+        '캘린더에 추가하려면 로그인이 필요합니다.\n\n로그인 페이지로 이동하시겠습니까?'
+      );
+      if (shouldLogin) {
+        navigate('/LoginPage');
+      }
+      return;
+    }
+
+    // 중복 체크
+    const existingServices = JSON.parse(localStorage.getItem('calendarServices') || '[]');
+    const isAlreadyAdded = existingServices.some(existingService => existingService.id === service.id);
+    
+    if (isAlreadyAdded) {
+      alert('이미 추가된 일정입니다.');
+      return;
+    }
+
+    // 캘린더에 추가할 데이터 준비
+    const calendarData = {
+      id: service.id,
+      title: service.title,
+      description: service.description,
+      department: service.department,
+      contact: service.contact,
+      tags: service.tags,
+      applicationPeriod: service.applicationPeriod || {
+        startDate: new Date().toISOString().split('T')[0], // 오늘 날짜
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7일 후
+        isOngoing: false
+      }
+    };
+
+    // 로컬 스토리지에 저장
+    const updatedServices = [...existingServices, calendarData];
+    localStorage.setItem('calendarServices', JSON.stringify(updatedServices));
+    
+    // 성공 알림 및 캘린더 이동 확인
+    const shouldNavigateToCalendar = window.confirm(
+      `${service.title}이 캘린더에 추가되었습니다!\n\n캘린더 페이지로 이동하시겠습니까?`
+    );
+    
+    if (shouldNavigateToCalendar) {
+      // 서비스의 시작 날짜로 이동
+      const serviceStartDate = new Date(calendarData.applicationPeriod.startDate);
+      navigate('/calendar', { 
+        state: { 
+          targetDate: serviceStartDate 
+        } 
+      });
+    }
   };
 
   return (
@@ -794,7 +918,7 @@ const ServicePage = () => {
               <SearchButton onClick={handleSearch}>검색</SearchButton>
             </ButtonContainer>
           </SearchSection>
-
+          <SectionDivider />
           <ServiceDisplaySection>
             <ServiceSummary>
               <SummaryHeader>
@@ -817,29 +941,32 @@ const ServicePage = () => {
                 </SortOptions>
               </SummaryHeader>
               
-              <CategoryTabContainer>
-                <CategoryTab 
-                  active={activeCategory === 'central'}
-                  onClick={() => setActiveCategory('central')}
-                >
-                  <CategoryTabName>중앙부처</CategoryTabName>
-                  <CategoryTabCount>{serviceSummary.central.toLocaleString()}</CategoryTabCount>
-                </CategoryTab>
-                <CategoryTab 
-                  active={activeCategory === 'local'}
-                  onClick={() => setActiveCategory('local')}
-                >
-                  <CategoryTabName>지자체</CategoryTabName>
-                  <CategoryTabCount>{serviceSummary.local.toLocaleString()}</CategoryTabCount>
-                </CategoryTab>
-                <CategoryTab 
-                  active={activeCategory === 'private'}
-                  onClick={() => setActiveCategory('private')}
-                >
-                  <CategoryTabName>민간</CategoryTabName>
-                  <CategoryTabCount>{serviceSummary.private.toLocaleString()}</CategoryTabCount>
-                </CategoryTab>
-              </CategoryTabContainer>
+              <TabContainer>
+  <TabHeader>
+    <TabButton
+      active={activeCategory === 'central'}
+      onClick={() => setActiveCategory('central')}
+      position="left"
+    >
+      중앙부처 <span>{serviceSummary.central.toLocaleString()}</span>
+    </TabButton>
+    <TabButton
+      active={activeCategory === 'local'}
+      onClick={() => setActiveCategory('local')}
+      position="center"
+    >
+      지자체 <span>{serviceSummary.local.toLocaleString()}</span>
+    </TabButton>
+    <TabButton
+      active={activeCategory === 'private'}
+      onClick={() => setActiveCategory('private')}
+      position="right"
+    >
+      민간 <span>{serviceSummary.private.toLocaleString()}</span>
+    </TabButton>
+  </TabHeader>
+</TabContainer>
+
             </ServiceSummary>
 
             {loading ? (
@@ -863,7 +990,12 @@ const ServicePage = () => {
                         <ServiceDetailItem>문의처: {service.contact}</ServiceDetailItem>
                       </ServiceDetailsList>
                     </div>
-                    <ViewDetailsButton>자세히 보기</ViewDetailsButton>
+                    <ViewDetailsButton onClick={() => handleViewDetails(service)}>
+                      자세히 보기
+                    </ViewDetailsButton>
+                    <AddToCalendarButton onClick={() => handleAddToCalendar(service)}>
+                      캘린더에 추가
+                    </AddToCalendarButton>
                   </ServiceCard>
                 ))}
               </ServiceCardGrid>
