@@ -7,7 +7,9 @@
 export const isLoggedIn = () => {
   const accessToken = localStorage.getItem('access_token');
   const userInfo = localStorage.getItem('user_info');
-  return !!(accessToken || userInfo);
+  const userSettings = hasUserSettings();
+  // access_token, user_info, userSettings 모두 있어야 로그인된 것으로 판단
+  return !!(accessToken && userInfo && userSettings);
 };
 
 /**

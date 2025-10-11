@@ -18,6 +18,7 @@ import Calendar from './screens/Calendar';
 import SignupComplete from './screens/SignupComplete';
 import OAuthCallback from './screens/OAuthCallback';
 import MyPage from './screens/MyPage';
+import ServiceDetailPage from './screens/ServiceDetailPage';
 
 
 const App = () => {
@@ -27,16 +28,17 @@ const App = () => {
       <AppLayout>
         <Header />
         <Main>
-          <Routes>
-            <Route path="/" element={<MainPage />} />
-            <Route path="/ServicePage" element={<ServicePage />} />
-            <Route path="/LoginPage" element={<LoginPage />} />
-            <Route path="/SettingPage" element={<SettingPage />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/signup-complete" element={<SignupComplete />} />
-            <Route path="/oauth2/callback" element={<OAuthCallback />} />
-            <Route path="/mypage" element={<MyPage />} />
-          </Routes>
+                 <Routes>
+                   <Route path="/" element={<MainPage />} />
+                   <Route path="/ServicePage" element={<ServicePage />} />
+                   <Route path="/service/:id" element={<ServiceDetailPage />} />
+                   <Route path="/LoginPage" element={<LoginPage />} />
+                   <Route path="/SettingPage" element={<SettingPage />} />
+                   <Route path="/calendar" element={<Calendar />} />
+                   <Route path="/signup-complete" element={<SignupComplete />} />
+                   <Route path="/oauth2/callback" element={<OAuthCallback />} />
+                   <Route path="/mypage" element={<MyPage />} />
+                 </Routes>
         </Main>
         <Footer />
       </AppLayout>
