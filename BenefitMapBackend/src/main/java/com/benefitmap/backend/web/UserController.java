@@ -2,6 +2,8 @@ package com.benefitmap.backend.web;
 
 import com.benefitmap.backend.auth.token.RefreshTokenRepository;
 import com.benefitmap.backend.user.repo.UserRepository;
+import com.benefitmap.backend.user.entity.User;
+import com.benefitmap.backend.user.enums.UserStatus;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -92,6 +94,53 @@ public class UserController {
         return userRepository.findById(userId)
                 .map(user -> ResponseEntity.ok(ApiResponse.ok("사용자 정보 조회 성공", 
                         new UserInfo(user.getId(), user.getName(), user.getEmail(), user.getImageUrl(), user.getProvider()))))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.fail("사용자를 찾을 수 없습니다")));
+    }
+
+    @Operation(
+            summary = "온보딩 상태 확인",
+            description = "로그인한 사용자의 온보딩 완료 상태를 확인합니다.",
+            security = @SecurityRequirement(name = "cookieAuth"),
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "온보딩 상태 조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class),
+                                    examples = @ExampleObject(
+                                            name = "OnboardingStatusSuccess",
+                                            value = """
+                                            {
+                                              "success": true,
+                                              "message": "온보딩 상태 조회 성공",
+                                              "data": {
+                                                "isOnboardingCompleted": true,
+                                                "status": "ACTIVE"
+                                              },
+                                              "timestamp": "2025-01-27T00:00:00Z"
+                                            }
+                                            """
+                                    )
+                            )
+                    )
+            }
+    )
+    @GetMapping("/onboarding-status")
+    public ResponseEntity<ApiResponse<OnboardingStatus>> getOnboardingStatus() {
+        Long userId = currentUserId();
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.fail("인증되지 않은 사용자"));
+        }
+
+        return userRepository.findById(userId)
+                .map(user -> {
+                    boolean isCompleted = user.getStatus() == UserStatus.ACTIVE;
+                    return ResponseEntity.ok(ApiResponse.ok("온보딩 상태 조회 성공", 
+                            new OnboardingStatus(isCompleted, user.getStatus().name())));
+                })
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ApiResponse.fail("사용자를 찾을 수 없습니다")));
     }
@@ -211,5 +260,11 @@ public class UserController {
             String email,
             String imageUrl,
             String provider
+    ) {}
+
+    // 온보딩 상태 응답 DTO
+    public record OnboardingStatus(
+            boolean isOnboardingCompleted,
+            String status
     ) {}
 }

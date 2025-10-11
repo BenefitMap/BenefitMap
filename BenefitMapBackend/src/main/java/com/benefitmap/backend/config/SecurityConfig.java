@@ -66,6 +66,7 @@ public class SecurityConfig {
                         
                         // 사용자 정보 조회 (임시로 공개)
                         .requestMatchers("/user/me").permitAll()
+                        .requestMatchers("/user/onboarding-status").permitAll()
 
                         // 온보딩(PENDING 허용)
                         .requestMatchers(HttpMethod.GET, "/api/tags/**")

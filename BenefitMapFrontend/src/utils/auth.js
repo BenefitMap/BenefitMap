@@ -1,15 +1,32 @@
 // 인증 관련 유틸리티 함수들
 
 /**
- * 로그인 상태 확인
+ * 로그인 상태 확인 (동기)
  * @returns {boolean} 로그인 여부
  */
 export const isLoggedIn = () => {
   const accessToken = localStorage.getItem('access_token');
   const userInfo = localStorage.getItem('user_info');
+  const isLoggedInStatus = !!(accessToken && userInfo);
+  console.log('로그인 상태 확인:', { accessToken: !!accessToken, userInfo: !!userInfo, isLoggedIn: isLoggedInStatus });
+  return isLoggedInStatus;
+};
+
+/**
+ * 로그인 상태 및 온보딩 상태 확인 (비동기)
+ * @returns {Promise<{isLoggedIn: boolean, isOnboardingCompleted: boolean}>}
+ */
+export const checkLoginAndOnboardingStatus = async () => {
+  const isLoggedInStatus = isLoggedIn();
+  
+  if (!isLoggedInStatus) {
+    return { isLoggedIn: false, isOnboardingCompleted: false };
+  }
+
+  // 일단 localStorage 기반으로만 확인 (백엔드 API 문제로 인한 임시 조치)
   const userSettings = hasUserSettings();
-  // access_token, user_info, userSettings 모두 있어야 로그인된 것으로 판단
-  return !!(accessToken && userInfo && userSettings);
+  console.log('온보딩 상태 확인 (localStorage 기반):', userSettings);
+  return { isLoggedIn: true, isOnboardingCompleted: userSettings };
 };
 
 /**
@@ -26,13 +43,28 @@ export const getUserInfo = () => {
  * @returns {boolean} 혜택 설정 완료 여부
  */
 export const hasUserSettings = () => {
+  // 온보딩 완료 상태를 먼저 확인
+  const onboardingCompleted = localStorage.getItem('onboardingCompleted');
+  console.log('onboardingCompleted:', onboardingCompleted);
+  
+  if (onboardingCompleted === 'true') {
+    console.log('온보딩 완료 상태 확인됨');
+    return true;
+  }
+  
   const userSettings = localStorage.getItem('userSettings');
-  if (!userSettings) return false;
+  console.log('userSettings:', userSettings);
+  
+  if (!userSettings) {
+    console.log('userSettings가 없음');
+    return false;
+  }
   
   try {
     const settings = JSON.parse(userSettings);
-    // 필수 정보가 모두 있는지 확인
-    return !!(settings.region1 && settings.region2 && settings.age && settings.gender && settings.lifeCycle);
+    const hasRequiredFields = !!(settings.region1 && settings.region2 && settings.age && settings.gender && settings.lifeCycle);
+    console.log('필수 필드 확인:', hasRequiredFields, settings);
+    return hasRequiredFields;
   } catch (error) {
     console.error('설정 정보 파싱 오류:', error);
     return false;
@@ -93,6 +125,42 @@ export const fetchUserInfo = async () => {
   } catch (error) {
     console.error('사용자 정보 가져오기 오류:', error);
     return null;
+  }
+};
+
+/**
+ * 백엔드에서 온보딩 상태 확인
+ * @returns {Promise<boolean>} 온보딩 완료 여부
+ */
+export const checkOnboardingStatus = async () => {
+  try {
+    const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${BACKEND_URL}/user/onboarding-status`, {
+      method: 'GET',
+      credentials: 'include', // 쿠키 포함
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      // 401 (인증 필요) 또는 404 (API 없음)인 경우 localStorage 기반으로 폴백
+      if (response.status === 401 || response.status === 404) {
+        console.log('온보딩 상태 API 접근 불가, localStorage 기반으로 폴백');
+        return hasUserSettings();
+      }
+      throw new Error('온보딩 상태 조회 실패');
+    }
+
+    const result = await response.json();
+    if (result.success && result.data) {
+      return result.data.isOnboardingCompleted;
+    }
+    return false;
+  } catch (error) {
+    console.error('온보딩 상태 확인 오류:', error);
+    // 오류 발생 시 localStorage 기반으로 폴백
+    return hasUserSettings();
   }
 };
 
@@ -220,8 +288,9 @@ export const handleLogout = async (navigate) => {
     
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_info');
-    localStorage.removeItem('userSettings');
-    navigate('/');
-    window.location.reload(); // 페이지 새로고침으로 상태 업데이트
+    // 온보딩 상태는 유지 (userSettings, onboardingCompleted는 삭제하지 않음)
+    
+    // 페이지 새로고침 없이 바로 메인 페이지로 이동
+    navigate('/', { replace: true });
   }
 };

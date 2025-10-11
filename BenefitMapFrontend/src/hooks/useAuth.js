@@ -15,13 +15,26 @@ export const useAuth = () => {
     const loggedIn = isLoggedIn();
     const userInfo = getUserInfo();
     
+    console.log('useAuth - 로그인 상태 확인:', { loggedIn, userInfo: !!userInfo });
     setIsAuthenticated(loggedIn);
     setUser(userInfo);
     setIsLoading(false);
   }, []);
 
+  // 로그아웃 함수 추가
+  const logout = useCallback(() => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_info');
+    setIsAuthenticated(false);
+    setUser(null);
+    setIsLoading(false);
+  }, []);
+
   useEffect(() => {
     checkAuthStatus();
+    
+    // 주기적으로 상태 확인 (1초마다)
+    const interval = setInterval(checkAuthStatus, 1000);
     
     // localStorage 변경 이벤트 리스너
     const handleStorageChange = (e) => {
@@ -33,6 +46,7 @@ export const useAuth = () => {
     window.addEventListener('storage', handleStorageChange);
     
     return () => {
+      clearInterval(interval);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [checkAuthStatus]);
@@ -57,5 +71,6 @@ export const useAuth = () => {
     isLoading,
     checkAuthAndRedirect,
     refreshAuth: checkAuthStatus,
+    logout,
   };
 };

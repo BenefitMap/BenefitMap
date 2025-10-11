@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { isLoggedIn, getUserInfo } from '../utils/auth';
+import { isLoggedIn, getUserInfo, checkLoginAndOnboardingStatus } from '../utils/auth';
 
 // --- 스타일 정의 (Styled Components) ---
 
@@ -301,27 +302,69 @@ const events = {
 };
 
 const MainPage = () => {
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 1));
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+  const [isOnboardingCompleted, setIsOnboardingCompleted] = useState(false);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
 
-  // 로그인 상태 확인 함수를 useCallback으로 최적화
-  const checkLoginStatus = useCallback(() => {
-    const loggedIn = isLoggedIn();
-    const user = getUserInfo();
-    setIsUserLoggedIn(loggedIn);
-    setUserInfo(user);
-  }, []);
+  // 로그인 및 온보딩 상태 확인 함수
+  const checkLoginAndOnboardingStatusAsync = useCallback(async () => {
+    try {
+      setIsCheckingStatus(true);
+      
+      // 먼저 동기적으로 로그인 상태 확인
+      const loggedIn = isLoggedIn();
+      console.log('메인 페이지 - 로그인 상태:', loggedIn);
+      
+      if (!loggedIn) {
+        console.log('로그인되지 않음, 메인 페이지 유지');
+        setIsUserLoggedIn(false);
+        setIsOnboardingCompleted(false);
+        setUserInfo(null);
+        return;
+      }
+      
+      // 로그인된 경우 사용자 정보 설정
+      const user = getUserInfo();
+      setUserInfo(user);
+      setIsUserLoggedIn(true);
+      
+      // 온보딩 상태 확인
+      const { isOnboardingCompleted: onboardingCompleted } = await checkLoginAndOnboardingStatus();
+      setIsOnboardingCompleted(onboardingCompleted);
+      
+      // 온보딩이 완료되지 않은 경우 설정 페이지로 리다이렉트
+      if (!onboardingCompleted) {
+        console.log('온보딩 미완료, 설정 페이지로 리다이렉트');
+        navigate('/SettingPage');
+        return;
+      } else {
+        console.log('온보딩 완료됨, 메인 페이지 유지');
+      }
+    } catch (error) {
+      console.error('상태 확인 오류:', error);
+      // 오류 발생 시 기본 로그인 상태만 확인
+      const loggedIn = isLoggedIn();
+      const user = getUserInfo();
+      setIsUserLoggedIn(loggedIn);
+      setUserInfo(user);
+      setIsOnboardingCompleted(false);
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  }, [navigate]);
 
   // 로그인 상태 확인
   useEffect(() => {
-    checkLoginStatus();
+    checkLoginAndOnboardingStatusAsync();
     
-    // 주기적으로 로그인 상태 확인 (localStorage 변경 감지)
-    const interval = setInterval(checkLoginStatus, 1000);
+    // 주기적으로 로그인 상태 확인 (localStorage 변경 감지) - 주기 단축
+    const interval = setInterval(checkLoginAndOnboardingStatusAsync, 1000);
     
     return () => clearInterval(interval);
-  }, [checkLoginStatus]);
+  }, [checkLoginAndOnboardingStatusAsync]);
 
   const handlePrevMonth = useCallback(() => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
@@ -358,6 +401,17 @@ const MainPage = () => {
     return days;
   };
   
+  // 로딩 중일 때 표시
+  if (isCheckingStatus) {
+    return (
+      <MainContainer>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <p>상태를 확인하는 중...</p>
+        </div>
+      </MainContainer>
+    );
+  }
+
   return (
     <MainContainer>
       <SearchWrapper>
@@ -397,7 +451,7 @@ const MainPage = () => {
 
       <RecommendationSection>
         <SectionTitle>맞춤 추천 복지</SectionTitle>
-        {isUserLoggedIn ? (
+        {isUserLoggedIn && isOnboardingCompleted ? (
           <RecommendationBox>
             <RecommendationTitle>
               안녕하세요, {userInfo?.name || '사용자'}님! 👋

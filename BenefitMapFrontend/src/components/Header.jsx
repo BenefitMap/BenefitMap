@@ -318,7 +318,7 @@ const Header = () => {
   const [showDeletedNotifications, setShowDeletedNotifications] = useState(false);
   
   // 커스텀 훅 사용
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const { 
     notifications, 
     deletedNotifications,
@@ -410,9 +410,10 @@ const Header = () => {
 
   // 로그아웃 함수 최적화
   const handleLogoutClick = useCallback(() => {
-    handleLogout(navigate);
+    logout(); // useAuth의 logout 함수 사용
+    navigate('/', { replace: true }); // 페이지 새로고침 없이 이동
     setIsProfileDropdownOpen(false);
-  }, [navigate]);
+  }, [logout, navigate]);
 
   return (
     <HeaderContainer>

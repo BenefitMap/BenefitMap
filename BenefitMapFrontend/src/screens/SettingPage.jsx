@@ -653,7 +653,15 @@ function SettingsPage() {
       
       localStorage.setItem('userSettings', JSON.stringify(userSettings));
       
-      // 로그인 상태 강제 업데이트를 위해 페이지 새로고침
+      // 온보딩 완료 상태를 명시적으로 저장
+      localStorage.setItem('onboardingCompleted', 'true');
+      
+      console.log('온보딩 완료! localStorage에 저장됨:', {
+        onboardingCompleted: localStorage.getItem('onboardingCompleted'),
+        userSettings: localStorage.getItem('userSettings')
+      });
+      
+      // SignupComplete 페이지로 리다이렉트
       window.location.href = '/signup-complete?loggedIn=true';
     } catch (error) {
       console.error('온보딩 저장 실패:', error);

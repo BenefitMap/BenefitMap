@@ -49,15 +49,15 @@ function SignupComplete() {
     if (loggedIn === 'true') {
       // 설정 정보가 완전하면 메인페이지로, 없거나 불완전하면 설정페이지로
       if (hasUserSettings()) {
-        // 설정 완료 후 성공 메시지 표시 후 메인페이지로 이동
-        const timer = setTimeout(() => {
-          navigate('/', { replace: true });
-        }, 2000);
-        return () => clearTimeout(timer);
+        // 설정 완료 후 성공 메시지 표시 (자동 리다이렉트 제거)
+        console.log('설정 완료됨 - SignupComplete 페이지 표시');
       } else {
         // 설정이 완료되지 않은 경우 설정페이지로 이동 (loggedIn 파라미터 제거)
         navigate('/SettingPage', { replace: true });
       }
+    } else {
+      // loggedIn 파라미터가 없으면 메인페이지로 이동
+      navigate('/', { replace: true });
     }
   }, [navigate, searchParams]);
 
@@ -76,8 +76,8 @@ function SignupComplete() {
           : '복지 혜택과 일정을 한눈에 확인해보세요.'
         }
       </SubText>
-      {!isSettingsComplete && (
-        <Button onClick={() => navigate('/SettingPage')}>혜택 설정하러 가기</Button>
+      {isSettingsComplete && (
+        <Button onClick={() => navigate('/')}>메인 페이지로 이동</Button>
       )}
     </Container>
   );
