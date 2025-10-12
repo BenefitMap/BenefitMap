@@ -1,7 +1,9 @@
 package com.benefitmap.backend.web;
 
+import com.benefitmap.backend.common.api.ApiResponse;
 import io.jsonwebtoken.JwtException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -45,12 +47,30 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.fail(e.getMessage() != null ? e.getMessage() : "bad request"));
     }
 
-    /** @Valid 검증 실패 */
+    /** @Valid 검증 실패 (RequestBody DTO 등) */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> validation(MethodArgumentNotValidException e) {
-        log.warn("400 Validation: {}", rootMsg(e));
+        // 커스텀 Constraint 메시지 포함, 첫 에러 메시지만 노출
+        String msg = e.getBindingResult().getAllErrors().stream()
+                .findFirst()
+                .map(err -> err.getDefaultMessage())
+                .orElse("validation error");
+
+        log.warn("400 Validation: {}", msg);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.fail("validation error"));
+                .body(ApiResponse.fail(msg));
+    }
+
+    /** @Validated 파라미터/경로변수 검증 실패 (Controller 메서드 파라미터) */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> constraint(ConstraintViolationException e) {
+        String msg = e.getConstraintViolations().stream()
+                .findFirst()
+                .map(v -> v.getMessage())
+                .orElse("validation error");
+        log.warn("400 ConstraintViolation: {}", msg);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.fail(msg));
     }
 
     /** JSON 파싱 실패 */

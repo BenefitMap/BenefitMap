@@ -1,9 +1,9 @@
-package com.benefitmap.backend.web;
+package com.benefitmap.backend.onboarding.controller;
 
 import com.benefitmap.backend.onboarding.OnboardingService;
 import com.benefitmap.backend.onboarding.TagQueryService;
 import com.benefitmap.backend.onboarding.dto.OnboardingRequest;
-import com.benefitmap.backend.web.ApiResponse;
+import com.benefitmap.backend.common.api.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

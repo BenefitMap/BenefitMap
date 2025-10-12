@@ -1,4 +1,4 @@
-package com.benefitmap.backend.config;
+package com.benefitmap.backend.config.openapi;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;

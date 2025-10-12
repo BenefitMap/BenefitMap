@@ -1,4 +1,4 @@
-package com.benefitmap.backend.web;
+package com.benefitmap.backend.common.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
@@ -14,7 +14,7 @@ public record ApiResponse<T>(
         @Schema(example = "true")
         boolean success,
 
-        @Schema(example = "logout")
+        @Schema(example = "ok")
         String message,
 
         @Schema(nullable = true)

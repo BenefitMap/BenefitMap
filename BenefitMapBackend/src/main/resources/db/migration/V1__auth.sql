@@ -1,20 +1,19 @@
--- ------------------------------------------------------------
--- DB & 기본 설정
--- ------------------------------------------------------------
+-- ============================================================
+-- BenefitMap Database Schema
+-- ============================================================
+
 CREATE DATABASE IF NOT EXISTS benefitmap
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE benefitmap;
 SET NAMES utf8mb4;
 
 -- ------------------------------------------------------------
--- 1) 사용자
---   - role: ROLE_USER | ROLE_ADMIN (ONBOARDING 제거)
---   - 상태는 status(PENDING/ACTIVE/SUSPENDED)로만 관리
+-- 1) USERS (회원 기본정보)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS users (
                                      id             BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                      provider       VARCHAR(20)  NOT NULL,                           -- ex) google
-    provider_id    VARCHAR(128) NOT NULL,                           -- 구글 sub
+    provider_id    VARCHAR(128) NOT NULL,                           -- ex) Google sub
     email          VARCHAR(120) NOT NULL,
     name           VARCHAR(60)       NULL,
     image_url      VARCHAR(255)      NULL,
@@ -28,7 +27,7 @@ CREATE TABLE IF NOT EXISTS users (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
--- 2) 사용자 프로필 (1:1)
+-- 2) USER_PROFILE (회원 상세정보)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS user_profile (
                                             user_id     BIGINT      NOT NULL PRIMARY KEY,
@@ -42,8 +41,9 @@ CREATE TABLE IF NOT EXISTS user_profile (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
--- 3) 태그 마스터 (active = BIT(1))
+-- 3) TAG MASTER (생애주기 / 가구상황 / 관심주제)
 -- ------------------------------------------------------------
+
 CREATE TABLE IF NOT EXISTS lifecycle_tag (
                                              id            SMALLINT     NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                              code          VARCHAR(40)  NOT NULL UNIQUE,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS interest_tag (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
--- 4) 유저-태그 매핑
+-- 4) USER-TAG MAPPING (회원별 태그)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS user_lifecycle_tag (
                                                   user_id BIGINT   NOT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS user_interest_tag (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
--- 5) 리프레시 토큰
+-- 5) REFRESH TOKEN
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS refresh_token (
                                              id          BIGINT      NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS refresh_token (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
--- 6) 태그 Seed
+-- 6) TAG SEED DATA (초기 태그 삽입)
 -- ------------------------------------------------------------
 INSERT IGNORE INTO lifecycle_tag(code,name_ko,display_order) VALUES
 ('PREGNANCY_BIRTH','임신·출산',1),('INFANT','영유아',2),('CHILD','아동',3),
@@ -125,7 +125,8 @@ INSERT IGNORE INTO lifecycle_tag(code,name_ko,display_order) VALUES
 
 INSERT IGNORE INTO household_tag(code,name_ko,display_order) VALUES
 ('LOW_INCOME','저소득',1),('DISABLED','장애인',2),('SINGLE_PARENT','한부모·조손',3),
-('MULTI_CHILDREN','다자녀',4),('MULTICULTURAL_NK','다문화·탈북민',5),('PROTECTED','보호대상자',6);
+('MULTI_CHILDREN','다자녀',4),('MULTICULTURAL_NK','다문화·탈북민',5),
+('PROTECTED','보호대상자',6),('NONE','해당 사항 없음',7);
 
 INSERT IGNORE INTO interest_tag(code,name_ko,display_order) VALUES
 ('PHYSICAL_HEALTH','신체건강',1),('MENTAL_HEALTH','정신건강',2),('LIVING_SUPPORT','생활지원',3),

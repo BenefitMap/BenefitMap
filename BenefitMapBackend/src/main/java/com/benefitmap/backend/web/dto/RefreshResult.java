@@ -1,4 +1,4 @@
-package com.benefitmap.backend.web.payload;
+package com.benefitmap.backend.web.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

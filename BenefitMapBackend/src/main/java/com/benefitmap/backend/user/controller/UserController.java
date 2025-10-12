@@ -1,6 +1,7 @@
-package com.benefitmap.backend.web;
+package com.benefitmap.backend.user.controller;
 
 import com.benefitmap.backend.auth.token.RefreshTokenRepository;
+import com.benefitmap.backend.common.api.ApiResponse;
 import com.benefitmap.backend.user.repo.UserRepository;
 
 import io.swagger.v3.oas.annotations.Operation;

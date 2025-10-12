@@ -1,6 +1,6 @@
 package com.benefitmap.backend.auth.jwt;
 
-import com.benefitmap.backend.web.ApiResponse;
+import com.benefitmap.backend.common.api.ApiResponse;
 import com.benefitmap.backend.user.enums.Role;
 import com.benefitmap.backend.user.entity.User;
 import com.benefitmap.backend.user.repo.UserRepository;

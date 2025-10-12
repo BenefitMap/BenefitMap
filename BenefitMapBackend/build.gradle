@@ -4,7 +4,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'org.benefitmap.backend'
+group = 'com.benefitmap.backend'
 version = '0.0.1-SNAPSHOT'
 description = 'benefit-map-backend'
 
@@ -26,14 +26,13 @@ repositories {
 
 dependencies {
 	// === Spring 기본 ===
-	implementation 'org.springframework.boot:spring-boot-starter-web'          // MVC + Tomcat
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-	// === WebClient만 필요하면(서버는 MVC 유지) ===
-	// starter-webflux (X). 아래 한 줄만 추가해서 WebClient 사용
+	// === WebClient만 필요할 때: spring-webflux 모듈만 의존 (starter-webflux는 X) ===
 	implementation 'org.springframework:spring-webflux'
 
 	// === JWT ===
@@ -42,10 +41,10 @@ dependencies {
 	runtimeOnly   'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
 	// === DB ===
-	runtimeOnly 'com.mysql:mysql-connector-j' // BOM이 관리하므로 버전 생략 OK
+	runtimeOnly 'com.mysql:mysql-connector-j' // Boot BOM이 버전 관리
 
 	// === 문서화 ===
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 
 	// === 캐시 ===
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
@@ -56,9 +55,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
 
-	// === Lombok ===
+	// === Lombok / @ConfigurationProperties 메타데이터 ===
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
 	// === 테스트 ===
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
