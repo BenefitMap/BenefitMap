@@ -95,7 +95,7 @@ CREATE DATABASE benefitmap;
 
 ## 프로젝트 구조
 
-```
+
 BenefitMap/
 ├── BenefitMapFrontend/          # React 프론트엔드
 │   ├── src/
@@ -134,7 +134,7 @@ BenefitMap/
     ├── src/main/resources/
     │   └── application.properties
     └── build.gradle
-```
+
 
 ## 주요 기능 상세
 
