@@ -476,6 +476,7 @@ function SettingsPage() {
   }, [selectedRegion1]);
 
   const genderOptions = ['남성', '여성'];
+  
   // 백엔드에서 태그 데이터 가져오기
   useEffect(() => {
     const loadTags = async () => {
@@ -599,42 +600,43 @@ function SettingsPage() {
           };
           return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
         }),
-        householdCodes: selectedHousehold
-          .filter(name => name !== '해당사항 없음') // "해당사항 없음" 필터링
-          .map(name => {
-            const codeMap = {
-              '저소득': 'LOW_INCOME',
-              '장애인': 'DISABLED',
-              '한부모·조손': 'SINGLE_PARENT',
-              '다자녀': 'MULTI_CHILDREN',
-              '다문화·탈북민': 'MULTICULTURAL_NK',
-              '보호대상자': 'PROTECTED'
-            };
-            const code = codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
-            console.log(`가구상황 태그 매핑: "${name}" -> "${code}"`);
-            return code;
-          }),
-        interestCodes: selectedInterest.map(name => {
-          const codeMap = {
-            '신체건강': 'PHYSICAL_HEALTH',
-            '정신건강': 'MENTAL_HEALTH',
-            '생활지원': 'LIVING_SUPPORT',
-            '주거': 'HOUSING',
-            '일자리': 'JOBS',
-            '문화·여가': 'CULTURE_LEISURE',
-            '안전·위기': 'SAFETY_CRISIS',
-            '임신·출산': 'PREGNANCY_BIRTH',
-            '보육': 'CHILDCARE',
-            '교육': 'EDUCATION',
-            '입양·위탁': 'ADOPTION_TRUST',
-            '보호·돌봄': 'CARE_PROTECT',
-            '서민금융': 'MICRO_FINANCE',
-            '법률': 'LAW',
-            '에너지': 'ENERGY',
-            '해당사항 없음': 'NONE'
-          };
-          return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
-        })
+        householdCodes: selectedHousehold.includes('해당사항 없음') 
+          ? [] 
+          : selectedHousehold.map(name => {
+              const codeMap = {
+                '저소득': 'LOW_INCOME',
+                '장애인': 'DISABLED',
+                '한부모·조손': 'SINGLE_PARENT',
+                '다자녀': 'MULTI_CHILDREN',
+                '다문화·탈북민': 'MULTICULTURAL_NK',
+                '보호대상자': 'PROTECTED'
+              };
+              const code = codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
+              console.log(`가구상황 태그 매핑: "${name}" -> "${code}"`);
+              return code;
+            }),
+        interestCodes: selectedInterest.includes('해당사항 없음')
+          ? []
+          : selectedInterest.map(name => {
+              const codeMap = {
+                '신체건강': 'PHYSICAL_HEALTH',
+                '정신건강': 'MENTAL_HEALTH',
+                '생활지원': 'LIVING_SUPPORT',
+                '주거': 'HOUSING',
+                '일자리': 'JOBS',
+                '문화·여가': 'CULTURE_LEISURE',
+                '안전·위기': 'SAFETY_CRISIS',
+                '임신·출산': 'PREGNANCY_BIRTH',
+                '보육': 'CHILDCARE',
+                '교육': 'EDUCATION',
+                '입양·위탁': 'ADOPTION_TRUST',
+                '보호·돌봄': 'CARE_PROTECT',
+                '서민금융': 'MICRO_FINANCE',
+                '법률': 'LAW',
+                '에너지': 'ENERGY'
+              };
+              return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
+            })
       };
       
       // 백엔드에 온보딩 데이터 저장
