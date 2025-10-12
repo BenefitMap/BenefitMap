@@ -1,0 +1,62 @@
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { ArrowUp } from 'lucide-react'; // 화살표 아이콘 (lucide-react 설치되어 있으면 사용)
+
+const ScrollToTopButton = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  // 스크롤 감지 → 일정 높이 이상 내려가면 버튼 표시
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.scrollY > 300) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+
+  // 맨 위로 부드럽게 스크롤 이동
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    isVisible && (
+      <TopButton onClick={scrollToTop}>
+        <ArrowUp size={22} />
+      </TopButton>
+    )
+  );
+};
+
+// 🔹 styled-components
+const TopButton = styled.button`
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4a9d5f);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  z-index: 1000; /* 다른 UI 위에 표시 */
+`;
+
+export default ScrollToTopButton;
