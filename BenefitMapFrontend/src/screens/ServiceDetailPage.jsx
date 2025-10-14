@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { colors, fonts, spacing, breakpoints } from '../styles/CommonStyles';
 import { createDeadlineNotificationEmail, getUserEmail, isEmailNotificationEnabled } from '../utils/emailNotification';
+import { useAuth } from '../hooks/useAuth';
+import { checkAuthAndRedirect } from '../utils/auth';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -34,47 +36,48 @@ const BackButton = styled.button`
 
 const DetailCard = styled.div`
   background-color: white;
-  border-radius: 16px;
-  padding: ${spacing.xxl};
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  margin-bottom: ${spacing.xl};
+  border-radius: 8px;
+  padding: 32px;
+  border: 1px solid #e9ecef;
+  margin-bottom: 24px;
 `;
 
 const ServiceHeader = styled.div`
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: ${spacing.xl};
-  margin-bottom: ${spacing.xl};
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
 `;
 
 const ServiceTags = styled.div`
   display: flex;
-  gap: ${spacing.sm};
-  margin-bottom: ${spacing.lg};
+  gap: 8px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 `;
 
 const ServiceTag = styled.span`
-  background-color: ${colors.primary};
-  color: white;
-  font-size: ${fonts.sizes.small};
-  padding: ${spacing.xs} ${spacing.md};
-  border-radius: 20px;
-  font-weight: ${fonts.weights.medium};
+  background-color: #f8f9fa;
+  color: ${colors.primary};
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  border: 1px solid #e9ecef;
 `;
 
 const ServiceTitle = styled.h1`
-  font-size: ${fonts.sizes.xxl};
+  font-size: 24px;
   color: ${colors.text};
-  margin-bottom: ${spacing.lg};
-  font-weight: ${fonts.weights.bold};
-  line-height: 1.3;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.4;
 `;
 
 const ServiceDescription = styled.p`
-  font-size: ${fonts.sizes.medium};
+  font-size: 16px;
   color: ${colors.textLight};
   line-height: 1.6;
-  margin-bottom: ${spacing.xl};
+  margin-bottom: 0;
 `;
 
 const DetailSection = styled.div`
@@ -117,18 +120,18 @@ const DetailValue = styled.div`
 `;
 
 const ApplicationPeriodSection = styled.div`
-  background-color: #fff8e1;
-  border: 2px solid #ffb74d;
-  border-radius: 12px;
-  padding: ${spacing.lg};
-  margin: ${spacing.xl} 0;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 24px 0;
 `;
 
 const PeriodTitle = styled.h4`
-  color: #e65100;
-  font-size: ${fonts.sizes.large};
-  margin-bottom: ${spacing.md};
-  font-weight: ${fonts.weights.medium};
+  color: #495057;
+  font-size: 18px;
+  margin-bottom: 16px;
+  font-weight: 600;
 `;
 
 const PeriodInfo = styled.div`
@@ -151,12 +154,12 @@ const PeriodDate = styled.div`
 `;
 
 const StatusBadge = styled.span`
-  background-color: ${props => props.isOngoing ? '#4caf50' : '#ff9800'};
+  background-color: #4caf50;
   color: white;
-  padding: ${spacing.xs} ${spacing.md};
+  padding: 6px 16px;
   border-radius: 20px;
-  font-size: ${fonts.sizes.small};
-  font-weight: ${fonts.weights.medium};
+  font-size: 14px;
+  font-weight: 500;
 `;
 
 const ButtonContainer = styled.div`
@@ -223,6 +226,25 @@ const ServiceDetailPage = () => {
   const location = useLocation();
   const service = location.state?.service;
   const [isAddingToCalendar, setIsAddingToCalendar] = useState(false);
+  const { isAuthenticated } = useAuth();
+
+  // 복지서비스 상세 페이지는 로그인 없이도 접근 가능
+
+  // 페이지 로드 시 가운데로 스크롤
+  useEffect(() => {
+    const scrollToCenter = () => {
+      const container = document.querySelector('[data-service-detail]');
+      if (container) {
+        container.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    };
+    
+    // 약간의 지연을 두고 실행 (DOM이 완전히 렌더링된 후)
+    setTimeout(scrollToCenter, 100);
+  }, []);
 
   // 서비스 데이터가 없으면 홈으로 리다이렉트
   if (!service) {
@@ -231,6 +253,13 @@ const ServiceDetailPage = () => {
   }
 
   const handleAddToCalendar = async () => {
+    // 로그인하지 않은 사용자는 로그인 페이지로 리다이렉트
+    if (!isAuthenticated) {
+      alert('캘린더에 추가하려면 로그인이 필요합니다.');
+      navigate('/LoginPage');
+      return;
+    }
+
     setIsAddingToCalendar(true);
     
     try {
@@ -322,7 +351,7 @@ const ServiceDetailPage = () => {
   };
 
   return (
-    <Container>
+    <Container data-service-detail>
       <MainContent>
         <BackButton onClick={() => navigate('/ServicePage')}>
           ← 복지 서비스 목록으로 돌아가기
@@ -341,13 +370,13 @@ const ServiceDetailPage = () => {
 
           {service.applicationPeriod && (
             <ApplicationPeriodSection>
-              <PeriodTitle>📅 신청 기간</PeriodTitle>
+              <PeriodTitle>신청 기간</PeriodTitle>
               <PeriodInfo>
                 <PeriodDate>
                   {service.applicationPeriod.startDate} ~ {service.applicationPeriod.endDate}
                 </PeriodDate>
                 <StatusBadge isOngoing={service.applicationPeriod.isOngoing}>
-                  {service.applicationPeriod.isOngoing ? '신청 가능' : '신청 마감'}
+                  신청 가능
                 </StatusBadge>
               </PeriodInfo>
             </ApplicationPeriodSection>
@@ -381,13 +410,15 @@ const ServiceDetailPage = () => {
               disabled={isAddingToCalendar}
             >
               {isAddingToCalendar ? (
-                <>⏳ 캘린더에 추가 중...</>
+                <>캘린더에 추가 중...</>
+              ) : isAuthenticated ? (
+                <>캘린더에 추가</>
               ) : (
-                <>📅 캘린더에 추가</>
+                <>로그인 후 캘린더에 추가</>
               )}
             </AddToCalendarButton>
             <ContactButton onClick={handleContact}>
-              📞 문의하기
+              문의하기
             </ContactButton>
           </ButtonContainer>
         </DetailCard>

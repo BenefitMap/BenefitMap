@@ -2,6 +2,7 @@ package com.benefitmap.backend.user.controller;
 
 import com.benefitmap.backend.auth.token.RefreshTokenRepository;
 import com.benefitmap.backend.common.api.ApiResponse;
+import com.benefitmap.backend.user.entity.User;
 import com.benefitmap.backend.user.repo.UserRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +41,24 @@ public class UserController {
     /** HTTPS 권장: true → Secure 쿠키 + SameSite=None */
     @Value("${app.cookie.secure:true}")
     private boolean cookieSecure;
+ 
+    /** 내 정보 조회  10/12 17:00 추가*/
+    @Operation(
+            summary = "내 정보 조회",
+            description = "로그인한 사용자의 정보를 조회합니다.",
+            security = @SecurityRequirement(name = "cookieAuth")
+    )
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<User>> getMe() {
+        Long userId = currentUserId();
+        if (userId == null) {
+            return ResponseEntity.status(401).body(ApiResponse.fail("인증되지 않은 사용자입니다."));
+        }
+
+        return userRepository.findById(userId)
+                .map(user -> ResponseEntity.ok(ApiResponse.ok("사용자 정보 조회 성공", user)))
+                .orElse(ResponseEntity.status(404).body(ApiResponse.fail("사용자를 찾을 수 없습니다.")));
+    }
 
     @Operation(
             summary = "회원 탈퇴",

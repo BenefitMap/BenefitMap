@@ -112,6 +112,80 @@ public class OnboardingController {
         return ApiResponse.ok(tagQueryService.findInterest());
     }
 
+    /** 사용자 온보딩 정보 조회 */
+    @GetMapping("/onboarding")
+    @Operation(
+            summary = "사용자 온보딩 정보 조회",
+            description = "현재 로그인한 사용자의 온보딩 정보(프로필, 선택된 태그들)를 반환합니다.",
+            security = { @SecurityRequirement(name = "bearerAuth"), @SecurityRequirement(name = "cookieAuth") },
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "조회 성공",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "success", value = """
+                    {
+                      "success": true,
+                      "message": null,
+                      "data": {
+                        "profile": {
+                          "gender": "MALE",
+                          "birthDate": "1995-02-03",
+                          "regionDo": "경기도",
+                          "regionSi": "수원시"
+                        },
+                        "lifecycleTags": [
+                          {"code":"YOUTH","nameKo":"청년","displayOrder":5,"active":true}
+                        ],
+                        "householdTags": [
+                          {"code":"LOW_INCOME","nameKo":"저소득","displayOrder":1,"active":true}
+                        ],
+                        "interestTags": [
+                          {"code":"JOBS","nameKo":"일자리","displayOrder":5,"active":true},
+                          {"code":"HOUSING","nameKo":"주거","displayOrder":4,"active":true}
+                        ]
+                      },
+                      "timestamp": "2025-09-24T13:31:40.436095Z"
+                    }
+                    """))),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "401",
+                            description = "미인증(로그인 필요)",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "unauthorized", value = """
+                    {
+                      "success": false,
+                      "message": "Login required",
+                      "data": null,
+                      "timestamp": "2025-09-24T13:31:40.436095Z"
+                    }
+                    """))),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "404",
+                            description = "온보딩 정보 없음",
+                            content = @Content(mediaType = "application/json",
+                                    examples = @ExampleObject(name = "not-found", value = """
+                    {
+                      "success": false,
+                      "message": "Onboarding information not found",
+                      "data": null,
+                      "timestamp": "2025-09-24T13:31:40.436095Z"
+                    }
+                    """)))
+            }
+    )
+    public ApiResponse<?> getOnboardingInfo(
+            @AuthenticationPrincipal(expression = "id") Long userId
+    ) {
+        // 미인증 → 401
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login required");
+        }
+        
+        var result = onboardingService.getOnboardingInfo(userId);
+        return ApiResponse.ok(result);
+    }
+
     /** 온보딩 완료 저장 */
     @PostMapping("/onboarding")
     @Operation(

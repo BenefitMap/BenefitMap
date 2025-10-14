@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * 온보딩 저장 서비스
@@ -118,5 +120,81 @@ public class OnboardingService {
         }
 
         userRepo.save(user);
+    }
+
+    /**
+     * 사용자 온보딩 정보 조회
+     */
+    public Map<String, Object> getOnboardingInfo(Long userId) {
+        // 사용자 확인
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // 프로필 정보 조회
+        Optional<UserProfile> profileOpt = profileRepo.findById(userId);
+        if (profileOpt.isEmpty()) {
+            throw new EntityNotFoundException("Onboarding information not found");
+        }
+        UserProfile profile = profileOpt.get();
+
+        // 태그 정보 조회 - 코드만 가져오기
+        List<String> lifecycleCodes = userLifecycleRepo.findCodesByUserId(userId);
+        List<String> householdCodes = userHouseholdRepo.findCodesByUserId(userId);
+        List<String> interestCodes = userInterestRepo.findCodesByUserId(userId);
+
+        // 결과 구성
+        Map<String, Object> result = new HashMap<>();
+        
+        // 프로필 정보
+        Map<String, Object> profileInfo = new HashMap<>();
+        profileInfo.put("gender", profile.getGender());
+        profileInfo.put("birthDate", profile.getBirthDate());
+        profileInfo.put("regionDo", profile.getRegionDo());
+        profileInfo.put("regionSi", profile.getRegionSi());
+        result.put("profile", profileInfo);
+
+        // 생애주기 태그 - 코드로 태그 정보 조회
+        List<LifecycleTag> lifecycleTagEntities = lifecycleRepo.findByCodeIn(lifecycleCodes);
+        List<Map<String, Object>> lifecycleTags = lifecycleTagEntities.stream()
+                .map(tag -> {
+                    Map<String, Object> tagInfo = new HashMap<>();
+                    tagInfo.put("code", tag.getCode());
+                    tagInfo.put("nameKo", tag.getNameKo());
+                    tagInfo.put("displayOrder", tag.getDisplayOrder());
+                    tagInfo.put("active", tag.getActive());
+                    return tagInfo;
+                })
+                .toList();
+        result.put("lifecycleTags", lifecycleTags);
+
+        // 가구상황 태그 - 코드로 태그 정보 조회
+        List<HouseholdTag> householdTagEntities = householdRepo.findByCodeIn(householdCodes);
+        List<Map<String, Object>> householdTags = householdTagEntities.stream()
+                .map(tag -> {
+                    Map<String, Object> tagInfo = new HashMap<>();
+                    tagInfo.put("code", tag.getCode());
+                    tagInfo.put("nameKo", tag.getNameKo());
+                    tagInfo.put("displayOrder", tag.getDisplayOrder());
+                    tagInfo.put("active", tag.getActive());
+                    return tagInfo;
+                })
+                .toList();
+        result.put("householdTags", householdTags);
+
+        // 관심주제 태그 - 코드로 태그 정보 조회
+        List<InterestTag> interestTagEntities = interestRepo.findByCodeIn(interestCodes);
+        List<Map<String, Object>> interestTags = interestTagEntities.stream()
+                .map(tag -> {
+                    Map<String, Object> tagInfo = new HashMap<>();
+                    tagInfo.put("code", tag.getCode());
+                    tagInfo.put("nameKo", tag.getNameKo());
+                    tagInfo.put("displayOrder", tag.getDisplayOrder());
+                    tagInfo.put("active", tag.getActive());
+                    return tagInfo;
+                })
+                .toList();
+        result.put("interestTags", interestTags);
+
+        return result;
     }
 }

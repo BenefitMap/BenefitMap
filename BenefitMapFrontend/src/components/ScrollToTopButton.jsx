@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { ArrowUp } from 'lucide-react'; // 화살표 아이콘 (lucide-react 설치되어 있으면 사용)
 
 const ScrollToTopButton = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -27,7 +26,7 @@ const ScrollToTopButton = () => {
   return (
     isVisible && (
       <TopButton onClick={scrollToTop}>
-        <ArrowUp size={22} />
+        <ArrowIcon>↑</ArrowIcon>
       </TopButton>
     )
   );
@@ -41,7 +40,7 @@ const TopButton = styled.button`
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4a9d5f);
+  background: linear-gradient(135deg, #4a9d5f, #3d8b52);
   color: white;
   border: none;
   cursor: pointer;
@@ -57,6 +56,12 @@ const TopButton = styled.button`
   }
 
   z-index: 1000; /* 다른 UI 위에 표시 */
+`;
+
+const ArrowIcon = styled.span`
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1;
 `;
 
 export default ScrollToTopButton;

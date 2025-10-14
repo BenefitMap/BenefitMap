@@ -5,10 +5,10 @@
  * @returns {boolean} 로그인 여부
  */
 export const isLoggedIn = () => {
-  const accessToken = localStorage.getItem('access_token');
+  // 백엔드는 쿠키 기반 인증을 사용하므로 localStorage의 user_info만으로 판단
   const userInfo = localStorage.getItem('user_info');
-  const isLoggedInStatus = !!(accessToken && userInfo);
-  console.log('로그인 상태 확인:', { accessToken: !!accessToken, userInfo: !!userInfo, isLoggedIn: isLoggedInStatus });
+  const isLoggedInStatus = !!userInfo;
+  console.log('로그인 상태 확인:', { userInfo: !!userInfo, isLoggedIn: isLoggedInStatus });
   return isLoggedInStatus;
 };
 
@@ -108,7 +108,11 @@ export const fetchUserInfo = async () => {
     });
 
     if (!response.ok) {
-      throw new Error('사용자 정보 조회 실패');
+      // 401 Unauthorized인 경우 인증되지 않은 상태
+      if (response.status === 401) {
+        return null;
+      }
+      throw new Error(`사용자 정보 조회 실패: ${response.status}`);
     }
 
     const result = await response.json();
@@ -134,27 +138,10 @@ export const fetchUserInfo = async () => {
  */
 export const checkOnboardingStatus = async () => {
   try {
-    const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-    const response = await fetch(`${BACKEND_URL}/user/onboarding-status`, {
-      method: 'GET',
-      credentials: 'include', // 쿠키 포함
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      // 401 (인증 필요) 또는 404 (API 없음)인 경우 localStorage 기반으로 폴백
-      if (response.status === 401 || response.status === 404) {
-        console.log('온보딩 상태 API 접근 불가, localStorage 기반으로 폴백');
-        return hasUserSettings();
-      }
-      throw new Error('온보딩 상태 조회 실패');
-    }
-
-    const result = await response.json();
-    if (result.success && result.data) {
-      return result.data.isOnboardingCompleted;
+    // 백엔드에 온보딩 상태 API가 없으므로 사용자 정보로 확인
+    const userInfo = await fetchUserInfo();
+    if (userInfo && userInfo.status === 'ACTIVE') {
+      return true;
     }
     return false;
   } catch (error) {
@@ -271,24 +258,55 @@ export const saveOnboarding = async (onboardingData) => {
 };
 
 /**
+ * 백엔드에서 사용자의 온보딩 정보 가져오기
+ * @returns {Promise<Object|null>} 온보딩 정보 또는 null
+ */
+export const fetchOnboardingInfo = async () => {
+  try {
+    const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const response = await fetch(`${BACKEND_URL}/api/onboarding`, {
+      method: 'GET',
+      credentials: 'include', // 쿠키 포함
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      // 401 Unauthorized인 경우 인증되지 않은 상태
+      if (response.status === 401) {
+        return null;
+      }
+      // 404 Not Found인 경우 온보딩 정보가 없는 상태
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`온보딩 정보 조회 실패: ${response.status}`);
+    }
+
+    const result = await response.json();
+    if (result.success && result.data) {
+      return result.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('온보딩 정보 가져오기 오류:', error);
+    return null;
+  }
+};
+
+/**
  * 로그아웃 처리
  * @param {Function} navigate - React Router의 navigate 함수
  */
 export const handleLogout = async (navigate) => {
   if (window.confirm('로그아웃 하시겠습니까?')) {
-    try {
-      const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-      await fetch(`${BACKEND_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include', // 쿠키 포함
-      });
-    } catch (error) {
-      console.error('로그아웃 API 호출 실패:', error);
-    }
-    
-    localStorage.removeItem('access_token');
+    // 클라이언트 사이드에서만 로그아웃 처리 (CORS 문제 해결)
+    // localStorage에서 사용자 정보만 삭제 (토큰은 쿠키로 관리됨)
     localStorage.removeItem('user_info');
     // 온보딩 상태는 유지 (userSettings, onboardingCompleted는 삭제하지 않음)
+    
+    console.log('클라이언트 사이드 로그아웃 완료');
     
     // 페이지 새로고침 없이 바로 메인 페이지로 이동
     navigate('/', { replace: true });

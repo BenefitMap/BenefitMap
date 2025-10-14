@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../hooks/useAuth';
-
-// Removed local GlobalStyle to ensure app-wide font (GowunBatang) applies
+import { checkAuthAndRedirect } from '../utils/auth';
+import ScrollToTopButton from '../components/ScrollToTopButton';
 
 const Container = styled.div`
   min-height: 100vh;
   background-color: #f8f9fa;
   padding: 20px;
+  overflow-y: auto; /* 스크롤 활성화 */
 `;
 
 const MainContent = styled.div`
@@ -17,7 +18,7 @@ const MainContent = styled.div`
 `;
 
 const AddressText = styled.div`
-  font-size: 12px;
+  font-size: 14px;
   color: #666;
   margin-bottom: 20px;
   display: flex;
@@ -44,46 +45,31 @@ const FilterSection = styled.div`
 `;
 
 const FilterCard = styled.div`
-  background-color: #D7FFE3;
-  border-radius: 24px;
-  padding: 28px 24px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #e9ecef;
 `;
 
 const FilterGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
 `;
 
 const FilterColumn = styled.div`
-  background-color: transparent;
-  padding: 8px 16px 8px 16px;
-  border-right: 1px solid rgba(0,0,0,0.06);
-  
-  &:last-child {
-    border-right: none;
-  }
+  background-color: white;
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
 `;
 
 const FilterTitle = styled.h3`
-  position: relative;
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 18px;
-  text-align: center;
-
-  /* ✅ 밑줄 추가 */
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    opacity: 0.2;
-    background-color: #8a8a8a;
-  }
+  font-size: 16px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 16px;
+  text-align: left;
 `;
 
 const CheckboxList = styled.div`
@@ -92,82 +78,101 @@ const CheckboxList = styled.div`
   gap: 8px;
 `;
 
+const InterestCheckboxList = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  gap: 8px;
+`;
+
 const CheckboxItem = styled.label`
   display: flex;
   align-items: center;
   cursor: pointer;
   font-size: 14px;
-  color: #333;
+  color: #495057;
   gap: 8px;
+  padding: 6px 0;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #4a9d5f;
+  }
   
   input[type="checkbox"] {
     appearance: none;
     margin: 0;
-    width: 18px;
-    height: 18px;
-    border: 2px solid #9BECCB; /* light border to match D7FFE3 theme */
-    border-radius: 4px;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
     background-color: #fff;
     display: grid;
     place-content: center;
+    transition: all 0.2s ease;
   }
   input[type="checkbox"]:checked {
     border-color: #4a9d5f;
     background-color: #4a9d5f;
   }
   input[type="checkbox"]:checked::after {
-    content: '';
-    width: 10px;
-    height: 10px;
-    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
-    background: #fff;
+    content: '✓';
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
   }
 `;
 
 const SectionDivider = styled.div`
   width: 100%;
   height: 1px;
-  background-color: #333;
-  margin: 30px 0;
+  background-color: #e9ecef;
+  margin: 24px 0;
 `;
 
 const SearchSection = styled.div`
-  padding: 30px 0;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid #e9ecef;
 `;
 
 const SearchTitle = styled.h3`
   font-size: 18px;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #495057;
   margin-bottom: 20px;
 `;
 
 const SearchForm = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+  margin-bottom: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const FormRow = styled.div`
   display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
+  flex-direction: column;
+  gap: 6px;
 `;
 
 const FormLabel = styled.label`
   font-size: 14px;
-  color: #333;
-  min-width: 50px;
-  font-weight: 400;
+  color: #495057;
+  font-weight: 500;
 `;
 
 const AgeInput = styled.input`
-  padding: 6px 10px;
-  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
   border-radius: 4px;
-  font-size: 13px;
-  width: 60px;
+  font-size: 14px;
+  width: 80px;
   text-align: center;
   
   &:focus {
@@ -177,11 +182,11 @@ const AgeInput = styled.input`
 `;
 
 const RegionSelect = styled.select`
-  padding: 6px 12px;
-  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
   border-radius: 4px;
-  font-size: 13px;
-  min-width: 180px;
+  font-size: 14px;
+  width: 100%;
   background-color: white;
   cursor: pointer;
   
@@ -197,12 +202,11 @@ const RegionSelect = styled.select`
 `;
 
 const KeywordInput = styled.input`
-  padding: 6px 12px;
-  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
   border-radius: 4px;
-  font-size: 13px;
-  flex: 1;
-  max-width: 400px;
+  font-size: 14px;
+  width: 100%;
   
   &:focus {
     outline: none;
@@ -216,19 +220,22 @@ const KeywordInput = styled.input`
 
 const ButtonContainer = styled.div`
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
 `;
 
 const Button = styled.button`
-  padding: 8px 24px;
+  padding: 12px 32px;
   border: none;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 400;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
+  min-width: 120px;
 `;
 
 const ResetButton = styled(Button)`
@@ -336,46 +343,97 @@ const ServiceCardGrid = styled.div`
 `;
 
 const ServiceCard = styled.div`
-  background-color: white;
-  border: 1px solid #e0e0e0;
-  padding: 25px;
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 450px;
+  min-height: 420px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #4a9d5f;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    border-color: #4a9d5f;
+  }
 `;
 
 const ServiceTags = styled.div`
   display: flex;
-  gap: 8px;
-  margin-bottom: 15px;
+  gap: 6px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 `;
 
 const ServiceTag = styled.span`
-  background-color: white;
-  color: #333;
+  background: #f8f9fa;
+  color: #4a9d5f;
   font-size: 12px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-weight: 400;
-  border: 1px solid #ddd;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #e9ecef;
+    border-color: #4a9d5f;
+  }
+`;
+
+const ShowTagsButton = styled.button`
+  background: transparent;
+  color: #4a9d5f;
+  border: 1px solid #4a9d5f;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #4a9d5f;
+    color: white;
+  }
+`;
+
+const TagsContainer = styled.div`
+  display: flex;
+  gap: 6px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+  align-items: center;
 `;
 
 const ServiceTitle = styled.h3`
-  font-size: 20px;
-  color: #333;
-  margin-bottom: 15px;
-  font-weight: bold;
-  line-height: 1.4;
+  font-size: 22px;
+  color: #2c3e50;
+  margin-bottom: 12px;
+  font-weight: 700;
+  line-height: 1.3;
 `;
 
 const ServiceDescription = styled.p`
-  font-size: 14px;
-  color: #555;
+  font-size: 16px;
+  color: #5a6c7d;
   margin-bottom: 20px;
   line-height: 1.6;
   flex-grow: 1;
+  font-weight: 400;
 `;
 
 const ServiceDetailsList = styled.ul`
@@ -385,51 +443,62 @@ const ServiceDetailsList = styled.ul`
 `;
 
 const ServiceDetailItem = styled.li`
-  font-size: 13px;
-  color: #666;
+  font-size: 14px;
+  color: #6c757d;
   margin-bottom: 8px;
-  line-height: 1.5;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  padding: 6px 0;
+  border-bottom: 1px solid #f8f9fa;
   
   &:before {
-    content: '• ';
-    margin-right: 5px;
+    content: '•';
+    margin-right: 8px;
+    color: #4a9d5f;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 2px;
   }
   
   &:last-child {
     margin-bottom: 0;
+    border-bottom: none;
   }
 `;
 
 const ViewDetailsButton = styled.button`
-  background-color: #9e9e9e;
+  background-color: #6c757d;
   color: white;
   border: none;
   padding: 12px 20px;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   width: 100%;
-  transition: background-color 0.2s;
-  font-weight: 400;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.2s ease;
 
   &:hover {
-    background-color: #8a8a8a;
+    background-color: #5a6268;
   }
 `;
 
 const AddToCalendarButton = styled.button`
-  background-color: #4CAF50;
+  background-color: #4a9d5f;
   color: white;
   border: none;
   padding: 12px 20px;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   width: 100%;
-  transition: background-color 0.2s;
-  font-weight: 400;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.2s ease;
   margin-top: 8px;
 
   &:hover {
-    background-color: #45a049;
+    background-color: #3d8450;
   }
 `;
 
@@ -443,9 +512,58 @@ const LoadingSpinner = styled.div`
   color: #666;
 `;
 
+// 백엔드 API 호출 함수들
+const API_BASE_URL = 'http://localhost:8080/api';
+
+// 복지서비스 검색 API 호출
+const searchWelfareServices = async (searchParams) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/catalog/search`, {
+      method: 'POST',
+      credentials: 'include', // 쿠키 기반 인증
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(searchParams)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success ? data.data : [];
+  } catch (error) {
+    console.error('복지서비스 검색 실패:', error);
+    return [];
+  }
+};
+
+// 사용자 맞춤 추천 API 호출
+const getRecommendedServices = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/catalog/recommend`, {
+      method: 'GET',
+      credentials: 'include' // 쿠키 기반 인증
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success ? data.data : [];
+  } catch (error) {
+    console.error('추천 서비스 조회 실패:', error);
+    return [];
+  }
+};
+
 const ServicePage = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+
+  // 복지서비스 페이지는 로그인 없이도 접근 가능
   const [selectedFilters, setSelectedFilters] = useState({
     lifeCycle: [],
     household: [],
@@ -470,6 +588,62 @@ const ServicePage = () => {
     private: 0
   });
   const [loading, setLoading] = useState(false);
+  const [expandedTags, setExpandedTags] = useState({});
+
+  // 태그 번역 함수 (백엔드에서 실제 사용하는 태그 코드 기반)
+  const translateTag = (tag) => {
+    const tagTranslations = {
+      // 생애주기 (백엔드 코드 -> 한국어)
+      'PREGNANCY_BIRTH': '임신, 출산',
+      'INFANT': '영유아',
+      'CHILD': '아동',
+      'YOUTH': '청소년',
+      'YOUNG_ADULT': '청년',
+      'MIDDLE_AGED': '중장년',
+      'SENIOR': '노년',
+      'ELDERLY': '노년',
+      
+      // 가구상황 (백엔드 코드 -> 한국어)
+      'LOW_INCOME': '저소득',
+      'DISABLED': '장애인',
+      'SINGLE_PARENT': '한부모',
+      'MULTI_CHILD': '다자녀',
+      'MULTICULTURAL': '다문화',
+      'VETERAN': '보훈대상자',
+      'NONE': '해당 사항 없음',
+      
+      // 관심주제 (백엔드 코드 -> 한국어)
+      'PHYSICAL_HEALTH': '신체건강',
+      'MENTAL_HEALTH': '정신건강',
+      'LIVING_SUPPORT': '생활지원',
+      'JOBS': '일자리',
+      'HOUSING': '주거',
+      'SAFETY_CRISIS': '안전, 위기',
+      'CHILDCARE': '보육',
+      'ADOPTION_FOSTER': '입양, 위탁',
+      'MICRO_FINANCE': '서민금융',
+      'ENERGY': '에너지',
+      'CULTURE_LEISURE': '문화, 여가',
+      'LEGAL': '법률',
+      'EDUCATION': '교육',
+      'CARE_PROTECT': '보호, 돌봄'
+    };
+    
+    return tagTranslations[tag] || tag;
+  };
+
+  // 태그 토글 함수
+  const toggleTags = (serviceId) => {
+    setExpandedTags(prev => ({
+      ...prev,
+      [serviceId]: !prev[serviceId]
+    }));
+  };
+
+  // 페이지 로드 시 API 호출 (로그인 여부와 관계없이 모든 사용자가 복지 서비스 확인 가능)
+  useEffect(() => {
+    loadWelfareServices();
+  }, []);
 
   // 8월-12월 사이의 랜덤 날짜 생성 함수
   const generateRandomDate = () => {
@@ -503,117 +677,88 @@ const ServicePage = () => {
     };
   };
 
-  const loadDummyData = () => {
-    const dummyServices = [
-      {
-        id: 1,
-        tags: ['일자리', '서민금융'],
-        title: '장애인자립자금대여',
-        description: '저소득 장애인의 소규모 창업 및 출퇴근용 자동차 구입 비용을 장기 처리로 대여하여 생업의 기반을 다지고 편리하게 이동할 수 있도록 지원합니다.',
-        department: '보건복지부 장애인자립기반과',
-        cycle: '1회성',
-        type: '현금대여(융자)',
-        contact: '129',
-        applicationPeriod: generateServicePeriod()
-      },
-      {
-        id: 2,
-        tags: ['생활지원'],
-        title: '저소득층 에너지 효율 개선',
-        description: '저소득 가구의 에너지 사용 환경을 개선하여 난방비 부담을 줄이고 쾌적한 주거 환경을 제공합니다.',
-        department: '산업통상자원부 에너지복지과',
-        cycle: '매년',
-        type: '시설개선',
-        contact: '1600-3190',
-        applicationPeriod: generateServicePeriod()
-      },
-      {
-        id: 3,
-        tags: ['주거', '생활지원'],
-        title: '청년 전세자금 대출',
-        description: '무주택 청년의 주거 안정을 위해 전세자금 대출을 지원하여 주거비 부담을 경감합니다.',
-        department: '국토교통부 주택기금과',
-        cycle: '1회성',
-        type: '현금대여(융자)',
-        contact: '1599-0001',
-        applicationPeriod: generateServicePeriod()
-      },
-      {
-        id: 4,
-        tags: ['보육', '아동'],
-        title: '아이돌봄 서비스',
-        description: '맞벌이 가정 등 양육 공백이 발생한 가정에 아이돌보미를 파견하여 아동의 안전한 보호 및 양육을 지원합니다.',
-        department: '여성가족부 가족정책과',
-        cycle: '수시',
-        type: '서비스',
-        contact: '1577-2514',
-        applicationPeriod: generateServicePeriod()
-      },
-      {
-        id: 5,
-        tags: ['교육', '청소년'],
-        title: '청소년 방과후 아카데미',
-        description: '청소년의 건강한 성장을 지원하기 위해 방과후 학습, 체험활동, 급식 등을 제공하는 종합 서비스입니다.',
-        department: '여성가족부 청소년정책과',
-        cycle: '매년',
-        type: '서비스',
-        contact: '1388',
-        applicationPeriod: generateServicePeriod()
-      },
-      {
-        id: 6,
-        tags: ['노년', '신체건강'],
-        title: '노인장기요양보험',
-        description: '고령이나 노인성 질병 등으로 일상생활이 어려운 어르신에게 신체활동 또는 가사활동 지원 등의 장기요양급여를 제공합니다.',
-        department: '보건복지부 요양보험제도과',
-        cycle: '수시',
-        type: '현금/서비스',
-        contact: '1577-1000',
-        applicationPeriod: generateServicePeriod()
-      },
-      {
-        id: 7,
-        tags: ['위기', '생활지원'],
-        title: '긴급복지지원',
-        description: '갑작스러운 위기 상황으로 생계 유지가 곤란한 저소득층에게 생계비, 의료비 등을 신속하게 지원합니다.',
-        department: '보건복지부 복지정책과',
-        cycle: '1회성',
-        type: '현금/서비스',
-        contact: '129',
-        applicationPeriod: generateServicePeriod()
-      },
-      {
-        id: 8,
-        tags: ['다문화', '생활지원'],
-        title: '다문화가족 지원 서비스',
-        description: '다문화가족의 안정적인 정착과 가족생활을 지원하기 위한 한국어 교육, 상담, 통번역 등의 서비스를 제공합니다.',
-        department: '여성가족부 다문화가족정책과',
-        cycle: '수시',
-        type: '서비스',
-        contact: '1577-1366',
-        applicationPeriod: generateServicePeriod()
-      },
-      {
-        id: 9,
-        tags: ['보훈대상자', '생활지원'],
-        title: '국가유공자 보훈급여금',
-        description: '국가유공자와 그 유족 또는 가족의 생활 안정을 도모하고 복지 향상을 위해 보훈급여금을 지급합니다.',
-        department: '국가보훈부 보상정책과',
-        cycle: '매월',
-        type: '현금',
-        contact: '1577-0606',
-        applicationPeriod: generateServicePeriod()
-      }
-    ];
+  // 백엔드에서 복지서비스 데이터 로드
+  const loadWelfareServices = useCallback(async () => {
+    setLoading(true);
+    try {
+      let services = [];
+      
+      // 필터가 선택된 경우 검색 API 호출, 아니면 모든 서비스 조회
+      const hasFilters = selectedFilters.lifeCycle.length > 0 || 
+                        selectedFilters.household.length > 0 || 
+                        selectedFilters.topics.length > 0 ||
+                        searchForm.keyword.trim() !== '';
 
-    setWelfareServices(dummyServices);
-    setServiceSummary({
-      total: 5256,
-      central: 368,
-      local: 4552,
-      private: 336
-    });
-  };
+      if (hasFilters) {
+        // 검색 API 호출 (필터가 있을 때)
+        const searchParams = {
+          keyword: searchForm.keyword.trim() || null,
+          lifecycles: selectedFilters.lifeCycle.length > 0 ? 
+            selectedFilters.lifeCycle.map(item => item.toUpperCase().replace(/\s+/g, '_')) : null,
+          households: selectedFilters.household.length > 0 ? 
+            selectedFilters.household.map(item => item.toUpperCase().replace(/\s+/g, '_')) : null,
+          interests: selectedFilters.topics.length > 0 ? 
+            selectedFilters.topics.map(item => item.toUpperCase().replace(/\s+/g, '_')) : null
+        };
+        
+        services = await searchWelfareServices(searchParams);
+      } else {
+        // 모든 서비스 조회 (필터가 없을 때)
+        const searchParams = {
+          keyword: null,
+          lifecycles: null,
+          households: null,
+          interests: null
+        };
+        
+        services = await searchWelfareServices(searchParams);
+      }
+
+      // 백엔드 데이터를 프론트엔드 형식으로 변환
+      const transformedServices = services.map(service => ({
+        id: service.id,
+        tags: [
+          ...(service.lifecycles || []).map(lc => lc.toLowerCase().replace(/_/g, ' ')),
+          ...(service.households || []).map(hh => hh.toLowerCase().replace(/_/g, ' ')),
+          ...(service.interests || []).map(interest => interest.toLowerCase().replace(/_/g, ' '))
+        ],
+        title: service.welfareName,
+        description: service.description,
+        department: service.department,
+        cycle: service.supportCycle,
+        type: service.supplyType,
+        contact: service.contact,
+        url: service.url,
+        applicationPeriod: {
+          startDate: service.startDate,
+          endDate: service.endDate
+        }
+      }));
+
+      setWelfareServices(transformedServices);
+      
+      // 서비스 요약 정보 업데이트 (실제 데이터 기반)
+      setServiceSummary({
+        total: transformedServices.length,
+        central: transformedServices.filter(s => s.department.includes('부')).length,
+        local: transformedServices.filter(s => s.department.includes('시') || s.department.includes('도')).length,
+        private: transformedServices.filter(s => s.department.includes('재단') || s.department.includes('센터')).length
+      });
+
+    } catch (error) {
+      console.error('복지서비스 로드 실패:', error);
+      // 에러 시 빈 배열로 설정
+      setWelfareServices([]);
+      setServiceSummary({
+        total: 0,
+        central: 0,
+        local: 0,
+        private: 0
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedFilters, searchForm]);
 
   const updateLocationFromBrowser = React.useCallback(() => {
     if (!('geolocation' in navigator)) {
@@ -681,7 +826,6 @@ const ServicePage = () => {
 
   React.useEffect(() => {
     updateLocationFromBrowser();
-    loadDummyData();
   }, [updateLocationFromBrowser]);
 
   const lifeCycleOptions = ['임신, 출산', '영유아', '아동', '청소년', '청년', '중장년', '노년'];
@@ -710,37 +854,47 @@ const ServicePage = () => {
     '제주특별자치도': ['서귀포시','제주시']
   };
 
-  const handleFilterChange = (category, value) => {
-    setSelectedFilters(prev => ({
-      ...prev,
-      [category]: prev[category].includes(value)
-        ? prev[category].filter(item => item !== value)
-        : [...prev[category], value]
-    }));
-  };
+  const handleFilterChange = useCallback((category, value) => {
+    const newFilters = {
+      ...selectedFilters,
+      [category]: selectedFilters[category].includes(value)
+        ? selectedFilters[category].filter(item => item !== value)
+        : [...selectedFilters[category], value]
+    };
+    setSelectedFilters(newFilters);
+    // 필터 변경 시 자동으로 검색 실행
+    setTimeout(() => loadWelfareServices(), 100);
+  }, [selectedFilters, loadWelfareServices]);
 
-  const handleFormChange = (field, value) => {
-    setSearchForm(prev => ({
-      ...prev,
+  const handleFormChange = useCallback((field, value) => {
+    console.log(`Form change - field: ${field}, value:`, value);
+    const newForm = {
+      ...searchForm,
       [field]: value
-    }));
-  };
+    };
+    console.log('New form state:', newForm);
+    setSearchForm(newForm);
+    // 키워드 검색 시 자동으로 검색 실행
+    if (field === 'keyword') {
+      setTimeout(() => loadWelfareServices(), 300); // 디바운스 효과
+    }
+  }, [searchForm, loadWelfareServices]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setSelectedFilters({ lifeCycle: [], household: [], topics: [] });
     setSearchForm({ age: '', province: '', city: '', keyword: '' });
-  };
+  }, []);
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     console.log('검색 조건:', { selectedFilters, searchForm });
-    loadDummyData();
-  };
+    loadWelfareServices();
+  }, [selectedFilters, searchForm, loadWelfareServices]);
 
-  const handleViewDetails = (service) => {
+  const handleViewDetails = useCallback((service) => {
     navigate(`/service/${service.id}`, { state: { service } });
-  };
+  }, [navigate]);
 
-  const handleAddToCalendar = (service) => {
+  const handleAddToCalendar = useCallback((service) => {
     // 로그인 체크
     if (!isAuthenticated) {
       const shouldLogin = window.confirm(
@@ -794,7 +948,7 @@ const ServicePage = () => {
         } 
       });
     }
-  };
+  }, [isAuthenticated, navigate]);
 
   return (
     <>
@@ -811,8 +965,8 @@ const ServicePage = () => {
               <FilterColumn>
                 <FilterTitle>생애주기</FilterTitle>
                 <CheckboxList>
-                  {lifeCycleOptions.map(option => (
-                    <CheckboxItem key={option}>
+                  {lifeCycleOptions.map((option, index) => (
+                    <CheckboxItem key={`lifecycle-${option}-${index}`}>
                       <input
                         type="checkbox"
                         checked={selectedFilters.lifeCycle.includes(option)}
@@ -827,8 +981,8 @@ const ServicePage = () => {
               <FilterColumn>
                 <FilterTitle>가구상황</FilterTitle>
                 <CheckboxList>
-                  {householdOptions.map(option => (
-                    <CheckboxItem key={option}>
+                  {householdOptions.map((option, index) => (
+                    <CheckboxItem key={`household-${option}-${index}`}>
                       <input
                         type="checkbox"
                         checked={selectedFilters.household.includes(option)}
@@ -842,9 +996,9 @@ const ServicePage = () => {
               
               <FilterColumn>
                 <FilterTitle>관심주제</FilterTitle>
-                <CheckboxList>
-                  {topicOptions.map(option => (
-                    <CheckboxItem key={option}>
+                <InterestCheckboxList>
+                  {topicOptions.map((option, index) => (
+                    <CheckboxItem key={`topic-${option}-${index}`}>
                       <input
                         type="checkbox"
                         checked={selectedFilters.topics.includes(option)}
@@ -853,7 +1007,7 @@ const ServicePage = () => {
                       {option}
                     </CheckboxItem>
                   ))}
-                </CheckboxList>
+                </InterestCheckboxList>
               </FilterColumn>
             </FilterGrid>
             </FilterCard>
@@ -862,48 +1016,79 @@ const ServicePage = () => {
           <SectionDivider />
 
           <SearchSection>
-            <SearchTitle>선택한 항목</SearchTitle>
+            <SearchTitle>추가 검색 조건</SearchTitle>
             <SearchForm>
               <FormRow>
                 <FormLabel>나이</FormLabel>
-                <span>나이 만</span>
-                <AgeInput
-                  type="number"
-                  value={searchForm.age}
-                  onChange={(e) => handleFormChange('age', e.target.value)}
-                  placeholder="0"
-                />
-                <span>세</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '14px', color: '#6c757d' }}>만</span>
+                  <AgeInput
+                    type="number"
+                    min="1"
+                    max="150"
+                    value={searchForm.age}
+                    onChange={(e) => handleFormChange('age', e.target.value)}
+                    placeholder="0"
+                  />
+                  <span style={{ fontSize: '14px', color: '#6c757d' }}>세</span>
+                </div>
               </FormRow>
               
               <FormRow>
                 <FormLabel>지역</FormLabel>
-                <RegionSelect
-                  value={searchForm.province}
-                  onChange={(e) => {
-                    handleFormChange('province', e.target.value);
-                    handleFormChange('city', '');
-                  }}
-                >
-                  <option value="">시/도 선택</option>
-                  {provinces.map(province => (
-                    <option key={province} value={province}>{province}</option>
-                  ))}
-                </RegionSelect>
-                <RegionSelect
-                  value={searchForm.city}
-                  onChange={(e) => handleFormChange('city', e.target.value)}
-                  disabled={!searchForm.province}
-                >
-                  <option value="">시/군/구 선택</option>
-                  {searchForm.province && cities[searchForm.province]?.map(city => (
-                    <option key={city} value={city}>{city}</option>
-                  ))}
-                </RegionSelect>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <RegionSelect
+                    value={searchForm.province}
+                    onChange={(e) => {
+                      const selectedProvince = e.target.value;
+                      console.log('Province selected:', selectedProvince);
+                      console.log('Available cities:', cities[selectedProvince]);
+                      console.log('Current searchForm:', searchForm);
+                      
+                      // 한 번에 province와 city를 함께 업데이트
+                      const newForm = {
+                        ...searchForm,
+                        province: selectedProvince,
+                        city: '' // 시/도 변경 시 시/군/구 초기화
+                      };
+                      console.log('New form state:', newForm);
+                      setSearchForm(newForm);
+                    }}
+                  >
+                    <option value="">시/도 선택</option>
+                    {provinces.map(province => (
+                      <option key={province} value={province}>{province}</option>
+                    ))}
+                  </RegionSelect>
+                  <RegionSelect
+                    value={searchForm.city}
+                    onChange={(e) => {
+                      const selectedCity = e.target.value;
+                      console.log('City selected:', selectedCity);
+                      
+                      const newForm = {
+                        ...searchForm,
+                        city: selectedCity
+                      };
+                      console.log('Updated form with city:', newForm);
+                      setSearchForm(newForm);
+                    }}
+                    disabled={!searchForm.province}
+                  >
+                    <option value="">시/군/구 선택</option>
+                    {searchForm.province && cities[searchForm.province] && cities[searchForm.province].map(city => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </RegionSelect>
+                </div>
+                {/* 디버깅 정보 */}
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                  현재 선택: {searchForm.province || '없음'} / {searchForm.city || '없음'}
+                </div>
               </FormRow>
               
-              <FormRow>
-                <FormLabel>키워드</FormLabel>
+              <FormRow style={{ gridColumn: '1 / -1' }}>
+                <FormLabel>키워드 검색</FormLabel>
                 <KeywordInput
                   type="text"
                   value={searchForm.keyword}
@@ -973,36 +1158,60 @@ const ServicePage = () => {
               <LoadingSpinner>서비스를 불러오는 중...</LoadingSpinner>
             ) : (
               <ServiceCardGrid>
-                {welfareServices.map(service => (
-                  <ServiceCard key={service.id}>
-                    <div>
-                      <ServiceTags>
-                        {service.tags.map(tag => (
-                          <ServiceTag key={tag}>{tag}</ServiceTag>
-                        ))}
-                      </ServiceTags>
-                      <ServiceTitle>{service.title}</ServiceTitle>
-                      <ServiceDescription>{service.description}</ServiceDescription>
-                      <ServiceDetailsList>
-                        <ServiceDetailItem>담당부서: {service.department}</ServiceDetailItem>
-                        <ServiceDetailItem>지원주기: {service.cycle}</ServiceDetailItem>
-                        <ServiceDetailItem>제공유형: {service.type}</ServiceDetailItem>
-                        <ServiceDetailItem>문의처: {service.contact}</ServiceDetailItem>
-                      </ServiceDetailsList>
-                    </div>
-                    <ViewDetailsButton onClick={() => handleViewDetails(service)}>
-                      자세히 보기
-                    </ViewDetailsButton>
-                    <AddToCalendarButton onClick={() => handleAddToCalendar(service)}>
-                      캘린더에 추가
-                    </AddToCalendarButton>
-                  </ServiceCard>
-                ))}
+                {welfareServices.map(service => {
+                  const translatedTags = service.tags.map(tag => translateTag(tag));
+                  const isExpanded = expandedTags[service.id];
+                  
+                  return (
+                    <ServiceCard key={service.id}>
+                      <div>
+                        <TagsContainer>
+                          {isExpanded ? (
+                            <>
+                              {translatedTags.map((tag, index) => (
+                                <ServiceTag key={`${service.id}-${tag}-${index}`}>{tag}</ServiceTag>
+                              ))}
+                              <ShowTagsButton onClick={() => toggleTags(service.id)}>
+                                접기
+                              </ShowTagsButton>
+                            </>
+                          ) : (
+                            <>
+                              {translatedTags.slice(0, 2).map((tag, index) => (
+                                <ServiceTag key={`${service.id}-${tag}-${index}`}>{tag}</ServiceTag>
+                              ))}
+                              {translatedTags.length > 2 && (
+                                <ShowTagsButton onClick={() => toggleTags(service.id)}>
+                                  태그 더보기 ({translatedTags.length - 2})
+                                </ShowTagsButton>
+                              )}
+                            </>
+                          )}
+                        </TagsContainer>
+                        <ServiceTitle>{service.title}</ServiceTitle>
+                        <ServiceDescription>{service.description}</ServiceDescription>
+                        <ServiceDetailsList>
+                          <ServiceDetailItem>담당부서: {service.department}</ServiceDetailItem>
+                          <ServiceDetailItem>지원주기: {service.cycle}</ServiceDetailItem>
+                          <ServiceDetailItem>제공유형: {service.type}</ServiceDetailItem>
+                          <ServiceDetailItem>문의처: {service.contact}</ServiceDetailItem>
+                        </ServiceDetailsList>
+                      </div>
+                      <ViewDetailsButton onClick={() => handleViewDetails(service)}>
+                        자세히 보기
+                      </ViewDetailsButton>
+                      <AddToCalendarButton onClick={() => handleAddToCalendar(service)}>
+                        캘린더에 추가
+                      </AddToCalendarButton>
+                    </ServiceCard>
+                  );
+                })}
               </ServiceCardGrid>
             )}
           </ServiceDisplaySection>
         </MainContent>
       </Container>
+      <ScrollToTopButton />
     </>
   );
 };

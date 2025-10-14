@@ -72,13 +72,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             User user = opt.get();
 
-            // 4) PENDING 허용 경로: refresh/logout/onboarding/tags
+            // 4) PENDING 허용 경로: refresh/logout/onboarding/tags/user/me
             String uri = req.getRequestURI();
             boolean allowPending =
                     uri.equals("/auth/refresh") ||
                             uri.equals("/auth/logout")  ||
                             uri.startsWith("/api/onboarding") ||
-                            uri.startsWith("/api/tags/");
+                            uri.startsWith("/api/tags/") ||
+                            uri.equals("/user/me");
 
             if (!allowPending && user.getStatus() != UserStatus.ACTIVE) {
                 writeJson(res, HttpServletResponse.SC_FORBIDDEN, ApiResponse.fail("User not active"));

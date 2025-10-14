@@ -11,6 +11,7 @@ const SettingsContainer = styled.div`
   align-items: center;
   padding: 40px 20px;
   background-color: #f8f9fa;
+  overflow-y: auto; /* 스크롤 기능 유지 */
 `;
 
 const PageTitleContainer = styled.div`
@@ -35,6 +36,47 @@ const SettingsMain = styled.main`
   width: 100%;
   display: flex;
   justify-content: center;
+`;
+
+const SidebarContainer = styled.div`
+  position: sticky;
+  top: 20px;
+  width: 60px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+`;
+
+const ProgressSidebar = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  height: 100%;
+`;
+
+const ProgressPercentage = styled.div`
+  font-size: 16px;
+  font-weight: bold;
+  color: #43a047;
+  text-align: center;
+  margin-bottom: 10px;
+`;
+
+const VerticalProgressBar = styled.div`
+  width: 8px;
+  height: 500px;
+  position: relative;
+  margin: 0 auto;
+`;
+
+const VerticalProgressFill = styled.div`
+  width: 100%;
+  background-color: #43a047;
+  border-radius: 4px;
+  transition: height 0.3s ease;
+  position: absolute;
+  top: 0;
 `;
 
 const SettingsBox = styled.form`
@@ -258,16 +300,292 @@ const DropdownMenu = styled.div`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 `;
 
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: ${props => props.$hasValue ? '#2c3e50' : '#adb5bd'};
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+  
+  &:hover {
+    border-color: #43a047;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: #43a047;
+  }
+  
+  &::placeholder {
+    color: #adb5bd;
+  }
+  
+  &::after {
+    content: '▼';
+    color: #43a047;
+    font-size: 10px;
+    transition: transform 0.2s ease;
+    transform: ${props => props.$isOpen ? 'rotate(180deg)' : 'rotate(0)'};
+  }
+`;
+
 const DropdownItem = styled.div`
   padding: 8px 12px;
   cursor: pointer;
-  color: ${props => props.$isSelected ? 'white' : '#2c3e50'};
-  background-color: ${props => props.$isSelected ? '#43a047' : 'transparent'};
+  color: ${props => props.$isSelected ? '#2c3e50' : '#2c3e50'};
+  background-color: ${props => props.$isSelected ? '#e8f5e9' : 'transparent'};
   transition: background-color 0.2s ease;
   font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   
   &:hover {
-    background-color: ${props => props.$isSelected ? '#2e7d32' : '#f8f9fa'};
+    background-color: ${props => props.$isSelected ? '#d4edda' : '#f8f9fa'};
+  }
+`;
+
+// 새로운 스타일 컴포넌트들
+const SelectedItemsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+`;
+
+const SelectedTag = styled.div`
+  background-color: #43a047;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 120px;
+`;
+
+const TagText = styled.span`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const RemoveButton = styled.button`
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+`;
+
+const AddMoreText = styled.span`
+  color: #43a047;
+  font-size: 0.8rem;
+  font-style: italic;
+  margin-left: 4px;
+`;
+
+const DropdownHeader = styled.div`
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  font-size: 0.8rem;
+  color: #6c757d;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+`;
+
+const ClearAllButton = styled.button`
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  
+  &:hover {
+    background-color: #f8d7da;
+  }
+`;
+
+const CheckboxIcon = styled.div`
+  width: 16px;
+  height: 16px;
+  border: 2px solid ${props => props.$isSelected ? '#43a047' : '#dee2e6'};
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${props => props.$isSelected ? '#43a047' : 'transparent'};
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  flex-shrink: 0;
+`;
+
+const OptionText = styled.span`
+  flex: 1;
+`;
+
+// 체크박스 관련 새로운 스타일 컴포넌트들
+const CheckboxContainer = styled.div`
+  width: 100%;
+`;
+
+const SelectedItemsSummary = styled.div`
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+`;
+
+const SummaryTitle = styled.h4`
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #495057;
+`;
+
+const CheckboxList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background-color: #ffffff;
+`;
+
+const CheckboxItem = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const CheckboxInput = styled.input`
+  display: none;
+`;
+
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  width: 100%;
+  padding: 4px 0;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #f8f9fa;
+  }
+`;
+
+const CustomCheckbox = styled.div`
+  width: 18px;
+  height: 18px;
+  border: 2px solid ${props => props.$isChecked ? '#43a047' : '#dee2e6'};
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${props => props.$isChecked ? '#43a047' : 'transparent'};
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+`;
+
+const CheckboxText = styled.span`
+  font-size: 0.9rem;
+  color: #2c3e50;
+  flex: 1;
+`;
+
+const ErrorMessage = styled.div`
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const SuccessMessage = styled.div`
+  color: #28a745;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const HelpTooltip = styled.span`
+  position: relative;
+  display: inline-block;
+  margin-left: 8px;
+  cursor: help;
+  color: #6c757d;
+  font-size: 0.9rem;
+  
+  &:hover::after {
+    content: "${props => props.$tooltip}";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    min-width: 200px;
+    white-space: normal;
+    text-align: center;
+  }
+  
+  &:hover::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+    z-index: 1000;
   }
 `;
 
@@ -297,8 +615,384 @@ const SubmitButton = styled.button`
   }
 `;
 
-// 드롭다운 컴포넌트
-function SimpleDropdown({ options, selectedItems, onSelectionChange, placeholder, isSingleSelect = false, nextFieldRef }) {
+// 체크박스 기반 다중 선택 컴포넌트
+function SimpleDropdown({ options, selectedItems, onSelectionChange, placeholder, isSingleSelect = false, nextFieldRef, fieldName = '' }) {
+  const handleOptionChange = (option) => {
+    if (isSingleSelect) {
+      onSelectionChange([option]);
+      setTimeout(() => {
+        if (nextFieldRef && nextFieldRef.current) {
+          nextFieldRef.current.focus();
+          nextFieldRef.current.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 100);
+    } else {
+      let newSelection;
+      
+      if (option === '해당사항 없음') {
+        // "해당사항 없음"은 무조건 단독 선택 (현재 필드에서만)
+        newSelection = selectedItems.includes(option) ? [] : ['해당사항 없음'];
+      } else {
+        // 다른 항목을 선택하면 현재 필드에서만 "해당사항 없음"을 제거하고 해당 항목 토글
+        const filteredItems = selectedItems.filter(item => item !== '해당사항 없음');
+        
+        // 관심주제는 최대 3개까지만 선택 가능
+        if (fieldName === 'interest') {
+          const MAX_INTEREST_SELECTIONS = 3;
+          if (!filteredItems.includes(option) && filteredItems.length >= MAX_INTEREST_SELECTIONS) {
+            // 3개 초과 시 가장 오래된 선택을 제거하고 새로운 항목 추가
+            const newFilteredItems = filteredItems.slice(1); // 첫 번째(가장 오래된) 항목 제거
+            newSelection = [...newFilteredItems, option];
+          } else {
+        newSelection = filteredItems.includes(option)
+          ? filteredItems.filter(item => item !== option)
+          : [...filteredItems, option];
+          }
+        } else {
+          newSelection = filteredItems.includes(option)
+            ? filteredItems.filter(item => item !== option)
+            : [...filteredItems, option];
+        }
+      }
+      
+      onSelectionChange(newSelection);
+    }
+  };
+
+  const removeSelectedItem = (itemToRemove) => {
+    const newSelection = selectedItems.filter(item => item !== itemToRemove);
+    onSelectionChange(newSelection);
+  };
+
+  // 단일 선택은 검색 가능한 드롭다운 사용
+  if (isSingleSelect) {
+    return <SearchableDropdown 
+      options={options} 
+      selectedItems={selectedItems} 
+      onSelectionChange={onSelectionChange} 
+      placeholder={placeholder} 
+      nextFieldRef={nextFieldRef} 
+    />;
+  }
+
+  // 다중 선택은 체크박스 리스트
+  return (
+    <CheckboxContainer>
+      {selectedItems.length > 0 && (
+        <SelectedItemsSummary>
+          <SummaryTitle>
+            {fieldName === 'household' ? '가구상황' : fieldName === 'interest' ? '관심주제' : '선택된 항목'} 선택됨 ({selectedItems.length}개)
+          </SummaryTitle>
+          <SelectedItemsContainer>
+            {selectedItems.map((item, index) => (
+              <SelectedTag key={index}>
+                <TagText>{item}</TagText>
+                <RemoveButton 
+                  type="button"
+                  onClick={() => removeSelectedItem(item)}
+                  title="제거"
+                >
+                  ×
+                </RemoveButton>
+              </SelectedTag>
+            ))}
+          </SelectedItemsContainer>
+          <ClearAllButton 
+            type="button"
+            onClick={() => onSelectionChange([])}
+          >
+            모두 지우기
+          </ClearAllButton>
+        </SelectedItemsSummary>
+      )}
+      
+      <CheckboxList>
+        {options.map(option => (
+          <CheckboxItem key={option}>
+            <CheckboxInput
+              type="checkbox"
+              id={`checkbox-${option}`}
+              checked={selectedItems.includes(option)}
+              onChange={() => handleOptionChange(option)}
+            />
+            <CheckboxLabel htmlFor={`checkbox-${option}`}>
+              <CustomCheckbox $isChecked={selectedItems.includes(option)}>
+                {selectedItems.includes(option) && '✓'}
+              </CustomCheckbox>
+              <CheckboxText>{option}</CheckboxText>
+            </CheckboxLabel>
+          </CheckboxItem>
+        ))}
+      </CheckboxList>
+    </CheckboxContainer>
+  );
+}
+
+// 키보드 검색 가능한 단일 선택 드롭다운 컴포넌트
+function SearchableDropdown({ options, selectedItems, onSelectionChange, placeholder, nextFieldRef }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [inputValue, setInputValue] = useState('');
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
+
+  // 검색어에 따라 필터링된 옵션
+  const filteredOptions = options.filter(option =>
+    option.toLowerCase().includes((searchTerm || inputValue).toLowerCase())
+  );
+
+  // 선택된 항목이 변경될 때 inputValue 업데이트
+  useEffect(() => {
+    if (selectedItems.length > 0) {
+      setInputValue(selectedItems[0]);
+    } else {
+      setInputValue('');
+    }
+  }, [selectedItems]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm('');
+        setHighlightedIndex(-1);
+        // 외부 클릭 시 선택된 항목으로 복원
+        if (selectedItems.length > 0) {
+          setInputValue(selectedItems[0]);
+        } else {
+          setInputValue('');
+        }
+      }
+    };
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [selectedItems]);
+
+  // 드롭다운 열림/닫힘 시 body overflow 조작 제거 - 화면 흔들림 방지
+
+  const handleOptionClick = (option) => {
+    onSelectionChange([option]);
+    setIsOpen(false);
+    setSearchTerm('');
+    setHighlightedIndex(-1);
+    setInputValue(option);
+    setTimeout(() => {
+      if (nextFieldRef && nextFieldRef.current) {
+        nextFieldRef.current.focus();
+        nextFieldRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }, 100);
+  };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInputValue(value);
+    
+    // 타이핑 중인 곳으로 자동 스크롤 보정
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }, 50);
+    
+    // 입력값이 있으면 드롭다운 열기
+    if (value && !isOpen) {
+      setIsOpen(true);
+    }
+    
+    // 정확히 일치하는 항목이 있으면 자동 선택
+    const exactMatch = options.find(option => option === value);
+    if (exactMatch) {
+      onSelectionChange([exactMatch]);
+      setIsOpen(false);
+      setHighlightedIndex(-1);
+      setTimeout(() => {
+        if (nextFieldRef && nextFieldRef.current) {
+          nextFieldRef.current.focus();
+          nextFieldRef.current.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 100);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    // Tab 키로 자동 완성 또는 다음 필드로 이동
+    if (e.key === 'Tab' && inputValue && !isOpen) {
+      const matchingOptions = options.filter(option =>
+        option.toLowerCase().startsWith(inputValue.toLowerCase())
+      );
+      
+      if (matchingOptions.length === 1) {
+        e.preventDefault();
+        const exactMatch = matchingOptions[0];
+        setInputValue(exactMatch);
+        onSelectionChange([exactMatch]);
+        setTimeout(() => {
+          if (nextFieldRef && nextFieldRef.current) {
+            nextFieldRef.current.focus();
+            nextFieldRef.current.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+          }
+        }, 100);
+        return;
+      } else {
+        // 자동 완성할 수 없으면 다음 필드로 이동
+        e.preventDefault();
+        setTimeout(() => {
+          if (nextFieldRef && nextFieldRef.current) {
+            nextFieldRef.current.focus();
+            nextFieldRef.current.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+          }
+        }, 100);
+        return;
+      }
+    }
+
+    if (!isOpen) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setIsOpen(true);
+        setSearchTerm('');
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setIsOpen(true);
+        setSearchTerm('');
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case 'Escape':
+        setIsOpen(false);
+        setSearchTerm('');
+        setHighlightedIndex(-1);
+        // 선택된 항목으로 복원
+        if (selectedItems.length > 0) {
+          setInputValue(selectedItems[0]);
+        } else {
+          setInputValue('');
+        }
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex(prev => 
+          prev < filteredOptions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex(prev => 
+          prev > 0 ? prev - 1 : filteredOptions.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
+          handleOptionClick(filteredOptions[highlightedIndex]);
+        } else if (filteredOptions.length === 1) {
+          handleOptionClick(filteredOptions[0]);
+        }
+        break;
+      case 'Tab':
+        // 드롭다운이 열린 상태에서 Tab 키로 자동 완성
+        if (filteredOptions.length === 1) {
+          e.preventDefault();
+          handleOptionClick(filteredOptions[0]);
+        }
+        break;
+    }
+  };
+
+  const toggleDropdown = (e) => {
+    e.preventDefault();
+    setIsOpen(!isOpen);
+    if (!isOpen) {
+      setSearchTerm('');
+      setHighlightedIndex(-1);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setHighlightedIndex(-1);
+  };
+
+  return (
+    <DropdownContainer ref={dropdownRef}>
+      <SearchInput
+        ref={inputRef}
+        type="text"
+        placeholder={placeholder}
+        value={inputValue}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        onClick={() => setIsOpen(true)}
+        $hasValue={inputValue.length > 0}
+        $isOpen={isOpen}
+      />
+      
+      {isOpen && (
+        <DropdownMenu>
+          <div style={{ 
+            maxHeight: '200px', 
+            overflowY: 'auto',
+            scrollbarWidth: 'none', /* Firefox */
+            msOverflowStyle: 'none', /* IE and Edge */
+          }}>
+            <style>{`
+              div::-webkit-scrollbar {
+                display: none; /* Chrome, Safari */
+              }
+            `}</style>
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((option, index) => (
+                <DropdownItem 
+                  key={option}
+                  onClick={() => handleOptionClick(option)}
+                  $isSelected={selectedItems.includes(option)}
+                  $isHighlighted={index === highlightedIndex}
+                  style={{ 
+                    backgroundColor: index === highlightedIndex ? '#e8f5e9' : 'transparent'
+                  }}
+                >
+                  {option}
+                </DropdownItem>
+              ))
+            ) : (
+              <DropdownItem style={{ color: '#999', cursor: 'default' }}>
+                검색 결과가 없습니다
+              </DropdownItem>
+            )}
+          </div>
+        </DropdownMenu>
+      )}
+    </DropdownContainer>
+  );
+}
+
+// 단일 선택용 드롭다운 컴포넌트 (기존 유지)
+function SingleSelectDropdown({ options, selectedItems, onSelectionChange, placeholder, nextFieldRef }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -309,54 +1003,26 @@ function SimpleDropdown({ options, selectedItems, onSelectionChange, placeholder
       }
     };
     
-    // 드롭다운이 열릴 때 body 스크롤 막기 (스크롤바 공간은 유지)
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = '17px'; // 스크롤바 너비만큼 패딩 추가
-    } else {
-      document.body.style.overflow = 'unset';
-      document.body.style.paddingRight = '0px';
-    }
-    
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      document.body.style.overflow = 'unset'; // cleanup
-      document.body.style.paddingRight = '0px'; // cleanup
     };
-  }, [isOpen]);
+  }, []);
+
+  // 드롭다운 열림/닫힘 시 body overflow 조작 제거 - 화면 흔들림 방지
 
   const handleOptionClick = (option) => {
-    if (isSingleSelect) {
-      onSelectionChange([option]);
-      setIsOpen(false);
-      setTimeout(() => {
-        if (nextFieldRef && nextFieldRef.current) {
-          nextFieldRef.current.focus();
-          // 다음 필드로 스크롤 이동
-          nextFieldRef.current.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
-          });
-        }
-      }, 100);
-    } else {
-      const newSelection = selectedItems.includes(option)
-        ? selectedItems.filter(item => item !== option)
-        : [...selectedItems, option];
-      onSelectionChange(newSelection);
-      setIsOpen(false);
-      setTimeout(() => {
-        if (nextFieldRef && nextFieldRef.current) {
-          nextFieldRef.current.focus();
-          // 다음 필드로 스크롤 이동
-          nextFieldRef.current.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
-          });
-        }
-      }, 100);
-    }
+    onSelectionChange([option]);
+    setIsOpen(false);
+    setTimeout(() => {
+      if (nextFieldRef && nextFieldRef.current) {
+        nextFieldRef.current.focus();
+        nextFieldRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }, 100);
   };
 
   const toggleDropdown = (e) => {
@@ -364,28 +1030,31 @@ function SimpleDropdown({ options, selectedItems, onSelectionChange, placeholder
     setIsOpen(!isOpen);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggleDropdown(e);
-    }
-  };
-
   return (
     <DropdownContainer ref={dropdownRef}>
       <DropdownButton 
         onClick={toggleDropdown}
-        onKeyDown={handleKeyDown}
         $hasValue={selectedItems.length > 0}
         $isOpen={isOpen}
         type="button"
         tabIndex={0}
       >
-        {selectedItems.length > 0 ? selectedItems.join(', ') : placeholder}
+        {selectedItems.length > 0 ? selectedItems[0] : placeholder}
       </DropdownButton>
       
       {isOpen && (
         <DropdownMenu>
+          <div style={{ 
+            maxHeight: '200px', 
+            overflowY: 'auto',
+            scrollbarWidth: 'none', /* Firefox */
+            msOverflowStyle: 'none', /* IE and Edge */
+          }}>
+            <style>{`
+              div::-webkit-scrollbar {
+                display: none; /* Chrome, Safari */
+              }
+            `}</style>
           {options.map(option => (
             <DropdownItem 
               key={option}
@@ -395,6 +1064,7 @@ function SimpleDropdown({ options, selectedItems, onSelectionChange, placeholder
               {option}
             </DropdownItem>
           ))}
+          </div>
         </DropdownMenu>
       )}
     </DropdownContainer>
@@ -437,6 +1107,40 @@ function SettingsPage() {
   const [householdOptions, setHouseholdOptions] = useState([]);
   const [interestOptions, setInterestOptions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [ageError, setAgeError] = useState(null);
+
+  // 자동 저장 기능
+  useEffect(() => {
+    const autoSaveData = {
+      selectedRegion1,
+      selectedRegion2,
+      age,
+      selectedGender,
+      selectedLifeCycle,
+      selectedHousehold,
+      selectedInterest
+    };
+    localStorage.setItem('onboardingDraft', JSON.stringify(autoSaveData));
+  }, [selectedRegion1, selectedRegion2, age, selectedGender, selectedLifeCycle, selectedHousehold, selectedInterest]);
+
+  // 페이지 로드 시 임시 저장된 데이터 복원
+  useEffect(() => {
+    const savedData = localStorage.getItem('onboardingDraft');
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        if (parsed.selectedRegion1) setSelectedRegion1(parsed.selectedRegion1);
+        if (parsed.selectedRegion2) setSelectedRegion2(parsed.selectedRegion2);
+        if (parsed.age) setAge(parsed.age);
+        if (parsed.selectedGender) setSelectedGender(parsed.selectedGender);
+        if (parsed.selectedLifeCycle) setSelectedLifeCycle(parsed.selectedLifeCycle);
+        if (parsed.selectedHousehold) setSelectedHousehold(parsed.selectedHousehold);
+        if (parsed.selectedInterest) setSelectedInterest(parsed.selectedInterest);
+      } catch (error) {
+        console.error('저장된 데이터 복원 실패:', error);
+      }
+    }
+  }, []);
 
   const region1Options = [
     '서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시', '대전광역시', '울산광역시', '세종특별자치시',
@@ -476,43 +1180,46 @@ function SettingsPage() {
   }, [selectedRegion1]);
 
   const genderOptions = ['남성', '여성'];
-  // 백엔드에서 태그 데이터 가져오기
+  // 기본 태그 데이터 설정
   useEffect(() => {
-    const loadTags = async () => {
-      try {
-        setLoading(true);
-        const [lifeCycleData, householdData, interestData] = await Promise.all([
-          fetchLifecycleTags(),
-          fetchHouseholdTags(),
-          fetchInterestTags()
-        ]);
-        
-        // 백엔드 데이터를 프론트엔드 형식으로 변환하고 "해당사항 없음" 옵션 추가
-        console.log('백엔드에서 받은 생애주기 데이터:', lifeCycleData);
-        console.log('백엔드에서 받은 가구상황 데이터:', householdData);
-        console.log('백엔드에서 받은 관심주제 데이터:', interestData);
-        
-        setLifeCycleOptions(lifeCycleData.map(tag => tag.nameKo));
-        setHouseholdOptions([...householdData.map(tag => tag.nameKo), '해당사항 없음']);
-        setInterestOptions([...interestData.map(tag => tag.nameKo), '해당사항 없음']);
-      } catch (error) {
-        console.error('태그 데이터 로딩 실패:', error);
-        // 실패 시 기본값 사용
-        setLifeCycleOptions(['임신·출산', '영유아', '아동', '청소년', '청년', '중장년', '노년']);
-        setHouseholdOptions(['저소득', '장애인', '한부모·조손', '다자녀', '다문화·탈북민', '보호대상자', '해당사항 없음']);
-        setInterestOptions(['신체건강','정신건강','생활지원','주거','일자리','문화·여가','안전·위기','임신·출산','보육','교육','입양·위탁','보호·돌봄','서민금융','법률','에너지','해당사항 없음']);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
     
-    loadTags();
+    // 기본값 사용 (백엔드 API 호출 제거)
+    setLifeCycleOptions(['임신·출산', '영유아', '아동', '청소년', '청년', '중장년', '노년']);
+    setHouseholdOptions(['저소득', '장애인', '한부모·조손', '다자녀', '다문화·탈북민', '보호대상자', '해당사항 없음']);
+    setInterestOptions(['신체건강','정신건강','생활지원','주거','일자리','문화·여가','안전·위기','임신·출산','보육','교육','입양·위탁','보호·돌봄','서민금융','법률','에너지']);
+    
+    setLoading(false);
   }, []);
 
   const handleAgeChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
-    if (value === '' || (parseInt(value) >= 0 && parseInt(value) <= 150)) {
+    const numAge = parseInt(value);
+    
+    // 타이핑 중인 곳으로 자동 스크롤 보정
+    setTimeout(() => {
+      if (ageRef.current) {
+        ageRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }, 50);
+    
+    // 입력 검증
+    if (value === '') {
+      setAge('');
+      setAgeError(null);
+    } else if (numAge >= 0 && numAge <= 150) {
       setAge(value);
+      setAgeError(null);
+    } else {
+      setAge(value);
+      if (numAge < 0) {
+        setAgeError('나이는 0세 이상이어야 합니다.');
+      } else if (numAge > 150) {
+        setAgeError('나이는 150세 이하여야 합니다.');
+      }
     }
   };
 
@@ -535,11 +1242,12 @@ function SettingsPage() {
       selectedRegion1.length > 0 && selectedRegion2.length > 0,
       age !== '',
       selectedGender.length > 0,
-      selectedLifeCycle.length > 0
+      selectedLifeCycle.length > 0,
+      selectedHousehold.length > 0
     ];
     
     const completedRequired = requiredFields.filter(Boolean).length;
-    return Math.round((completedRequired / 4) * 100);
+    return Math.round((completedRequired / 5) * 100);
   };
 
   const progress = calculateProgress();
@@ -548,9 +1256,16 @@ function SettingsPage() {
   const isAgeCompleted = age !== '';
   const isGenderCompleted = selectedGender.length > 0;
   const isLifeCycleCompleted = selectedLifeCycle.length > 0;
+  const isHouseholdCompleted = selectedHousehold.length > 0;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // 디버깅: 상태 확인
+    console.log('=== 온보딩 제출 시 상태 확인 ===');
+    console.log('selectedHousehold:', selectedHousehold);
+    console.log('selectedHousehold.length:', selectedHousehold.length);
+    console.log('isHouseholdCompleted:', isHouseholdCompleted);
     
     if (!isRegionCompleted) {
       alert('지역을 선택해주세요.');
@@ -570,6 +1285,11 @@ function SettingsPage() {
     if (!isLifeCycleCompleted) {
       alert('생애주기를 선택해주세요.');
       if (lifeCycleRef.current) lifeCycleRef.current.focus();
+      return;
+    }
+    if (!isHouseholdCompleted) {
+      alert('가구상황을 선택해주세요.');
+      if (householdRef.current) householdRef.current.focus();
       return;
     }
     
@@ -600,7 +1320,6 @@ function SettingsPage() {
           return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
         }),
         householdCodes: selectedHousehold
-          .filter(name => name !== '해당사항 없음') // "해당사항 없음" 필터링
           .map(name => {
             const codeMap = {
               '저소득': 'LOW_INCOME',
@@ -608,7 +1327,8 @@ function SettingsPage() {
               '한부모·조손': 'SINGLE_PARENT',
               '다자녀': 'MULTI_CHILDREN',
               '다문화·탈북민': 'MULTICULTURAL_NK',
-              '보호대상자': 'PROTECTED'
+              '보호대상자': 'PROTECTED',
+              '해당사항 없음': 'NONE'
             };
             const code = codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
             console.log(`가구상황 태그 매핑: "${name}" -> "${code}"`);
@@ -637,6 +1357,11 @@ function SettingsPage() {
         })
       };
       
+      // 디버깅: 전송할 데이터 로그
+      console.log('전송할 온보딩 데이터:', onboardingData);
+      console.log('선택된 가구상황:', selectedHousehold);
+      console.log('가구상황 코드:', onboardingData.householdCodes);
+      
       // 백엔드에 온보딩 데이터 저장
       await saveOnboarding(onboardingData);
       
@@ -655,6 +1380,9 @@ function SettingsPage() {
       
       // 온보딩 완료 상태를 명시적으로 저장
       localStorage.setItem('onboardingCompleted', 'true');
+      
+      // 임시 저장된 데이터 삭제
+      localStorage.removeItem('onboardingDraft');
       
       console.log('온보딩 완료! localStorage에 저장됨:', {
         onboardingCompleted: localStorage.getItem('onboardingCompleted'),
@@ -700,7 +1428,12 @@ function SettingsPage() {
 
           {/* 거주 지역 */}
           <RequiredFormGroup>
-            <Label>거주 지역</Label>
+            <Label>
+              거주 지역
+              <HelpTooltip $tooltip="현재 거주하고 계신 지역을 선택해주세요. 정확한 지역 정보를 통해 해당 지역의 복지 혜택을 추천해드립니다.">
+                ⓘ
+              </HelpTooltip>
+            </Label>
             <FormRow>
               <FormCol>
                 <SimpleDropdown 
@@ -729,7 +1462,12 @@ function SettingsPage() {
           <RequiredFormGroup>
             <FormRow>
               <FormCol>
-                <Label>나이</Label>
+                <Label>
+                  나이
+                  <HelpTooltip $tooltip="현재 나이를 입력해주세요. 나이에 따라 받을 수 있는 복지 혜택이 달라집니다.">
+                    ⓘ
+                  </HelpTooltip>
+                </Label>
                 <AgeInputContainer>
                   <StyledInput 
                     ref={ageRef}
@@ -738,14 +1476,25 @@ function SettingsPage() {
                     value={age} 
                     onChange={handleAgeChange}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === 'Enter' || e.key === 'Tab') {
                         e.preventDefault();
-                        if (genderRef.current) genderRef.current.focus();
+                        if (genderRef.current) {
+                          genderRef.current.focus();
+                          genderRef.current.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                          });
+                        }
                       }
                     }}
                     style={{ paddingRight: '40px' }}
                     tabIndex={0}
                   />
+                  {ageError && (
+                    <ErrorMessage>
+                      ⚠️ {ageError}
+                    </ErrorMessage>
+                  )}
                   <AgeSpinGroup>
                     <AgeSpinButton type="button" onClick={incrementAge} tabIndex={-1}>▲</AgeSpinButton>
                     <AgeSpinButton type="button" onClick={decrementAge} tabIndex={-1}>▼</AgeSpinButton>
@@ -753,7 +1502,12 @@ function SettingsPage() {
                 </AgeInputContainer>
               </FormCol>
               <FormCol>
-                <Label>성별</Label>
+                <Label>
+                  성별
+                  <HelpTooltip $tooltip="성별에 따라 제공되는 복지 혜택이 다를 수 있습니다.">
+                    ⓘ
+                  </HelpTooltip>
+                </Label>
                 <SimpleDropdown 
                   options={genderOptions} 
                   selectedItems={selectedGender} 
@@ -768,37 +1522,55 @@ function SettingsPage() {
 
           {/* 생애주기 */}
           <RequiredFormGroup>
-            <Label>생애주기</Label>
+            <Label>
+              생애주기
+              <HelpTooltip $tooltip="현재 나이와 상황에 맞는 생애주기를 선택해주세요. 생애주기에 따라 받을 수 있는 복지 혜택이 달라집니다.">
+                ⓘ
+              </HelpTooltip>
+            </Label>
             <SimpleDropdown 
               options={lifeCycleOptions} 
               selectedItems={selectedLifeCycle} 
               onSelectionChange={setSelectedLifeCycle} 
               placeholder="생애주기 선택"
+              isSingleSelect={true}
               nextFieldRef={householdRef}
             />
           </RequiredFormGroup>
 
           {/* 가구상황 */}
-          <OptionalFormGroup>
-            <Label>가구상황 (선택사항)</Label>
+          <RequiredFormGroup>
+            <Label>
+              가구상황 (복수 선택 가능)
+              <HelpTooltip $tooltip="가구의 특수한 상황을 선택해주세요. 여러 상황이 해당되는 경우 모두 선택하실 수 있습니다. 해당사항이 없는 경우 '해당사항 없음'을 선택해주세요.">
+                ⓘ
+              </HelpTooltip>
+            </Label>
             <SimpleDropdown 
               options={householdOptions} 
               selectedItems={selectedHousehold} 
               onSelectionChange={setSelectedHousehold} 
-              placeholder="가구상황 선택"
+              placeholder="가구상황을 선택해주세요 (복수 선택 가능)"
               nextFieldRef={interestRef}
+              fieldName="household"
             />
-          </OptionalFormGroup>
+          </RequiredFormGroup>
 
           {/* 관심주제 */}
           <OptionalFormGroup>
-            <Label>관심주제 (선택사항)</Label>
+            <Label>
+              관심주제 (최대 3개까지 선택 가능, 선택사항)
+              <HelpTooltip $tooltip="관심 있는 복지 분야를 선택해주세요. 최대 3개까지 선택 가능하며, 선택하지 않으셔도 됩니다. 선택한 관심주제에 맞는 혜택을 우선적으로 추천해드립니다.">
+                ⓘ
+              </HelpTooltip>
+            </Label>
             <SimpleDropdown 
               options={interestOptions} 
               selectedItems={selectedInterest} 
               onSelectionChange={setSelectedInterest} 
-              placeholder="관심주제 선택"
+              placeholder="관심주제를 선택해주세요 (최대 3개)"
               nextFieldRef={submitRef}
+              fieldName="interest"
             />
           </OptionalFormGroup>
 

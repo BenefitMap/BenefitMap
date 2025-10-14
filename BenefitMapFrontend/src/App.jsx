@@ -8,6 +8,7 @@ import GlobalStyle from './styles/GlobalStyle';
 // Components
 import Header from './components/Header';
 import Footer from './components/Footer';
+import ScrollToTopButton from './components/ScrollToTopButton';
 
 // Pages
 import MainPage from './screens/MainPage';
@@ -41,6 +42,7 @@ const App = () => {
                  </Routes>
         </Main>
         <Footer />
+        <ScrollToTopButton />
       </AppLayout>
     </BrowserRouter>
   );

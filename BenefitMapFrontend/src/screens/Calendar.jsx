@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ServiceNotificationModal from '../components/ServiceNotificationModal';
 import { useAuth } from '../hooks/useAuth';
+import { checkAuthAndRedirect } from '../utils/auth';
 
 const Container = styled.div`
   width: 100%;
@@ -280,6 +281,8 @@ const Calendar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuth();
+
+  // 캘린더 페이지는 로그인 없이도 접근 가능
   const [currentDate, setCurrentDate] = useState(() => {
     // targetDate가 있으면 해당 날짜로, 없으면 현재 날짜로 초기화
     const targetDate = location.state?.targetDate;

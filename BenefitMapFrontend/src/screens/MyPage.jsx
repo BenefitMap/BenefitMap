@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { checkAuthAndRedirect, getUserInfo } from '../utils/auth';
+import { checkAuthAndRedirect, getUserInfo, isLoggedIn, hasUserSettings, fetchOnboardingInfo } from '../utils/auth';
 
 // 스타일 컴포넌트 정의
 const MyPageContainer = styled.div`
@@ -188,6 +188,36 @@ const AgeSpinButton = styled.button`
   &:hover { background: #d8f0e4; }
 `;
 
+const TagContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+`;
+
+const Tag = styled.span`
+  background-color: #91D0A6;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+`;
+
+const LoadingText = styled.div`
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+`;
+
+const NoDataText = styled.div`
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 20px;
+`;
+
 function MyPage() {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
@@ -204,9 +234,75 @@ function MyPage() {
     household: '',
     interest: ''
   });
+  const [onboardingData, setOnboardingData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // 컴포넌트 마운트 시 저장된 설정값 불러오기
+  // 서버에서 온보딩 정보 가져오기
+  const fetchOnboardingData = async () => {
+    try {
+      const backendData = await fetchOnboardingInfo();
+      
+      if (backendData) {
+        console.log('백엔드 온보딩 데이터:', backendData);
+        setOnboardingData(backendData);
+        
+        // 백엔드 데이터로 폼 데이터 설정
+        const profile = backendData.profile;
+        const birthYear = profile?.birthDate ? new Date(profile.birthDate).getFullYear() : '';
+        const currentYear = new Date().getFullYear();
+        const age = birthYear ? (currentYear - birthYear + 1).toString() : '';
+        
+        // 태그들을 문자열로 변환
+        const lifecycleNames = backendData.lifecycleTags?.map(tag => tag.nameKo).join(', ') || '';
+        const householdNames = backendData.householdTags?.map(tag => tag.nameKo).join(', ') || '';
+        const interestNames = backendData.interestTags?.map(tag => tag.nameKo).join(', ') || '';
+        
+        setFormData(prev => ({
+          ...prev,
+          name: getUserInfo()?.name || '',
+          age: age,
+          gender: profile?.gender === 'MALE' ? '남성' : profile?.gender === 'FEMALE' ? '여성' : '',
+          address: '',
+          email: getUserInfo()?.email || '',
+          email2: '',
+          region1: profile?.regionDo || '',
+          region2: profile?.regionSi || '',
+          lifeCycle: lifecycleNames,
+          household: householdNames,
+          interest: interestNames
+        }));
+      } else {
+        // 백엔드 데이터가 없으면 로컬 스토리지에서 가져오기
+        const savedSettings = localStorage.getItem('userSettings');
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          setFormData(prev => ({
+            ...prev,
+            ...settings
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('온보딩 정보 조회 실패:', error);
+      // 오류 발생 시 로컬 스토리지에서 폴백
+      const savedSettings = localStorage.getItem('userSettings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        setFormData(prev => ({
+          ...prev,
+          ...settings
+        }));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
+    fetchOnboardingData();
+    
+    // 로컬 스토리지에서 추가 정보 불러오기
     const savedSettings = localStorage.getItem('userSettings');
     if (savedSettings) {
       const settings = JSON.parse(savedSettings);
@@ -217,10 +313,7 @@ function MyPage() {
     }
   }, []);
 
-  // 로그인 상태 및 혜택 설정 완료 여부 확인
-  useEffect(() => {
-    checkAuthAndRedirect(navigate);
-  }, [navigate]);
+  // 마이페이지는 로그인 없이도 접근 가능
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -275,6 +368,17 @@ function MyPage() {
   // 현재 선택된 시/도에 따른 시/군/구 옵션
   const region2Options = formData.region1 ? regionMap[formData.region1] || [] : [];
 
+  if (loading) {
+    return (
+      <MyPageContainer>
+        <PageTitle>마이페이지</PageTitle>
+        <MainContent>
+          <LoadingText>데이터를 불러오는 중...</LoadingText>
+        </MainContent>
+      </MyPageContainer>
+    );
+  }
+
   return (
     <MyPageContainer>
       <PageTitle>마이페이지</PageTitle>
@@ -289,7 +393,7 @@ function MyPage() {
             }}
           />
           <EditButton onClick={handleEdit}>
-            ✏️ 정보 수정
+             정보 수정
           </EditButton>
         </ProfileSection>
 
@@ -433,44 +537,47 @@ function MyPage() {
 
             <FormGroup>
               <Label>생애주기:</Label>
-              <Select
-                value={formData.lifeCycle}
-                onChange={(e) => handleInputChange('lifeCycle', e.target.value)}
-                disabled={!isEditing}
-              >
-                <option value="">생애주기를 선택하세요</option>
-                {lifeCycleOptions.map(option => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </Select>
+              {onboardingData?.lifecycleTags && onboardingData.lifecycleTags.length > 0 ? (
+                <TagContainer>
+                  {onboardingData.lifecycleTags.map((tag, index) => (
+                    <Tag key={tag.code || index}>{tag.nameKo}</Tag>
+                  ))}
+                </TagContainer>
+              ) : formData.lifeCycle ? (
+                <div>{formData.lifeCycle}</div>
+              ) : (
+                <NoDataText>선택된 생애주기가 없습니다</NoDataText>
+              )}
             </FormGroup>
 
             <FormGroup>
               <Label>가구상황:</Label>
-              <Select
-                value={formData.household}
-                onChange={(e) => handleInputChange('household', e.target.value)}
-                disabled={!isEditing}
-              >
-                <option value="">가구상황을 선택하세요</option>
-                {householdOptions.map(option => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </Select>
+              {onboardingData?.householdTags && onboardingData.householdTags.length > 0 ? (
+                <TagContainer>
+                  {onboardingData.householdTags.map((tag, index) => (
+                    <Tag key={tag.code || index}>{tag.nameKo}</Tag>
+                  ))}
+                </TagContainer>
+              ) : formData.household ? (
+                <div>{formData.household}</div>
+              ) : (
+                <NoDataText>선택된 가구상황이 없습니다</NoDataText>
+              )}
             </FormGroup>
 
             <FormGroup>
               <Label>관심주제:</Label>
-              <Select
-                value={formData.interest}
-                onChange={(e) => handleInputChange('interest', e.target.value)}
-                disabled={!isEditing}
-              >
-                <option value="">관심주제를 선택하세요</option>
-                {interestOptions.map(option => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </Select>
+              {onboardingData?.interestTags && onboardingData.interestTags.length > 0 ? (
+                <TagContainer>
+                  {onboardingData.interestTags.map((tag, index) => (
+                    <Tag key={tag.code || index}>{tag.nameKo}</Tag>
+                  ))}
+                </TagContainer>
+              ) : formData.interest ? (
+                <div>{formData.interest}</div>
+              ) : (
+                <NoDataText>선택된 관심주제가 없습니다</NoDataText>
+              )}
             </FormGroup>
 
             {isEditing && (

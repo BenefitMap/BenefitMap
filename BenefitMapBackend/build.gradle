@@ -55,6 +55,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
 
+	// === .env 파일 지원 ===
+	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
 	// === Lombok / @ConfigurationProperties 메타데이터 ===
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

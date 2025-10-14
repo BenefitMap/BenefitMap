@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { isLoggedIn, getUserInfo, checkLoginAndOnboardingStatus } from '../utils/auth';
+import { isLoggedIn, getUserInfo, checkAuthAndRedirect } from '../utils/auth';
 
 // --- 스타일 정의 (Styled Components) ---
 
@@ -55,99 +55,136 @@ const SearchButton = styled.button`
   }
 `;
 
+// Calendar.jsx에서 가져온 스타일 컴포넌트
 const CalendarWrapper = styled.div`
   width: 100%;
-  border: 1px solid #e0e0e0;
+  background: white;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
 `;
 
-const CalendarNav = styled.div`
+const CalendarHeader = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 1.2rem 0;
-  h2 {
-    margin: 0 1.5rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-    width: 150px;
-    text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+`;
+
+const NavigationButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #666;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    color: #333;
   }
-  button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 2rem;
-    color: #555;
-    &:hover {
-      color: #000;
-    }
-  }
+`;
+
+const CalendarTitle = styled.h1`
+  font-size: 24px;
+  margin: 0 40px;
+  color: #333;
+  font-weight: 500;
+  width: 180px;
+  text-align: center;
+`;
+
+const CalendarHeaderGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: #f8f9fa;
+`;
+
+const DayHeader = styled.div`
+  padding: 15px 0;
+  text-align: center;
+  font-weight: 500;
+  font-size: 14px;
+  color: ${props => {
+    if (props.isSunday) return 'red';
+    if (props.isSaturday) return 'blue';
+    return '#666';
+  }};
 `;
 
 const CalendarGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  text-align: center;
+  grid-auto-rows: 100px; /* 셀 높이를 줄여서 가로 비율 개선 */
 `;
 
-const CalendarHeaderCell = styled.div`
-  padding: 0.8rem 0;
-  font-weight: 600;
-  color: #888;
-  border-bottom: 1px solid #e0e0e0;
-  &:not(:last-child) {
-     border-right: 1px solid #e0e0e0;
-  }
-`;
-
-const DayCell = styled.div`
-  padding: 0.5rem;
-  min-height: 100px;
-  font-size: 0.9rem;
-  border-top: 1px solid #e0e0e0;
+const DateCell = styled.div`
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  visibility: ${props => props.$isEmpty ? 'hidden' : 'visible'};
-  &:not(:nth-child(7n)) {
-    border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  padding: 6px;
+  background-color: ${props => props.isOtherMonth ? '#f5f5f5' : 'white'};
+  min-height: 100px;
+  visibility: ${props => props.isEmpty ? 'hidden' : 'visible'};
+  
+  &:nth-child(7n) {
+    border-right: none;
   }
-  &:nth-child(7n-6) > span { color: red; }
-  &:nth-child(7n) > span { color: blue; }
-  ${props => props.$isHighlighted && `
-    background-color: #ffffe0;
-  `}
+  
+  &:nth-last-child(-n+7) {
+    border-bottom: none;
+  }
 `;
 
-const DayNumber = styled.span`
-  font-weight: 500;
-  margin-bottom: 4px;
+const DateNumber = styled.div`
+  font-size: 14px;
+  font-weight: ${props => props.isToday ? 'bold' : '400'};
+  color: ${props => {
+    if (props.isToday) return '#fff';
+    if (props.isOtherMonth) return '#bbb';
+    if (props.isSunday) return 'red';
+    if (props.isSaturday) return 'blue';
+    return '#666';
+  }};
+  background-color: ${props => props.isToday ? '#dc3545' : 'transparent'};
+  border-radius: ${props => props.isToday ? '50%' : '0'};
+  width: ${props => props.isToday ? '24px' : 'auto'};
+  height: ${props => props.isToday ? '24px' : 'auto'};
+  display: ${props => props.isToday ? 'flex' : 'block'};
+  align-items: ${props => props.isToday ? 'center' : 'auto'};
+  justify-content: ${props => props.isToday ? 'center' : 'auto'};
+  margin-bottom: 6px;
 `;
 
 const EventText = styled.p`
   margin: 0;
-  padding: 2px 5px;
-  font-size: 0.75rem;
-  background-color: rgba(0,0,0,0.05);
-  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.7rem;
+  background-color: #e6f4ea;
+  border-radius: 3px;
   width: 100%;
   box-sizing: border-box;
   text-align: left;
+  color: #3e664a;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
+
 
 const SectionTitle = styled.div`
   width: 100%;
-  background-color: #e6f4ea;
-  color: #3e664a;
-  font-weight: bold;
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
   padding: 12px 0;
-  border-radius: 50px;
+  border-radius: 8px;
   text-align: center;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  border: 1px solid #e9ecef;
 `;
 
 const KeywordSection = styled.div`
@@ -161,29 +198,54 @@ const KeywordSection = styled.div`
 const KeywordsContainer = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 40px;
+  align-items: flex-end;
+  gap: 20px;
   width: 100%;
-  padding: 20px 0;
+  padding: 16px 0;
 `;
 
+
 const KeywordWrapper = styled.div`
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+`;
+
+const RankBadge = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  background-color: ${props => {
+    switch(props.rank) {
+      case 1: return '#FFD700';
+      case 2: return '#C0C0C0';
+      case 3: return '#CD7F32';
+      default: return '#6c757d';
+    }
+  }};
 `;
 
 const KeywordButton = styled.button`
-  padding: 10px 30px;
-  border: 1px solid #ddd;
-  border-radius: 50px;
+  padding: 8px 20px;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
   background-color: white;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
+  color: #495057;
+  transition: all 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
   }
 `;
 
@@ -213,40 +275,39 @@ const LoginPromptBox = styled.div`
 const RecommendationBox = styled.div`
   width: 100%;
   min-height: 150px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 1px solid #dee2e6;
-  border-radius: 12px;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 `;
 
 const RecommendationTitle = styled.h3`
   margin: 0;
-  color: #333;
-  font-size: 1.2rem;
+  color: #495057;
+  font-size: 1rem;
   font-weight: 600;
 `;
 
 const RecommendationItem = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 15px;
-  border-left: 4px solid #91D0A6;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 3px solid #91D0A6;
   
   h4 {
-    margin: 0 0 8px 0;
-    color: #333;
-    font-size: 1rem;
-    font-weight: 500;
+    margin: 0 0 6px 0;
+    color: #495057;
+    font-size: 0.9rem;
+    font-weight: 600;
   }
   
   p {
     margin: 0;
-    color: #666;
-    font-size: 0.9rem;
+    color: #6c757d;
+    font-size: 0.8rem;
     line-height: 1.4;
   }
 `;
@@ -257,40 +318,6 @@ const SearchIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
 );
 
-// ✅ 이미지와 100% 동일한 트로피 SVG 코드
-const TrophyIcon = ({ color, className }) => (
-  <svg className={className} width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* 트로피 본체 (컵 부분) */}
-    <path d="M6.5 7H17.5C18.3284 7 19 7.67157 19 8.5V13C19 15.7614 16.7614 18 14 18H10C7.23858 18 5 15.7614 5 13V8.5C5 7.67157 5.67157 7 6.5 7Z" 
-          fill={color} stroke="#333" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-    
-    {/* 트로피 받침대 */}
-    <path d="M8 18H16" stroke="#333" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M7.5 21H16.5C17.0523 21 17.5 20.5523 17.5 20V19H6.5V20C6.5 20.5523 6.94772 21 7.5 21Z" 
-          fill={color} stroke="#333" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-
-    {/* 트로피 손잡이 왼쪽 */}
-    <path d="M4 11C4 10.1716 4.67157 9.5 5.5 9.5H6.5" stroke="#333" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M4.5 9C3.67157 9 3 8.32843 3 7.5V5.5C3 4.67157 3.67157 4 4.5 4H6.5" stroke="#333" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-
-    {/* 트로피 손잡이 오른쪽 */}
-    <path d="M20 11C20 10.1716 19.3284 9.5 18.5 9.5H17.5" stroke="#333" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M19.5 9C20.3284 9 21 8.32843 21 7.5V5.5C21 4.67157 20.3284 4 19.5 4H17.5" stroke="#333" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-
-    {/* 트로피 내부의 선들 */}
-    <path d="M10 10V15" stroke="#333" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.4"/>
-    <path d="M14 10V15" stroke="#333" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.4"/>
-  </svg>
-);
-
-
-const TrophyIconWrapper = styled(TrophyIcon)`
-  position: absolute;
-  top: -14px;      /* 아이콘 높이의 절반만큼 위로 */
-  left: 15px;      /* 왼쪽에서 약간 안으로 */
-  z-index: 2;
-  filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.2)); /* 그림자 추가 */
-`;
 
 
 // --- 메인 페이지 컴포넌트 ---
@@ -303,115 +330,104 @@ const events = {
 
 const MainPage = () => {
   const navigate = useNavigate();
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 5, 1));
+  const [currentDate, setCurrentDate] = useState(new Date()); // 현재 날짜로 초기화
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
-  const [isOnboardingCompleted, setIsOnboardingCompleted] = useState(false);
-  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+  const daysOfWeek = useMemo(() => ['일', '월', '화', '수', '목', '금', '토'], []);
 
-  // 로그인 및 온보딩 상태 확인 함수
-  const checkLoginAndOnboardingStatusAsync = useCallback(async () => {
-    try {
-      setIsCheckingStatus(true);
-      
-      // 먼저 동기적으로 로그인 상태 확인
-      const loggedIn = isLoggedIn();
-      console.log('메인 페이지 - 로그인 상태:', loggedIn);
-      
-      if (!loggedIn) {
-        console.log('로그인되지 않음, 메인 페이지 유지');
-        setIsUserLoggedIn(false);
-        setIsOnboardingCompleted(false);
-        setUserInfo(null);
-        return;
-      }
-      
-      // 로그인된 경우 사용자 정보 설정
-      const user = getUserInfo();
-      setUserInfo(user);
-      setIsUserLoggedIn(true);
-      
-      // 온보딩 상태 확인
-      const { isOnboardingCompleted: onboardingCompleted } = await checkLoginAndOnboardingStatus();
-      setIsOnboardingCompleted(onboardingCompleted);
-      
-      // 온보딩이 완료되지 않은 경우 설정 페이지로 리다이렉트
-      if (!onboardingCompleted) {
-        console.log('온보딩 미완료, 설정 페이지로 리다이렉트');
-        navigate('/SettingPage');
-        return;
-      } else {
-        console.log('온보딩 완료됨, 메인 페이지 유지');
-      }
-    } catch (error) {
-      console.error('상태 확인 오류:', error);
-      // 오류 발생 시 기본 로그인 상태만 확인
-      const loggedIn = isLoggedIn();
-      const user = getUserInfo();
-      setIsUserLoggedIn(loggedIn);
-      setUserInfo(user);
-      setIsOnboardingCompleted(false);
-    } finally {
-      setIsCheckingStatus(false);
-    }
-  }, [navigate]);
+  const checkLoginStatus = useCallback(() => {
+    const loggedIn = isLoggedIn();
+    const user = getUserInfo();
+    setIsUserLoggedIn(loggedIn);
+    setUserInfo(user);
+  }, []);
 
-  // 로그인 상태 확인
   useEffect(() => {
-    checkLoginAndOnboardingStatusAsync();
-    
-    // 주기적으로 로그인 상태 확인 (localStorage 변경 감지) - 주기 단축
-    const interval = setInterval(checkLoginAndOnboardingStatusAsync, 1000);
-    
+    checkLoginStatus();
+    const interval = setInterval(checkLoginStatus, 1000);
     return () => clearInterval(interval);
-  }, [checkLoginAndOnboardingStatusAsync]);
+  }, [checkLoginStatus]);
 
-  const handlePrevMonth = useCallback(() => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
-  }, [currentDate]);
+  // 메인페이지는 로그인 없이도 접근 가능
+  // 온보딩 미완료 사용자의 경우 맞춤 추천 서비스만 표시되지 않음
 
-  const handleNextMonth = useCallback(() => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
-  }, [currentDate]);
+  const changeMonth = useCallback((direction) => {
+    setCurrentDate(prevDate => {
+      const newDate = new Date(prevDate);
+      newDate.setDate(1); // 날짜를 1일로 설정하여 월 변경 시 발생할 수 있는 오류 방지
+      if (direction === 'prev') {
+        newDate.setMonth(newDate.getMonth() - 1);
+      } else {
+        newDate.setMonth(newDate.getMonth() + 1);
+      }
+      return newDate;
+    });
+  }, []);
 
-  const renderCalendar = () => {
+  const renderCalendar = useCallback(() => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const days = [];
+    const today = new Date();
+
+    const calendarData = [];
     
-    for (let i = 0; i < firstDay; i++) {
-      days.push(<DayCell key={`empty-${i}`} $isEmpty />);
+    // 이전 달의 마지막 날들
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = firstDay - 1; i >= 0; i--) {
+      calendarData.push({ 
+        date: prevMonthLastDay - i, 
+        isOtherMonth: true,
+      });
     }
-
+    
+    // 현재 월의 날짜들
     for (let day = 1; day <= daysInMonth; day++) {
-      const eventKey = `${year}-${month}-${day}`;
-      const highlightedDates = [
-        '2025-5-2', '2025-5-3', '2025-5-11', '2025-5-12', '2025-5-27', '2025-5-28'
-      ];
-      const isHighlighted = highlightedDates.includes(eventKey);
-      days.push(
-        <DayCell key={day} $isHighlighted={isHighlighted}>
-          <DayNumber>{day}</DayNumber>
-          {events[eventKey] && <EventText>{events[eventKey]}</EventText>}
-        </DayCell>
-      );
+      calendarData.push({ 
+        date: day, 
+        isOtherMonth: false,
+        year,
+        month,
+      });
     }
-    return days;
-  };
-  
-  // 로딩 중일 때 표시
-  if (isCheckingStatus) {
-    return (
-      <MainContainer>
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <p>상태를 확인하는 중...</p>
-        </div>
-      </MainContainer>
-    );
-  }
 
+    // 다음 달의 날짜들 (총 35개 또는 42개의 셀을 만들기 위해)
+    const totalCells = calendarData.length > 35 ? 42 : 35;
+    const remainingCells = totalCells - calendarData.length;
+    for (let day = 1; day <= remainingCells; day++) {
+      calendarData.push({ 
+        date: day, 
+        isOtherMonth: true,
+      });
+    }
+    
+    return calendarData.map((cell, index) => {
+      const dayOfWeek = (firstDay + cell.date -1) % 7;
+      const isToday = !cell.isOtherMonth && 
+                      today.getFullYear() === year &&
+                      today.getMonth() === month &&
+                      today.getDate() === cell.date;
+
+      const eventKey = `${cell.year}-${cell.month + 1}-${cell.date}`;
+      const event = events[eventKey];
+
+      return (
+        <DateCell key={index} isOtherMonth={cell.isOtherMonth}>
+            <DateNumber 
+              isSunday={index % 7 === 0} 
+              isSaturday={index % 7 === 6}
+              isOtherMonth={cell.isOtherMonth}
+              isToday={isToday}
+            >
+              {cell.date}
+            </DateNumber>
+            {event && !cell.isOtherMonth && <EventText>{event}</EventText>}
+        </DateCell>
+      );
+    });
+  }, [currentDate]);
+  
   return (
     <MainContainer>
       <SearchWrapper>
@@ -420,13 +436,31 @@ const MainPage = () => {
       </SearchWrapper>
 
       <CalendarWrapper>
-        <CalendarNav>
-            <button onClick={handlePrevMonth}>&lt;</button>
-            <h2>{`${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월`}</h2>
-            <button onClick={handleNextMonth}>&gt;</button>
-        </CalendarNav>
+        <CalendarHeader>
+            <NavigationButton onClick={() => changeMonth('prev')}>
+              ◀
+            </NavigationButton>
+            <CalendarTitle>
+              {currentDate.getFullYear()}년 {currentDate.getMonth() + 1}월
+            </CalendarTitle>
+            <NavigationButton onClick={() => changeMonth('next')}>
+              ▶
+            </NavigationButton>
+        </CalendarHeader>
+        
+        <CalendarHeaderGrid>
+          {daysOfWeek.map((day, index) => (
+            <DayHeader 
+              key={index} 
+              isSunday={index === 0} 
+              isSaturday={index === 6}
+            >
+              {day}
+            </DayHeader>
+          ))}
+        </CalendarHeaderGrid>
+
         <CalendarGrid>
-          {['일', '월', '화', '수', '목', '금', '토'].map(day => <CalendarHeaderCell key={day}>{day}</CalendarHeaderCell>)}
           {renderCalendar()}
         </CalendarGrid>
       </CalendarWrapper>
@@ -435,15 +469,15 @@ const MainPage = () => {
         <SectionTitle>이달의 복지 키워드</SectionTitle>
         <KeywordsContainer>
           <KeywordWrapper>
-            <TrophyIconWrapper color="#FFD700" /> {/* 금색 */}
-            <KeywordButton>청년월세</KeywordButton>
-          </KeywordWrapper>
-          <KeywordWrapper>
-            <TrophyIconWrapper color="#C0C0C0" /> {/* 은색 */}
+            <RankBadge rank={2}>2</RankBadge>
             <KeywordButton>연금</KeywordButton>
           </KeywordWrapper>
           <KeywordWrapper>
-            <TrophyIconWrapper color="#CD7F32" /> {/* 동색 */}
+            <RankBadge rank={1}>1</RankBadge>
+            <KeywordButton>청년월세</KeywordButton>
+          </KeywordWrapper>
+          <KeywordWrapper>
+            <RankBadge rank={3}>3</RankBadge>
             <KeywordButton>아동복지</KeywordButton>
           </KeywordWrapper>
         </KeywordsContainer>
@@ -451,22 +485,22 @@ const MainPage = () => {
 
       <RecommendationSection>
         <SectionTitle>맞춤 추천 복지</SectionTitle>
-        {isUserLoggedIn && isOnboardingCompleted ? (
+        {isUserLoggedIn && checkAuthAndRedirect(() => {}) ? (
           <RecommendationBox>
             <RecommendationTitle>
-              안녕하세요, {userInfo?.name || '사용자'}님! 👋
+              안녕하세요, {userInfo?.name || '사용자'}님!
             </RecommendationTitle>
             <RecommendationItem>
-              <h4>🎯 청년 월세 지원</h4>
-              <p>20대 청년을 위한 월세 지원금 신청이 가능합니다. 신청 기간: 2025.05.01 ~ 2025.05.31</p>
+              <h4>청년 월세 지원</h4>
+              <p>20대 청년을 위한 월세 지원금 신청이 가능합니다.</p>
             </RecommendationItem>
             <RecommendationItem>
-              <h4>🏠 청년 주택 드림</h4>
-              <p>청년층을 위한 전세자금 대출 지원 프로그램입니다. 신청 기간: 2025.05.01 ~ 2025.05.31</p>
+              <h4>청년 주택 드림</h4>
+              <p>청년층을 위한 전세자금 대출 지원 프로그램입니다.</p>
             </RecommendationItem>
             <RecommendationItem>
-              <h4>👶 아동 복지</h4>
-              <p>아동 수당 및 양육비 지원 신청이 가능합니다. 신청 기간: 2025.05.01 ~ 2025.05.31</p>
+              <h4>아동 복지</h4>
+              <p>아동 수당 및 양육비 지원 신청이 가능합니다.</p>
             </RecommendationItem>
           </RecommendationBox>
         ) : (

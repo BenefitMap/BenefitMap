@@ -50,27 +50,34 @@ function OAuthCallback() {
         const userInfo = await fetchUserInfo();
         
         console.log('OAuth 콜백 - 사용자 정보:', userInfo);
+        console.log('사용자 상태:', userInfo.status);
         
         if (!userInfo) {
           throw new Error('사용자 정보를 가져올 수 없습니다');
         }
         
-        // 임시 토큰 저장 (실제로는 쿠키로 관리됨)
-        localStorage.setItem('access_token', 'oauth_token');
+        // 백엔드에서 쿠키로 토큰을 관리하므로 별도 토큰 저장 불필요
         
-        // 설정 상태 확인 후 적절한 페이지로 이동
-        if (hasUserSettings()) {
-          navigate('/'); // 설정 완료된 경우 메인페이지로
+        // 온보딩 완료 여부 확인
+        const onboardingCompleted = localStorage.getItem('onboardingCompleted');
+        console.log('온보딩 완료 상태:', onboardingCompleted);
+        
+        // 첫 로그인인지 확인 (사용자 상태가 PENDING이거나 온보딩이 완료되지 않은 경우)
+        const isFirstLogin = userInfo.status === 'PENDING' || 
+                            userInfo.status === undefined || 
+                            userInfo.status === null || 
+                            onboardingCompleted !== 'true';
+        
+        console.log('첫 로그인 여부:', isFirstLogin);
+        
+        if (isFirstLogin) {
+          // 첫 로그인 또는 온보딩 미완료인 경우 설정페이지로 이동
+          console.log('설정 페이지로 이동 - 첫 로그인');
+          navigate('/SettingPage');
         } else {
-          // 혜택 설정이 완료되지 않은 경우, 첫 로그인인지 확인
-          const isFirstLogin = !localStorage.getItem('hasLoggedInBefore');
-          if (isFirstLogin) {
-            localStorage.setItem('hasLoggedInBefore', 'true');
-            navigate('/SettingPage'); // 첫 로그인: 설정페이지로
-          } else {
-            // 재로그인이지만 설정이 안 된 경우도 설정페이지로
-            navigate('/SettingPage');
-          }
+          // 온보딩이 완료된 경우 메인페이지로 이동
+          console.log('메인 페이지로 이동 - 온보딩 완료');
+          navigate('/');
         }
       } catch (error) {
         console.error('OAuth 콜백 처리 오류:', error);
