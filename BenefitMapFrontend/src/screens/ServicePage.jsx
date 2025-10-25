@@ -2,14 +2,17 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../hooks/useAuth';
-import { checkAuthAndRedirect } from '../utils/auth';
 import ScrollToTopButton from '../components/ScrollToTopButton';
+
+/* =========================
+   스타일
+   ========================= */
 
 const Container = styled.div`
   min-height: 100vh;
   background-color: #f8f9fa;
   padding: 20px;
-  overflow-y: auto; /* 스크롤 활성화 */
+  overflow-y: auto;
 `;
 
 const MainContent = styled.div`
@@ -34,7 +37,7 @@ const RefreshButton = styled.button`
   padding: 4px 8px;
   font-size: 10px;
   cursor: pointer;
-  
+
   &:hover {
     background-color: #3d8450;
   }
@@ -94,11 +97,11 @@ const CheckboxItem = styled.label`
   gap: 8px;
   padding: 6px 0;
   transition: color 0.2s ease;
-  
+
   &:hover {
     color: #4a9d5f;
   }
-  
+
   input[type="checkbox"] {
     appearance: none;
     margin: 0;
@@ -149,7 +152,7 @@ const SearchForm = styled.div`
   grid-template-columns: 1fr 1fr;
   gap: 16px 24px;
   margin-bottom: 20px;
-  
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
@@ -174,7 +177,7 @@ const AgeInput = styled.input`
   font-size: 14px;
   width: 80px;
   text-align: center;
-  
+
   &:focus {
     outline: none;
     border-color: #4a9d5f;
@@ -189,12 +192,12 @@ const RegionSelect = styled.select`
   width: 100%;
   background-color: white;
   cursor: pointer;
-  
+
   &:focus {
     outline: none;
     border-color: #4a9d5f;
   }
-  
+
   &:disabled {
     background-color: #f5f5f5;
     cursor: not-allowed;
@@ -207,12 +210,12 @@ const KeywordInput = styled.input`
   border-radius: 4px;
   font-size: 14px;
   width: 100%;
-  
+
   &:focus {
     outline: none;
     border-color: #4a9d5f;
   }
-  
+
   &::placeholder {
     color: #aaa;
   }
@@ -241,16 +244,16 @@ const Button = styled.button`
 const ResetButton = styled(Button)`
   background-color: #999;
   color: white;
-  
+
   &:hover {
     background-color: #888;
   }
 `;
 
-const SearchButton = styled(Button)`
+const SearchButtonStyled = styled(Button)`
   background-color: #B8E6C9;
   color: #333;
-  
+
   &:hover {
     background-color: #A5D9B8;
   }
@@ -286,18 +289,18 @@ const SortOptions = styled.div`
 
 const SortButton = styled.button`
   background-color: transparent;
-  color: ${props => props.active ? '#333' : '#999'};
+  color: ${(props) => (props.active ? '#333' : '#999')};
   border: none;
   padding: 0;
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
-  font-weight: ${props => props.active ? '600' : '400'};
-  
+  font-weight: ${(props) => (props.active ? '600' : '400')};
+
   &:hover {
     color: #333;
   }
-  
+
   &:not(:last-child):after {
     content: ' |';
     margin-left: 5px;
@@ -319,10 +322,11 @@ const TabHeader = styled.div`
 const TabButton = styled.button`
   flex: 1;
   padding: 10px 16px;
-  background: ${({ active }) => (active ? "#f0f0f0" : "#fff")};
+  background: ${({ active }) => (active ? '#f0f0f0' : '#fff')};
   border: none;
-  border-right: ${({ position }) => (position !== "right" ? "1px solid #ddd" : "none")};
-  font-weight: ${({ active }) => (active ? "bold" : "normal")};
+  border-right: ${({ position }) =>
+      position !== 'right' ? '1px solid #ddd' : 'none'};
+  font-weight: ${({ active }) => (active ? 'bold' : 'normal')};
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -333,7 +337,6 @@ const TabButton = styled.button`
     color: #666;
   }
 `;
-
 
 const ServiceCardGrid = styled.div`
   display: grid;
@@ -354,7 +357,7 @@ const ServiceCard = styled.div`
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -364,18 +367,19 @@ const ServiceCard = styled.div`
     height: 3px;
     background: #4a9d5f;
   }
-  
+
   &:hover {
     transform: translateY(-2px);
     border-color: #4a9d5f;
   }
 `;
 
-const ServiceTags = styled.div`
+const TagsContainer = styled.div`
   display: flex;
   gap: 6px;
-  margin-bottom: 16px;
+  margin: 16px 0;
   flex-wrap: wrap;
+  align-items: center;
 `;
 
 const ServiceTag = styled.span`
@@ -387,7 +391,7 @@ const ServiceTag = styled.span`
   font-weight: 500;
   border: 1px solid #e9ecef;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background: #e9ecef;
     border-color: #4a9d5f;
@@ -404,19 +408,11 @@ const ShowTagsButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background: #4a9d5f;
     color: white;
   }
-`;
-
-const TagsContainer = styled.div`
-  display: flex;
-  gap: 6px;
-  margin: 16px 0;
-  flex-wrap: wrap;
-  align-items: center;
 `;
 
 const ServiceTitle = styled.h3`
@@ -451,7 +447,7 @@ const ServiceDetailItem = styled.li`
   align-items: flex-start;
   padding: 6px 0;
   border-bottom: 1px solid #f8f9fa;
-  
+
   &:before {
     content: '•';
     margin-right: 8px;
@@ -460,7 +456,7 @@ const ServiceDetailItem = styled.li`
     font-weight: bold;
     margin-top: 2px;
   }
-  
+
   &:last-child {
     margin-bottom: 0;
     border-bottom: none;
@@ -502,7 +498,6 @@ const AddToCalendarButton = styled.button`
   }
 `;
 
-
 const LoadingSpinner = styled.div`
   display: flex;
   justify-content: center;
@@ -512,19 +507,110 @@ const LoadingSpinner = styled.div`
   color: #666;
 `;
 
-// 백엔드 API 호출 함수들
-const API_BASE_URL = 'http://localhost:8080/api';
+/* =========================
+   백엔드 enum 매핑
+   ========================= */
 
-// 복지서비스 검색 API 호출
+const lifecyclesMap = {
+  '임신, 출산': 'PREGNANCY_BIRTH',
+  '영유아': 'INFANT',
+  '아동': 'CHILD',
+  '청소년': 'TEEN',
+  '청년': 'YOUTH',
+  '중장년': 'MIDDLE_AGED',
+  '노년': 'SENIOR',
+};
+
+const householdMap = {
+  '저소득': 'LOW_INCOME',
+  '장애인': 'DISABLED',
+  '한부모, 조손': 'SINGLE_PARENT',
+  '다자녀': 'MULTI_CHILDREN',
+  '다문화, 탈북민': 'MULTICULTURAL_NK',
+  '보훈대상자': 'PROTECTED',
+  '해당 사항 없음': 'NONE',
+};
+
+const interestMap = {
+  '신체건강': 'PHYSICAL_HEALTH',
+  '정신건강': 'MENTAL_HEALTH',
+  '생활지원': 'LIVING_SUPPORT',
+  '일자리': 'JOBS',
+  '주거': 'HOUSING',
+  '안전, 위기': 'SAFETY_CRISIS',
+  '보육': 'CHILDCARE',
+  '입양, 위탁': 'ADOPTION_TRUST',
+  '서민금융': 'MICRO_FINANCE',
+  '에너지': 'ENERGY',
+  '문화, 여가': 'CULTURE_LEISURE',
+  '법률': 'LAW',
+  '교육': 'EDUCATION',
+  '보호, 돌봄': 'CARE_PROTECT',
+  '임신, 출산': 'PREGNANCY_BIRTH',
+};
+
+/* =========================
+   코드 → 한글 라벨 역변환
+   ========================= */
+
+const codeToKorean = {
+  // 생애주기
+  PREGNANCY_BIRTH: '임신, 출산',
+  INFANT: '영유아',
+  CHILD: '아동',
+  TEEN: '청소년',
+  YOUTH: '청년',
+  MIDDLE_AGED: '중장년',
+  SENIOR: '노년',
+
+  // 가구상황
+  LOW_INCOME: '저소득',
+  DISABLED: '장애인',
+  SINGLE_PARENT: '한부모·조손',
+  MULTI_CHILDREN: '다자녀',
+  MULTICULTURAL_NK: '다문화·탈북민',
+  PROTECTED: '보훈대상자',
+  NONE: '해당 사항 없음',
+
+  // 관심주제
+  PHYSICAL_HEALTH: '신체건강',
+  MENTAL_HEALTH: '정신건강',
+  LIVING_SUPPORT: '생활지원',
+  JOBS: '일자리',
+  HOUSING: '주거',
+  SAFETY_CRISIS: '안전, 위기',
+  CHILDCARE: '보육',
+  ADOPTION_TRUST: '입양, 위탁',
+  MICRO_FINANCE: '서민금융',
+  ENERGY: '에너지',
+  CULTURE_LEISURE: '문화, 여가',
+  LAW: '법률',
+  EDUCATION: '교육',
+  CARE_PROTECT: '보호, 돌봄',
+  PREGNANCY_BIRTH: '임신, 출산',
+};
+
+/* =========================
+   태그 표기 변환 (카드 표시용)
+   ========================= */
+
+const translateTag = (tagCode) => {
+  return codeToKorean[tagCode] || tagCode;
+};
+
+/* =========================
+   API 함수
+   ========================= */
+
 const searchWelfareServices = async (searchParams) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/catalog/search`, {
+    const response = await fetch(`/api/catalog/search`, {
       method: 'POST',
-      credentials: 'include', // 쿠키 기반 인증
+      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(searchParams)
+      body: JSON.stringify(searchParams),
     });
 
     if (!response.ok) {
@@ -532,52 +618,91 @@ const searchWelfareServices = async (searchParams) => {
     }
 
     const data = await response.json();
-    return data.success ? data.data : [];
+
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data.data)) return data.data;
+    return [];
   } catch (error) {
     console.error('복지서비스 검색 실패:', error);
     return [];
   }
 };
 
-// 사용자 맞춤 추천 API 호출
-const getRecommendedServices = async () => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/catalog/recommend`, {
-      method: 'GET',
-      credentials: 'include' // 쿠키 기반 인증
-    });
+/* =========================
+   프론트엔드 최종 필터링 로직
+   ========================= */
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+/**
+ * svc      : 서버에서 온 raw 서비스 1건
+ * keyword  : 사용자가 입력한 검색어 (예: "청년", "저소득")
+ *
+ * 이 함수는 true면 화면에 남기고, false면 숨김
+ * 즉, 여기서 태그 한글도 잡아준다.
+ */
+function cardMatchesKeywordIncludingTags(svc, keyword) {
+  // 키워드 없으면 무조건 통과 (전체 보여주기 모드)
+  if (!keyword || keyword.trim() === '') return true;
 
-    const data = await response.json();
-    return data.success ? data.data : [];
-  } catch (error) {
-    console.error('추천 서비스 조회 실패:', error);
-    return [];
-  }
-};
+  const kw = keyword.trim().toLowerCase();
+
+  // 1) 기본 텍스트 필드들
+  const haystackText = [
+    svc.welfareName,
+    svc.description,
+    svc.department,
+    svc.supplyType,
+    svc.supportCycle,
+  ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+  if (haystackText.includes(kw)) return true;
+
+  // 2) 태그 코드들 (예: "YOUTH", "LOW_INCOME")
+  const tagCodes = [
+    ...(svc.lifecycles || []),
+    ...(svc.households || []),
+    ...(svc.interests || []),
+  ];
+  const tagCodesJoined = tagCodes.join(' ').toLowerCase();
+  if (tagCodesJoined.includes(kw)) return true;
+
+  // 3) 태그 한글 변환 후 검사 (예: "청년", "저소득", "정신건강")
+  const tagLabelsKorean = tagCodes
+      .map((code) => codeToKorean[code] || '')
+      .join(' ')
+      .toLowerCase();
+  if (tagLabelsKorean.includes(kw)) return true;
+
+  return false;
+}
+
+/* =========================
+   메인 컴포넌트
+   ========================= */
 
 const ServicePage = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  // 복지서비스 페이지는 로그인 없이도 접근 가능
+  // 필터 상태 (생애주기 / 가구상황 / 관심주제 체크박스)
   const [selectedFilters, setSelectedFilters] = useState({
     lifeCycle: [],
     household: [],
-    topics: []
+    topics: [],
   });
-  
+
+  // 폼 상태 (나이, 지역, 키워드 등)
   const [searchForm, setSearchForm] = useState({
     age: '',
     province: '',
     city: '',
-    keyword: ''
+    keyword: '',
   });
 
-  const [activeCategory, setActiveCategory] = useState('all');
+  // UI 상태들
+  const [activeCategory, setActiveCategory] = useState('central');
   const [sortOption, setSortOption] = useState('popular');
   const [currentLocation, setCurrentLocation] = useState('위치 정보를 가져오는 중...');
   const [welfareServices, setWelfareServices] = useState([]);
@@ -585,182 +710,175 @@ const ServicePage = () => {
     total: 0,
     central: 0,
     local: 0,
-    private: 0
+    private: 0,
   });
   const [loading, setLoading] = useState(false);
   const [expandedTags, setExpandedTags] = useState({});
 
-  // 태그 번역 함수 (백엔드에서 실제 사용하는 태그 코드 기반)
-  const translateTag = (tag) => {
-    const tagTranslations = {
-      // 생애주기 (백엔드 코드 -> 한국어)
-      'PREGNANCY_BIRTH': '임신, 출산',
-      'INFANT': '영유아',
-      'CHILD': '아동',
-      'YOUTH': '청소년',
-      'YOUNG_ADULT': '청년',
-      'MIDDLE_AGED': '중장년',
-      'SENIOR': '노년',
-      'ELDERLY': '노년',
-      
-      // 가구상황 (백엔드 코드 -> 한국어)
-      'LOW_INCOME': '저소득',
-      'DISABLED': '장애인',
-      'SINGLE_PARENT': '한부모',
-      'MULTI_CHILD': '다자녀',
-      'MULTICULTURAL': '다문화',
-      'VETERAN': '보훈대상자',
-      'NONE': '해당 사항 없음',
-      
-      // 관심주제 (백엔드 코드 -> 한국어)
-      'PHYSICAL_HEALTH': '신체건강',
-      'MENTAL_HEALTH': '정신건강',
-      'LIVING_SUPPORT': '생활지원',
-      'JOBS': '일자리',
-      'HOUSING': '주거',
-      'SAFETY_CRISIS': '안전, 위기',
-      'CHILDCARE': '보육',
-      'ADOPTION_FOSTER': '입양, 위탁',
-      'MICRO_FINANCE': '서민금융',
-      'ENERGY': '에너지',
-      'CULTURE_LEISURE': '문화, 여가',
-      'LEGAL': '법률',
-      'EDUCATION': '교육',
-      'CARE_PROTECT': '보호, 돌봄'
-    };
-    
-    return tagTranslations[tag] || tag;
+  // 시/도 / 시군구 옵션
+  const provinces = [
+    '서울특별시',
+    '부산광역시',
+    '대구광역시',
+    '인천광역시',
+    '광주광역시',
+    '대전광역시',
+    '울산광역시',
+    '세종특별자치시',
+    '경기도',
+    '강원특별자치도',
+    '충청북도',
+    '충청남도',
+    '전북특별자치도',
+    '전라남도',
+    '경상북도',
+    '경상남도',
+    '제주특별자치도',
+  ];
+
+  const cities = {
+    '서울특별시': [
+      '강남구','강동구','강북구','강서구','관악구','광진구','구로구','금천구','노원구','도봉구','동대문구','동작구','마포구','서대문구','서초구','성동구','성북구','송파구','양천구','영등포구','용산구','은평구','종로구','중구','중랑구',
+    ],
+    '부산광역시': [
+      '강서구','금정구','남구','동구','동래구','부산진구','북구','사상구','사하구','서구','수영구','연제구','영도구','중구','해운대구','기장군',
+    ],
+    '대구광역시': [
+      '남구','달서구','동구','북구','서구','수성구','중구','달성군','군위군',
+    ],
+    '인천광역시': [
+      '강화군','계양구','남동구','동구','미추홀구','부평구','서구','연수구','옹진군','중구',
+    ],
+    '광주광역시': ['광산구','남구','동구','북구','서구'],
+    '대전광역시': ['대덕구','동구','서구','유성구','중구'],
+    '울산광역시': ['남구','동구','북구','중구','울주군'],
+    '세종특별자치시': ['세종시'],
+    '경기도': [
+      '가평군','고양시 덕양구','고양시 일산동구','고양시 일산서구','과천시','광명시','광주시','구리시','군포시','김포시','남양주시','동두천시','부천시','성남시 분당구','성남시 수정구','성남시 중원구','수원시 권선구','수원시 영통구','수원시 장안구','수원시 팔달구','시흥시','안산시 단원구','안산시 상록구','안성시','안양시 동안구','안양시 만안구','양주시','양평군','여주시','연천군','오산시','용인시 기흥구','용인시 수지구','용인시 처인구','의왕시','의정부시','이천시','파주시','평택시','포천시','하남시','화성시',
+    ],
+    '강원특별자치도': [
+      '강릉시','동해시','삼척시','속초시','원주시','춘천시','태백시','고성군','양구군','양양군','영월군','인제군','정선군','철원군','평창군','홍천군','화천군','횡성군',
+    ],
+    '충청북도': [
+      '제천시','청주시 상당구','청주시 서원구','청주시 청원구','청주시 흥덕구','충주시','괴산군','단양군','보은군','영동군','옥천군','음성군','증평군','진천군',
+    ],
+    '충청남도': [
+      '계룡시','공주시','논산시','당진시','보령시','서산시','아산시','천안시 동남구','천안시 서북구','금산군','부여군','서천군','예산군','청양군','태안군','홍성군',
+    ],
+    '전북특별자치도': [
+      '군산시','김제시','남원시','익산시','전주시 덕진구','전주시 완산구','정읍시','고창군','무주군','부안군','순창군','완주군','임실군','장수군','진안군',
+    ],
+    '전라남도': [
+      '광양시','나주시','목포시','순천시','여수시','강진군','고흥군','곡성군','구례군','담양군','무안군','보성군','신안군','영광군','영암군','완도군','장성군','장흥군','진도군','함평군','해남군','화순군',
+    ],
+    '경상북도': [
+      '경산시','경주시','구미시','김천시','문경시','상주시','안동시','영주시','영천시','포항시 남구','포항시 북구','고령군','군위군','봉화군','성주군','영덕군','영양군','예천군','울릉군','울진군','의성군','청도군','청송군',
+    ],
+    '경상남도': [
+      '거제시','김해시','밀양시','사천시','양산시','진주시','창원시 마산합포구','창원시 마산회원구','창원시 성산구','창원시 의창구','창원시 진해구','통영시','거창군','고성군','남해군','산청군','의령군','창녕군','하동군','함안군','함양군','합천군',
+    ],
+    '제주특별자치도': ['서귀포시','제주시'],
   };
 
-  // 태그 토글 함수
-  const toggleTags = (serviceId) => {
-    setExpandedTags(prev => ({
-      ...prev,
-      [serviceId]: !prev[serviceId]
-    }));
-  };
+  /* ========= 검색 payload 변환 =========
+     서버에는 "keyword"를 안 보낸다.
+     왜냐면 서버는 keyword로 태그 이름까지 못 찾기 때문.
+     서버는 생애주기/가구상황/관심주제 체크박스만 보고 1차 필터한 '후보 목록'을 준다.
+  */
+  const toEnumArray = (arr, mapObj) =>
+      arr.length > 0 ? arr.map((kor) => mapObj[kor]).filter(Boolean) : null;
 
-  // 페이지 로드 시 API 호출 (로그인 여부와 관계없이 모든 사용자가 복지 서비스 확인 가능)
-  useEffect(() => {
-    loadWelfareServices();
-  }, []);
-
-  // 8월-12월 사이의 랜덤 날짜 생성 함수
-  const generateRandomDate = () => {
-    const year = 2025;
-    const startMonth = 7; // 8월 (0부터 시작)
-    const endMonth = 11; // 12월 (0부터 시작)
-    
-    // 랜덤 월 선택
-    const randomMonth = Math.floor(Math.random() * (endMonth - startMonth + 1)) + startMonth;
-    
-    // 해당 월의 일수 계산
-    const daysInMonth = new Date(year, randomMonth + 1, 0).getDate();
-    
-    // 랜덤 일 선택
-    const randomDay = Math.floor(Math.random() * daysInMonth) + 1;
-    
-    return new Date(year, randomMonth, randomDay);
-  };
-
-  // 1~12일 간격의 랜덤 서비스 기간 생성 함수
-  const generateServicePeriod = () => {
-    const startDate = generateRandomDate();
-    const duration = Math.floor(Math.random() * 12) + 1; // 1~12일
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + duration - 1);
-    
-    return {
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0],
-      isOngoing: false
-    };
-  };
-
-  // 백엔드에서 복지서비스 데이터 로드
-  const loadWelfareServices = useCallback(async () => {
-    setLoading(true);
-    try {
-      let services = [];
-      
-      // 필터가 선택된 경우 검색 API 호출, 아니면 모든 서비스 조회
-      const hasFilters = selectedFilters.lifeCycle.length > 0 || 
-                        selectedFilters.household.length > 0 || 
-                        selectedFilters.topics.length > 0 ||
-                        searchForm.keyword.trim() !== '';
-
-      if (hasFilters) {
-        // 검색 API 호출 (필터가 있을 때)
-        const searchParams = {
-          keyword: searchForm.keyword.trim() || null,
-          lifecycles: selectedFilters.lifeCycle.length > 0 ? 
-            selectedFilters.lifeCycle.map(item => item.toUpperCase().replace(/\s+/g, '_')) : null,
-          households: selectedFilters.household.length > 0 ? 
-            selectedFilters.household.map(item => item.toUpperCase().replace(/\s+/g, '_')) : null,
-          interests: selectedFilters.topics.length > 0 ? 
-            selectedFilters.topics.map(item => item.toUpperCase().replace(/\s+/g, '_')) : null
+  const buildSearchPayload = useCallback(
+      (filters /* , form */) => {
+        return {
+          keyword: null, // 중요: 서버 검색어는 항상 null로
+          lifecycles: toEnumArray(filters.lifeCycle, lifecyclesMap),
+          households: toEnumArray(filters.household, householdMap),
+          interests: toEnumArray(filters.topics, interestMap),
+          // age / region 도 백엔드가 지원하면 여기에 넣기
         };
-        
-        services = await searchWelfareServices(searchParams);
-      } else {
-        // 모든 서비스 조회 (필터가 없을 때)
-        const searchParams = {
-          keyword: null,
-          lifecycles: null,
-          households: null,
-          interests: null
-        };
-        
-        services = await searchWelfareServices(searchParams);
-      }
+      },
+      []
+  );
 
-      // 백엔드 데이터를 프론트엔드 형식으로 변환
-      const transformedServices = services.map(service => ({
-        id: service.id,
-        tags: [
-          ...(service.lifecycles || []).map(lc => lc.toLowerCase().replace(/_/g, ' ')),
-          ...(service.households || []).map(hh => hh.toLowerCase().replace(/_/g, ' ')),
-          ...(service.interests || []).map(interest => interest.toLowerCase().replace(/_/g, ' '))
-        ],
-        title: service.welfareName,
-        description: service.description,
-        department: service.department,
-        cycle: service.supportCycle,
-        type: service.supplyType,
-        contact: service.contact,
-        url: service.url,
-        applicationPeriod: {
-          startDate: service.startDate,
-          endDate: service.endDate
+  /* ========= 서비스 로더 =========
+     1) 서버에서 후보(전체 혹은 체크박스 기반 결과) 받아온다
+     2) 프론트에서 keyword까지 포함해 최종 필터한다
+  */
+  const loadWelfareServices = useCallback(
+      async (filtersArg, formArg) => {
+        const filters = filtersArg ?? selectedFilters;
+        const form = formArg ?? searchForm;
+
+        setLoading(true);
+        try {
+          // 1차: 서버 호출 (keyword 없이)
+          const payload = buildSearchPayload(filters);
+          const servicesFromServer = await searchWelfareServices(payload);
+
+          // 2차: 프론트에서 keyword까지 반영
+          const refinedServerList = servicesFromServer.filter((svc) =>
+              cardMatchesKeywordIncludingTags(svc, form.keyword)
+          );
+
+          // 3차: 카드 표시용 구조로 변환
+          const transformedServices = refinedServerList.map((svc) => ({
+            id: svc.id,
+            tags: [
+              ...(svc.lifecycles || []),
+              ...(svc.households || []),
+              ...(svc.interests || []),
+            ],
+            title: svc.welfareName,
+            description: svc.description,
+            department: svc.department,
+            cycle: svc.supportCycle,
+            type: svc.supplyType,
+            contact: svc.contact,
+            url: svc.url,
+            applicationPeriod: {
+              startDate: svc.startDate,
+              endDate: svc.endDate,
+            },
+          }));
+
+          setWelfareServices(transformedServices);
+
+          // 4차: 요약 숫자
+          setServiceSummary({
+            total: transformedServices.length,
+            central: transformedServices.filter((s) =>
+                s.department?.includes('부')
+            ).length,
+            local: transformedServices.filter(
+                (s) =>
+                    s.department?.includes('시') ||
+                    s.department?.includes('도')
+            ).length,
+            private: transformedServices.filter(
+                (s) =>
+                    s.department?.includes('재단') ||
+                    s.department?.includes('센터')
+            ).length,
+          });
+        } catch (error) {
+          console.error('복지서비스 로드 실패:', error);
+          setWelfareServices([]);
+          setServiceSummary({
+            total: 0,
+            central: 0,
+            local: 0,
+            private: 0,
+          });
+        } finally {
+          setLoading(false);
         }
-      }));
+      },
+      [buildSearchPayload, searchForm, selectedFilters]
+  );
 
-      setWelfareServices(transformedServices);
-      
-      // 서비스 요약 정보 업데이트 (실제 데이터 기반)
-      setServiceSummary({
-        total: transformedServices.length,
-        central: transformedServices.filter(s => s.department.includes('부')).length,
-        local: transformedServices.filter(s => s.department.includes('시') || s.department.includes('도')).length,
-        private: transformedServices.filter(s => s.department.includes('재단') || s.department.includes('센터')).length
-      });
-
-    } catch (error) {
-      console.error('복지서비스 로드 실패:', error);
-      // 에러 시 빈 배열로 설정
-      setWelfareServices([]);
-      setServiceSummary({
-        total: 0,
-        central: 0,
-        local: 0,
-        private: 0
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedFilters, searchForm]);
-
-  const updateLocationFromBrowser = React.useCallback(() => {
+  /* ========= 위치 불러오기 ========= */
+  const updateLocationFromBrowser = useCallback(() => {
     if (!('geolocation' in navigator)) {
       setCurrentLocation('브라우저에서 위치 정보를 지원하지 않아요.');
       return;
@@ -768,451 +886,646 @@ const ServicePage = () => {
 
     setCurrentLocation('위치 정보를 가져오는 중...');
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const { latitude, longitude } = pos.coords;
-          const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ko`;
-          const res = await fetch(url, {
-            headers: {
-              // Some browsers ignore custom UA; this is best-effort.
-              'Accept': 'application/json'
-            }
-          });
-          const data = await res.json();
-          const addr = data?.address || {};
+        async (pos) => {
+          try {
+            const { latitude, longitude } = pos.coords;
+            const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ko`;
+            const res = await fetch(url, {
+              headers: { Accept: 'application/json' },
+            });
+            const data = await res.json();
+            const addr = data?.address || {};
 
-          // Build Korean-style short address: 시/군 + 구/군 + 동(읍/면)
-          const si = addr.city || addr.town || addr.village || addr.municipality || '';
-          // district (구) or county (군)
-          const guCandidate = addr.district || addr.city_district || addr.borough || addr.county || '';
-          const gu = guCandidate && guCandidate !== si ? guCandidate : '';
-          // neighbourhood levels often map to 동/읍/면
-          const dongCandidate = addr.suburb || addr.neighbourhood || addr.quarter || addr.residential || addr.hamlet || '';
-          const dong = dongCandidate && dongCandidate !== gu ? dongCandidate : '';
+            const si =
+                addr.city ||
+                addr.town ||
+                addr.village ||
+                addr.municipality ||
+                '';
+            const guCandidate =
+                addr.district ||
+                addr.city_district ||
+                addr.borough ||
+                addr.county ||
+                '';
+            const gu = guCandidate && guCandidate !== si ? guCandidate : '';
+            const dongCandidate =
+                addr.suburb ||
+                addr.neighbourhood ||
+                addr.quarter ||
+                addr.residential ||
+                addr.hamlet ||
+                '';
+            const dong =
+                dongCandidate && dongCandidate !== gu ? dongCandidate : '';
 
-          const parts = [si, gu, dong].filter(Boolean);
-          if (parts.length > 0) {
-            setCurrentLocation(parts.join(' '));
-          } else if (data?.display_name) {
-            // Fallback: parse display_name to extract tokens ending with 시/군, 구, 동/읍/면
-            const rough = data.display_name.split(',').map(s => s.trim());
-            const reversed = [...rough].reverse();
-            const findSi = reversed.find(t => /(시|군)$/.test(t));
-            const findGu = reversed.find(t => /구$/.test(t));
-            const findDong = reversed.find(t => /(동|읍|면)$/.test(t));
-            const fallbackParts = [findSi, findGu, findDong].filter(Boolean);
-            if (fallbackParts.length > 0) {
-              setCurrentLocation(fallbackParts.join(' '));
+            const parts = [si, gu, dong].filter(Boolean);
+            if (parts.length > 0) {
+              setCurrentLocation(parts.join(' '));
+            } else if (data?.display_name) {
+              const rough = data.display_name.split(',').map((s) => s.trim());
+              const reversed = [...rough].reverse();
+              const findSi = reversed.find((t) => /(시|군)$/.test(t));
+              const findGu = reversed.find((t) => /구$/.test(t));
+              const findDong = reversed.find((t) =>
+                  /(동|읍|면)$/.test(t)
+              );
+              const fallbackParts = [findSi, findGu, findDong].filter(Boolean);
+              if (fallbackParts.length > 0) {
+                setCurrentLocation(fallbackParts.join(' '));
+              } else {
+                setCurrentLocation('현재 위치를 확인하지 못했어요.');
+              }
             } else {
               setCurrentLocation('현재 위치를 확인하지 못했어요.');
             }
-          } else {
-            setCurrentLocation('현재 위치를 확인하지 못했어요.');
+          } catch (e) {
+            setCurrentLocation('위치 정보를 가져오는 중 오류가 발생했어요.');
           }
-        } catch (e) {
-          setCurrentLocation('위치 정보를 가져오는 중 오류가 발생했어요.');
-        }
-      },
-      (err) => {
-        if (err.code === err.PERMISSION_DENIED) {
-          setCurrentLocation('위치 권한이 거부되었어요.');
-        } else {
-          setCurrentLocation('위치 정보를 가져올 수 없어요.');
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+        },
+        (err) => {
+          if (err.code === err.PERMISSION_DENIED) {
+            setCurrentLocation('위치 권한이 거부되었어요.');
+          } else {
+            setCurrentLocation('위치 정보를 가져올 수 없어요.');
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
     );
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     updateLocationFromBrowser();
   }, [updateLocationFromBrowser]);
 
-  const lifeCycleOptions = ['임신, 출산', '영유아', '아동', '청소년', '청년', '중장년', '노년'];
-  const householdOptions = ['저소득', '장애인', '한부모, 조손', '다자녀', '다문화, 탈북민', '보훈대상자', '해당 사항 없음'];
-  const topicOptions = ['신체건강', '생활지원', '일자리', '안전, 위기', '보육', '입양, 위탁', '서민금융', '에너지', '정신건강', '문화, 여가', '법률', '주거', '임신, 출산', '교육', '보호, 돌봄'];
+  /* ========= 필터 토글 ========= */
+  const handleFilterChange = useCallback(
+      (category, value) => {
+        // household만 특수 규칙 (NONE 단독선택)
+        if (category === 'household') {
+          const NONE_LABEL = '해당 사항 없음';
+          const prev = selectedFilters.household;
 
-  const provinces = ['서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시', '대전광역시', '울산광역시', '세종특별자치시', '경기도', '강원특별자치도', '충청북도', '충청남도', '전북특별자치도', '전라남도', '경상북도', '경상남도', '제주특별자치도'];
+          if (value === NONE_LABEL) {
+            const alreadyHasNone = prev.includes(NONE_LABEL);
+            const newHousehold = alreadyHasNone ? [] : [NONE_LABEL];
 
-  const cities = {
-    '서울특별시': ['강남구','강동구','강북구','강서구','관악구','광진구','구로구','금천구','노원구','도봉구','동대문구','동작구','마포구','서대문구','서초구','성동구','성북구','송파구','양천구','영등포구','용산구','은평구','종로구','중구','중랑구'],
-    '부산광역시': ['강서구','금정구','남구','동구','동래구','부산진구','북구','사상구','사하구','서구','수영구','연제구','영도구','중구','해운대구','기장군'],
-    '대구광역시': ['남구','달서구','동구','북구','서구','수성구','중구','달성군','군위군'],
-    '인천광역시': ['강화군','계양구','남동구','동구','미추홀구','부평구','서구','연수구','옹진군','중구'],
-    '광주광역시': ['광산구','남구','동구','북구','서구'],
-    '대전광역시': ['대덕구','동구','서구','유성구','중구'],
-    '울산광역시': ['남구','동구','북구','중구','울주군'],
-    '세종특별자치시': ['세종시'],
-    '경기도': ['가평군','고양시 덕양구','고양시 일산동구','고양시 일산서구','과천시','광명시','광주시','구리시','군포시','김포시','남양주시','동두천시','부천시','성남시 분당구','성남시 수정구','성남시 중원구','수원시 권선구','수원시 영통구','수원시 장안구','수원시 팔달구','시흥시','안산시 단원구','안산시 상록구','안성시','안양시 동안구','안양시 만안구','양주시','양평군','여주시','연천군','오산시','용인시 기흥구','용인시 수지구','용인시 처인구','의왕시','의정부시','이천시','파주시','평택시','포천시','하남시','화성시'],
-    '강원특별자치도': ['강릉시','동해시','삼척시','속초시','원주시','춘천시','태백시','고성군','양구군','양양군','영월군','인제군','정선군','철원군','평창군','홍천군','화천군','횡성군'],
-    '충청북도': ['제천시','청주시 상당구','청주시 서원구','청주시 청원구','청주시 흥덕구','충주시','괴산군','단양군','보은군','영동군','옥천군','음성군','증평군','진천군'],
-    '충청남도': ['계룡시','공주시','논산시','당진시','보령시','서산시','아산시','천안시 동남구','천안시 서북구','금산군','부여군','서천군','예산군','청양군','태안군','홍성군'],
-    '전북특별자치도': ['군산시','김제시','남원시','익산시','전주시 덕진구','전주시 완산구','정읍시','고창군','무주군','부안군','순창군','완주군','임실군','장수군','진안군'],
-    '전라남도': ['광양시','나주시','목포시','순천시','여수시','강진군','고흥군','곡성군','구례군','담양군','무안군','보성군','신안군','영광군','영암군','완도군','장성군','장흥군','진도군','함평군','해남군','화순군'],
-    '경상북도': ['경산시','경주시','구미시','김천시','문경시','상주시','안동시','영주시','영천시','포항시 남구','포항시 북구','고령군','군위군','봉화군','성주군','영덕군','영양군','예천군','울릉군','울진군','의성군','청도군','청송군'],
-    '경상남도': ['거제시','김해시','밀양시','사천시','양산시','진주시','창원시 마산합포구','창원시 마산회원구','창원시 성산구','창원시 의창구','창원시 진해구','통영시','거창군','고성군','남해군','산청군','의령군','창녕군','하동군','함안군','함양군','합천군'],
-    '제주특별자치도': ['서귀포시','제주시']
-  };
+            const newFilters = {
+              ...selectedFilters,
+              household: newHousehold,
+            };
+            setSelectedFilters(newFilters);
 
-  const handleFilterChange = useCallback((category, value) => {
-    const newFilters = {
-      ...selectedFilters,
-      [category]: selectedFilters[category].includes(value)
-        ? selectedFilters[category].filter(item => item !== value)
-        : [...selectedFilters[category], value]
-    };
-    setSelectedFilters(newFilters);
-    // 필터 변경 시 자동으로 검색 실행
-    setTimeout(() => loadWelfareServices(), 100);
-  }, [selectedFilters, loadWelfareServices]);
+            // 필터 바뀌면 바로 다시 로드
+            setTimeout(() => {
+              loadWelfareServices(newFilters, searchForm);
+            }, 0);
 
-  const handleFormChange = useCallback((field, value) => {
-    console.log(`Form change - field: ${field}, value:`, value);
-    const newForm = {
-      ...searchForm,
-      [field]: value
-    };
-    console.log('New form state:', newForm);
-    setSearchForm(newForm);
-    // 키워드 검색 시 자동으로 검색 실행
-    if (field === 'keyword') {
-      setTimeout(() => loadWelfareServices(), 300); // 디바운스 효과
-    }
-  }, [searchForm, loadWelfareServices]);
+            return;
+          } else {
+            const base = prev.includes(NONE_LABEL) ? [] : prev;
+            const newHousehold = base.includes(value)
+                ? base.filter((item) => item !== value)
+                : [...base, value];
 
+            const newFilters = {
+              ...selectedFilters,
+              household: newHousehold,
+            };
+            setSelectedFilters(newFilters);
+
+            setTimeout(() => {
+              loadWelfareServices(newFilters, searchForm);
+            }, 0);
+
+            return;
+          }
+        }
+
+        // lifeCycle / topics 일반 토글
+        const newFilters = {
+          ...selectedFilters,
+          [category]: selectedFilters[category].includes(value)
+              ? selectedFilters[category].filter((item) => item !== value)
+              : [...selectedFilters[category], value],
+        };
+        setSelectedFilters(newFilters);
+
+        setTimeout(() => {
+          loadWelfareServices(newFilters, searchForm);
+        }, 0);
+      },
+      [selectedFilters, searchForm, loadWelfareServices]
+  );
+
+  /* ========= 폼 값 변경 ========= */
+  const handleFormChange = useCallback(
+      (field, value) => {
+        const newForm = {
+          ...searchForm,
+          [field]: value,
+        };
+        setSearchForm(newForm);
+
+        // keyword 입력은 디바운스 없이 바로 트리거 가능 (원하면 300ms 지연 줘도 됨)
+        if (field === 'keyword') {
+          setTimeout(() => {
+            loadWelfareServices(selectedFilters, newForm);
+          }, 0);
+        }
+      },
+      [searchForm, selectedFilters, loadWelfareServices]
+  );
+
+  /* ========= 초기화 ========= */
   const handleReset = useCallback(() => {
-    setSelectedFilters({ lifeCycle: [], household: [], topics: [] });
-    setSearchForm({ age: '', province: '', city: '', keyword: '' });
-  }, []);
+    const clearedFilters = { lifeCycle: [], household: [], topics: [] };
+    const clearedForm = { age: '', province: '', city: '', keyword: '' };
+    setSelectedFilters(clearedFilters);
+    setSearchForm(clearedForm);
+    loadWelfareServices(clearedFilters, clearedForm);
+  }, [loadWelfareServices]);
 
+  /* ========= 수동 검색 버튼 ========= */
   const handleSearch = useCallback(() => {
-    console.log('검색 조건:', { selectedFilters, searchForm });
-    loadWelfareServices();
+    loadWelfareServices(selectedFilters, searchForm);
   }, [selectedFilters, searchForm, loadWelfareServices]);
 
-  const handleViewDetails = useCallback((service) => {
-    navigate(`/service/${service.id}`, { state: { service } });
-  }, [navigate]);
+  /* ========= 태그 더보기 ========= */
+  const toggleTags = useCallback((serviceId) => {
+    setExpandedTags((prev) => ({
+      ...prev,
+      [serviceId]: !prev[serviceId],
+    }));
+  }, []);
 
-  const handleAddToCalendar = useCallback((service) => {
-    // 로그인 체크
-    if (!isAuthenticated) {
-      const shouldLogin = window.confirm(
-        '캘린더에 추가하려면 로그인이 필요합니다.\n\n로그인 페이지로 이동하시겠습니까?'
-      );
-      if (shouldLogin) {
-        navigate('/LoginPage');
-      }
-      return;
-    }
+  /* ========= 상세보기 ========= */
+  const handleViewDetails = useCallback(
+      (service) => {
+        navigate(`/service/${service.id}`, { state: { service } });
+      },
+      [navigate]
+  );
 
-    // 중복 체크
-    const existingServices = JSON.parse(localStorage.getItem('calendarServices') || '[]');
-    const isAlreadyAdded = existingServices.some(existingService => existingService.id === service.id);
-    
-    if (isAlreadyAdded) {
-      alert('이미 추가된 일정입니다.');
-      return;
-    }
+  /* ========= 캘린더 추가 ========= */
+  const handleAddToCalendar = useCallback(
+      (service) => {
+        if (!isAuthenticated) {
+          const shouldLogin = window.confirm(
+              '캘린더에 추가하려면 로그인이 필요합니다.\n\n로그인 페이지로 이동하시겠습니까?'
+          );
+          if (shouldLogin) {
+            navigate('/LoginPage');
+          }
+          return;
+        }
 
-    // 캘린더에 추가할 데이터 준비
-    const calendarData = {
-      id: service.id,
-      title: service.title,
-      description: service.description,
-      department: service.department,
-      contact: service.contact,
-      tags: service.tags,
-      applicationPeriod: service.applicationPeriod || {
-        startDate: new Date().toISOString().split('T')[0], // 오늘 날짜
-        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7일 후
-        isOngoing: false
-      }
-    };
+        const existingServices = JSON.parse(
+            localStorage.getItem('calendarServices') || '[]'
+        );
+        const isAlreadyAdded = existingServices.some(
+            (existingService) => existingService.id === service.id
+        );
 
-    // 로컬 스토리지에 저장
-    const updatedServices = [...existingServices, calendarData];
-    localStorage.setItem('calendarServices', JSON.stringify(updatedServices));
-    
-    // 성공 알림 및 캘린더 이동 확인
-    const shouldNavigateToCalendar = window.confirm(
-      `${service.title}이 캘린더에 추가되었습니다!\n\n캘린더 페이지로 이동하시겠습니까?`
-    );
-    
-    if (shouldNavigateToCalendar) {
-      // 서비스의 시작 날짜로 이동
-      const serviceStartDate = new Date(calendarData.applicationPeriod.startDate);
-      navigate('/calendar', { 
-        state: { 
-          targetDate: serviceStartDate 
-        } 
-      });
-    }
-  }, [isAuthenticated, navigate]);
+        if (isAlreadyAdded) {
+          alert('이미 추가된 일정입니다.');
+          return;
+        }
+
+        const calendarData = {
+          id: service.id,
+          title: service.title,
+          description: service.description,
+          department: service.department,
+          contact: service.contact,
+          tags: service.tags,
+          applicationPeriod:
+              service.applicationPeriod || {
+                startDate: new Date().toISOString().split('T')[0],
+                endDate: new Date(
+                    Date.now() + 7 * 24 * 60 * 60 * 1000
+                )
+                    .toISOString()
+                    .split('T')[0],
+                isOngoing: false,
+              },
+        };
+
+        const updatedServices = [...existingServices, calendarData];
+        localStorage.setItem('calendarServices', JSON.stringify(updatedServices));
+
+        const shouldNavigateToCalendar = window.confirm(
+            `${service.title}이 캘린더에 추가되었습니다!\n\n캘린더 페이지로 이동하시겠습니까?`
+        );
+
+        if (shouldNavigateToCalendar) {
+          const serviceStartDate = new Date(
+              calendarData.applicationPeriod.startDate
+          );
+          navigate('/calendar', {
+            state: {
+              targetDate: serviceStartDate,
+            },
+          });
+        }
+      },
+      [isAuthenticated, navigate]
+  );
+
+  // 첫 로드시 서비스 목록 불러오기
+  useEffect(() => {
+    loadWelfareServices();
+  }, [loadWelfareServices]);
+
+  /* =========================
+     렌더 옵션
+     ========================= */
+
+  const lifeCycleOptions = [
+    '임신, 출산',
+    '영유아',
+    '아동',
+    '청소년',
+    '청년',
+    '중장년',
+    '노년',
+  ];
+
+  const householdOptions = [
+    '저소득',
+    '장애인',
+    '한부모, 조손',
+    '다자녀',
+    '다문화, 탈북민',
+    '보훈대상자',
+    '해당 사항 없음',
+  ];
+
+  const topicOptions = [
+    '신체건강',
+    '생활지원',
+    '일자리',
+    '안전, 위기',
+    '보육',
+    '입양, 위탁',
+    '서민금융',
+    '에너지',
+    '정신건강',
+    '문화, 여가',
+    '법률',
+    '주거',
+    '임신, 출산',
+    '교육',
+    '보호, 돌봄',
+  ];
 
   return (
-    <>
-      <Container>
-        <MainContent>
-          <AddressText>
-            <span>{currentLocation}</span>
-            <RefreshButton onClick={updateLocationFromBrowser}>위치 새로고침</RefreshButton>
-          </AddressText>
-          
-          <FilterSection>
-            <FilterCard>
-            <FilterGrid>
-              <FilterColumn>
-                <FilterTitle>생애주기</FilterTitle>
-                <CheckboxList>
-                  {lifeCycleOptions.map((option, index) => (
-                    <CheckboxItem key={`lifecycle-${option}-${index}`}>
-                      <input
-                        type="checkbox"
-                        checked={selectedFilters.lifeCycle.includes(option)}
-                        onChange={() => handleFilterChange('lifeCycle', option)}
-                      />
-                      {option}
-                    </CheckboxItem>
-                  ))}
-                </CheckboxList>
-              </FilterColumn>
-              
-              <FilterColumn>
-                <FilterTitle>가구상황</FilterTitle>
-                <CheckboxList>
-                  {householdOptions.map((option, index) => (
-                    <CheckboxItem key={`household-${option}-${index}`}>
-                      <input
-                        type="checkbox"
-                        checked={selectedFilters.household.includes(option)}
-                        onChange={() => handleFilterChange('household', option)}
-                      />
-                      {option}
-                    </CheckboxItem>
-                  ))}
-                </CheckboxList>
-              </FilterColumn>
-              
-              <FilterColumn>
-                <FilterTitle>관심주제</FilterTitle>
-                <InterestCheckboxList>
-                  {topicOptions.map((option, index) => (
-                    <CheckboxItem key={`topic-${option}-${index}`}>
-                      <input
-                        type="checkbox"
-                        checked={selectedFilters.topics.includes(option)}
-                        onChange={() => handleFilterChange('topics', option)}
-                      />
-                      {option}
-                    </CheckboxItem>
-                  ))}
-                </InterestCheckboxList>
-              </FilterColumn>
-            </FilterGrid>
-            </FilterCard>
-          </FilterSection>
+      <>
+        <Container>
+          <MainContent>
+            {/* 위치 정보 */}
+            <AddressText>
+              <span>{currentLocation}</span>
+              <RefreshButton onClick={updateLocationFromBrowser}>
+                위치 새로고침
+              </RefreshButton>
+            </AddressText>
 
-          <SectionDivider />
+            {/* 필터 섹션 */}
+            <FilterSection>
+              <FilterCard>
+                <FilterGrid>
+                  {/* 생애주기 */}
+                  <FilterColumn>
+                    <FilterTitle>생애주기</FilterTitle>
+                    <CheckboxList>
+                      {lifeCycleOptions.map((option, index) => (
+                          <CheckboxItem key={`lifecycle-${index}`}>
+                            <input
+                                type="checkbox"
+                                checked={selectedFilters.lifeCycle.includes(option)}
+                                onChange={() =>
+                                    handleFilterChange('lifeCycle', option)
+                                }
+                            />
+                            {option}
+                          </CheckboxItem>
+                      ))}
+                    </CheckboxList>
+                  </FilterColumn>
 
-          <SearchSection>
-            <SearchTitle>추가 검색 조건</SearchTitle>
-            <SearchForm>
-              <FormRow>
-                <FormLabel>나이</FormLabel>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '14px', color: '#6c757d' }}>만</span>
-                  <AgeInput
-                    type="number"
-                    min="1"
-                    max="150"
-                    value={searchForm.age}
-                    onChange={(e) => handleFormChange('age', e.target.value)}
-                    placeholder="0"
+                  {/* 가구상황 */}
+                  <FilterColumn>
+                    <FilterTitle>가구상황</FilterTitle>
+                    <CheckboxList>
+                      {householdOptions.map((option, index) => (
+                          <CheckboxItem key={`household-${index}`}>
+                            <input
+                                type="checkbox"
+                                checked={selectedFilters.household.includes(option)}
+                                onChange={() =>
+                                    handleFilterChange('household', option)
+                                }
+                            />
+                            {option}
+                          </CheckboxItem>
+                      ))}
+                    </CheckboxList>
+                  </FilterColumn>
+
+                  {/* 관심주제 */}
+                  <FilterColumn>
+                    <FilterTitle>관심주제</FilterTitle>
+                    <InterestCheckboxList>
+                      {topicOptions.map((option, index) => (
+                          <CheckboxItem key={`topic-${index}`}>
+                            <input
+                                type="checkbox"
+                                checked={selectedFilters.topics.includes(option)}
+                                onChange={() =>
+                                    handleFilterChange('topics', option)
+                                }
+                            />
+                            {option}
+                          </CheckboxItem>
+                      ))}
+                    </InterestCheckboxList>
+                  </FilterColumn>
+                </FilterGrid>
+              </FilterCard>
+            </FilterSection>
+
+            <SectionDivider />
+
+            {/* 추가 검색 조건 */}
+            <SearchSection>
+              <SearchTitle>추가 검색 조건</SearchTitle>
+              <SearchForm>
+                {/* 나이 */}
+                <FormRow>
+                  <FormLabel>나이</FormLabel>
+                  <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                  >
+                  <span style={{ fontSize: '14px', color: '#6c757d' }}>
+                    만
+                  </span>
+                    <AgeInput
+                        type="number"
+                        min="1"
+                        max="150"
+                        value={searchForm.age}
+                        onChange={(e) =>
+                            handleFormChange('age', e.target.value)
+                        }
+                        placeholder="0"
+                    />
+                    <span style={{ fontSize: '14px', color: '#6c757d' }}>
+                    세
+                  </span>
+                  </div>
+                </FormRow>
+
+                {/* 지역 */}
+                <FormRow>
+                  <FormLabel>지역</FormLabel>
+
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {/* 시/도 */}
+                    <RegionSelect
+                        value={searchForm.province}
+                        onChange={(e) => {
+                          const selectedProvince = e.target.value;
+                          const newForm = {
+                            ...searchForm,
+                            province: selectedProvince,
+                            city: '',
+                          };
+                          setSearchForm(newForm);
+                        }}
+                    >
+                      <option value="">시/도 선택</option>
+                      {provinces.map((province) => (
+                          <option key={province} value={province}>
+                            {province}
+                          </option>
+                      ))}
+                    </RegionSelect>
+
+                    {/* 시/군/구 */}
+                    <RegionSelect
+                        value={searchForm.city}
+                        onChange={(e) => {
+                          const selectedCity = e.target.value;
+                          const newForm = {
+                            ...searchForm,
+                            city: selectedCity,
+                          };
+                          setSearchForm(newForm);
+                        }}
+                        disabled={!searchForm.province}
+                    >
+                      <option value="">시/군/구 선택</option>
+                      {searchForm.province &&
+                          cities[searchForm.province] &&
+                          cities[searchForm.province].map((city) => (
+                              <option key={city} value={city}>
+                                {city}
+                              </option>
+                          ))}
+                    </RegionSelect>
+                  </div>
+
+                  <div
+                      style={{
+                        fontSize: '12px',
+                        color: '#666',
+                        marginTop: '4px',
+                      }}
+                  >
+                    현재 선택: {searchForm.province || '없음'} /{' '}
+                    {searchForm.city || '없음'}
+                  </div>
+                </FormRow>
+
+                {/* 키워드 */}
+                <FormRow style={{ gridColumn: '1 / -1' }}>
+                  <FormLabel>키워드 검색</FormLabel>
+                  <KeywordInput
+                      type="text"
+                      value={searchForm.keyword}
+                      onChange={(e) =>
+                          handleFormChange('keyword', e.target.value)
+                      }
+                      placeholder="검색어를 입력하세요. (예: 청년, 저소득, 정신건강...)"
                   />
-                  <span style={{ fontSize: '14px', color: '#6c757d' }}>세</span>
-                </div>
-              </FormRow>
-              
-              <FormRow>
-                <FormLabel>지역</FormLabel>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <RegionSelect
-                    value={searchForm.province}
-                    onChange={(e) => {
-                      const selectedProvince = e.target.value;
-                      console.log('Province selected:', selectedProvince);
-                      console.log('Available cities:', cities[selectedProvince]);
-                      console.log('Current searchForm:', searchForm);
-                      
-                      // 한 번에 province와 city를 함께 업데이트
-                      const newForm = {
-                        ...searchForm,
-                        province: selectedProvince,
-                        city: '' // 시/도 변경 시 시/군/구 초기화
-                      };
-                      console.log('New form state:', newForm);
-                      setSearchForm(newForm);
-                    }}
-                  >
-                    <option value="">시/도 선택</option>
-                    {provinces.map(province => (
-                      <option key={province} value={province}>{province}</option>
-                    ))}
-                  </RegionSelect>
-                  <RegionSelect
-                    value={searchForm.city}
-                    onChange={(e) => {
-                      const selectedCity = e.target.value;
-                      console.log('City selected:', selectedCity);
-                      
-                      const newForm = {
-                        ...searchForm,
-                        city: selectedCity
-                      };
-                      console.log('Updated form with city:', newForm);
-                      setSearchForm(newForm);
-                    }}
-                    disabled={!searchForm.province}
-                  >
-                    <option value="">시/군/구 선택</option>
-                    {searchForm.province && cities[searchForm.province] && cities[searchForm.province].map(city => (
-                      <option key={city} value={city}>{city}</option>
-                    ))}
-                  </RegionSelect>
-                </div>
-                {/* 디버깅 정보 */}
-                <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                  현재 선택: {searchForm.province || '없음'} / {searchForm.city || '없음'}
-                </div>
-              </FormRow>
-              
-              <FormRow style={{ gridColumn: '1 / -1' }}>
-                <FormLabel>키워드 검색</FormLabel>
-                <KeywordInput
-                  type="text"
-                  value={searchForm.keyword}
-                  onChange={(e) => handleFormChange('keyword', e.target.value)}
-                  placeholder="검색어를 입력하세요."
-                />
-              </FormRow>
-            </SearchForm>
-            
-            <ButtonContainer>
-              <ResetButton onClick={handleReset}>초기화</ResetButton>
-              <SearchButton onClick={handleSearch}>검색</SearchButton>
-            </ButtonContainer>
-          </SearchSection>
-          <SectionDivider />
-          <ServiceDisplaySection>
-            <ServiceSummary>
-              <SummaryHeader>
-                <TotalServicesText>
-                  총 {serviceSummary.total.toLocaleString()} 건의 복지 서비스가 있습니다.
-                </TotalServicesText>
-                <SortOptions>
-                  <SortButton 
-                    active={sortOption === 'popular'}
-                    onClick={() => setSortOption('popular')}
-                  >
-                    인기순
-                  </SortButton>
-                  <SortButton 
-                    active={sortOption === 'latest'}
-                    onClick={() => setSortOption('latest')}
-                  >
-                    최신순
-                  </SortButton>
-                </SortOptions>
-              </SummaryHeader>
-              
-              <TabContainer>
-  <TabHeader>
-    <TabButton
-      active={activeCategory === 'central'}
-      onClick={() => setActiveCategory('central')}
-      position="left"
-    >
-      중앙부처 <span>{serviceSummary.central.toLocaleString()}</span>
-    </TabButton>
-    <TabButton
-      active={activeCategory === 'local'}
-      onClick={() => setActiveCategory('local')}
-      position="center"
-    >
-      지자체 <span>{serviceSummary.local.toLocaleString()}</span>
-    </TabButton>
-    <TabButton
-      active={activeCategory === 'private'}
-      onClick={() => setActiveCategory('private')}
-      position="right"
-    >
-      민간 <span>{serviceSummary.private.toLocaleString()}</span>
-    </TabButton>
-  </TabHeader>
-</TabContainer>
+                </FormRow>
+              </SearchForm>
 
-            </ServiceSummary>
+              <ButtonContainer>
+                <ResetButton onClick={handleReset}>초기화</ResetButton>
+                <SearchButtonStyled onClick={handleSearch}>
+                  검색
+                </SearchButtonStyled>
+              </ButtonContainer>
+            </SearchSection>
 
-            {loading ? (
-              <LoadingSpinner>서비스를 불러오는 중...</LoadingSpinner>
-            ) : (
-              <ServiceCardGrid>
-                {welfareServices.map(service => {
-                  const translatedTags = service.tags.map(tag => translateTag(tag));
-                  const isExpanded = expandedTags[service.id];
-                  
-                  return (
-                    <ServiceCard key={service.id}>
-                      <div>
-                        <TagsContainer>
-                          {isExpanded ? (
-                            <>
-                              {translatedTags.map((tag, index) => (
-                                <ServiceTag key={`${service.id}-${tag}-${index}`}>{tag}</ServiceTag>
-                              ))}
-                              <ShowTagsButton onClick={() => toggleTags(service.id)}>
-                                접기
-                              </ShowTagsButton>
-                            </>
-                          ) : (
-                            <>
-                              {translatedTags.slice(0, 2).map((tag, index) => (
-                                <ServiceTag key={`${service.id}-${tag}-${index}`}>{tag}</ServiceTag>
-                              ))}
-                              {translatedTags.length > 2 && (
-                                <ShowTagsButton onClick={() => toggleTags(service.id)}>
-                                  태그 더보기 ({translatedTags.length - 2})
-                                </ShowTagsButton>
-                              )}
-                            </>
-                          )}
-                        </TagsContainer>
-                        <ServiceTitle>{service.title}</ServiceTitle>
-                        <ServiceDescription>{service.description}</ServiceDescription>
-                        <ServiceDetailsList>
-                          <ServiceDetailItem>담당부서: {service.department}</ServiceDetailItem>
-                          <ServiceDetailItem>지원주기: {service.cycle}</ServiceDetailItem>
-                          <ServiceDetailItem>제공유형: {service.type}</ServiceDetailItem>
-                          <ServiceDetailItem>문의처: {service.contact}</ServiceDetailItem>
-                        </ServiceDetailsList>
-                      </div>
-                      <ViewDetailsButton onClick={() => handleViewDetails(service)}>
-                        자세히 보기
-                      </ViewDetailsButton>
-                      <AddToCalendarButton onClick={() => handleAddToCalendar(service)}>
-                        캘린더에 추가
-                      </AddToCalendarButton>
-                    </ServiceCard>
-                  );
-                })}
-              </ServiceCardGrid>
-            )}
-          </ServiceDisplaySection>
-        </MainContent>
-      </Container>
-      <ScrollToTopButton />
-    </>
+            <SectionDivider />
+
+            {/* 검색 결과 / 요약 / 정렬 */}
+            <ServiceDisplaySection>
+              <ServiceSummary>
+                <SummaryHeader>
+                  <TotalServicesText>
+                    총 {serviceSummary.total.toLocaleString()} 건의 복지 서비스가
+                    있습니다.
+                  </TotalServicesText>
+                  <SortOptions>
+                    <SortButton
+                        active={sortOption === 'popular'}
+                        onClick={() => setSortOption('popular')}
+                    >
+                      인기순
+                    </SortButton>
+                    <SortButton
+                        active={sortOption === 'latest'}
+                        onClick={() => setSortOption('latest')}
+                    >
+                      최신순
+                    </SortButton>
+                  </SortOptions>
+                </SummaryHeader>
+
+                <TabContainer>
+                  <TabHeader>
+                    <TabButton
+                        active={activeCategory === 'central'}
+                        onClick={() => setActiveCategory('central')}
+                        position="left"
+                    >
+                      중앙부처{' '}
+                      <span>{serviceSummary.central.toLocaleString()}</span>
+                    </TabButton>
+                    <TabButton
+                        active={activeCategory === 'local'}
+                        onClick={() => setActiveCategory('local')}
+                        position="center"
+                    >
+                      지자체{' '}
+                      <span>{serviceSummary.local.toLocaleString()}</span>
+                    </TabButton>
+                    <TabButton
+                        active={activeCategory === 'private'}
+                        onClick={() => setActiveCategory('private')}
+                        position="right"
+                    >
+                      민간{' '}
+                      <span>{serviceSummary.private.toLocaleString()}</span>
+                    </TabButton>
+                  </TabHeader>
+                </TabContainer>
+              </ServiceSummary>
+
+              {loading ? (
+                  <LoadingSpinner>서비스를 불러오는 중...</LoadingSpinner>
+              ) : (
+                  <ServiceCardGrid>
+                    {welfareServices.map((service) => {
+                      const translatedTags = service.tags.map((tag) =>
+                          translateTag(tag)
+                      );
+                      const isExpanded = expandedTags[service.id];
+
+                      return (
+                          <ServiceCard key={service.id}>
+                            <div>
+                              <TagsContainer>
+                                {isExpanded ? (
+                                    <>
+                                      {translatedTags.map((tag, index) => (
+                                          <ServiceTag
+                                              key={`${service.id}-tag-${index}`}
+                                          >
+                                            {tag}
+                                          </ServiceTag>
+                                      ))}
+                                      <ShowTagsButton
+                                          onClick={() => toggleTags(service.id)}
+                                      >
+                                        접기
+                                      </ShowTagsButton>
+                                    </>
+                                ) : (
+                                    <>
+                                      {translatedTags.slice(0, 2).map((tag, index) => (
+                                          <ServiceTag
+                                              key={`${service.id}-tag-${index}`}
+                                          >
+                                            {tag}
+                                          </ServiceTag>
+                                      ))}
+                                      {translatedTags.length > 2 && (
+                                          <ShowTagsButton
+                                              onClick={() =>
+                                                  toggleTags(service.id)
+                                              }
+                                          >
+                                            태그 더보기 (
+                                            {translatedTags.length - 2})
+                                          </ShowTagsButton>
+                                      )}
+                                    </>
+                                )}
+                              </TagsContainer>
+
+                              <ServiceTitle>{service.title}</ServiceTitle>
+
+                              <ServiceDescription>
+                                {service.description}
+                              </ServiceDescription>
+
+                              <ServiceDetailsList>
+                                <ServiceDetailItem>
+                                  담당부서: {service.department || '-'}
+                                </ServiceDetailItem>
+                                <ServiceDetailItem>
+                                  지원주기: {service.cycle || '-'}
+                                </ServiceDetailItem>
+                                <ServiceDetailItem>
+                                  제공유형: {service.type || '-'}
+                                </ServiceDetailItem>
+                                <ServiceDetailItem>
+                                  문의처: {service.contact || '-'}
+                                </ServiceDetailItem>
+                              </ServiceDetailsList>
+                            </div>
+
+                            <ViewDetailsButton
+                                onClick={() => handleViewDetails(service)}
+                            >
+                              자세히 보기
+                            </ViewDetailsButton>
+
+                            <AddToCalendarButton
+                                onClick={() => handleAddToCalendar(service)}
+                            >
+                              캘린더에 추가
+                            </AddToCalendarButton>
+                          </ServiceCard>
+                      );
+                    })}
+                  </ServiceCardGrid>
+              )}
+            </ServiceDisplaySection>
+          </MainContent>
+        </Container>
+
+        <ScrollToTopButton />
+      </>
   );
 };
 
