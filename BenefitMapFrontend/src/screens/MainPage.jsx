@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { isLoggedIn, getUserInfo } from '../utils/auth';
@@ -19,6 +19,7 @@ const MainContainer = styled.div`
     'Helvetica Neue', Arial, sans-serif;
 `;
 
+/* 검색 영역 */
 const SearchWrapper = styled.div`
     display: flex;
     align-items: center;
@@ -36,7 +37,6 @@ const SearchInput = styled.input`
     background: transparent;
     outline: none;
     font-size: 1rem;
-
     &::placeholder {
         color: #5c7f67;
     }
@@ -54,15 +54,19 @@ const SearchButton = styled.button`
     align-items: center;
     cursor: pointer;
     transition: background-color 0.2s;
-
     &:hover {
         background-color: #555;
     }
 `;
 
-const CalendarWrapper = styled.div`
+/* =========================
+   캘린더 스타일 (Calendar.jsx 스타일 차용)
+   - 단: 메인 페이지 카드 느낌 유지
+   ========================= */
+
+const CalendarCard = styled.div`
     width: 100%;
-    background: white;
+    background: #ffffff;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -85,14 +89,13 @@ const NavigationButton = styled.button`
     cursor: pointer;
     padding: 8px 16px;
     transition: all 0.2s ease;
-
     &:hover {
         color: #333;
     }
 `;
 
 const CalendarTitle = styled.h1`
-    font-size: 24px;
+    font-size: 20px;
     margin: 0 40px;
     color: #333;
     font-weight: 500;
@@ -103,158 +106,100 @@ const CalendarTitle = styled.h1`
 const CalendarHeaderGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    background-color: #f8f9fa;
+    background-color: white;
+    border-bottom: 1px solid #d0d0d0;
 `;
 
 const DayHeader = styled.div`
     padding: 15px 0;
     text-align: center;
-    font-weight: 500;
+    font-weight: 400;
     font-size: 14px;
-    color: ${(props) => {
-        if (props.$isSunday) return 'red';
-        if (props.$isSaturday) return 'blue';
-        return '#666';
-    }};
+    color: ${props =>
+            props.$isSunday ? 'red' : props.$isSaturday ? 'blue' : '#666'};
 `;
 
-const CalendarGrid = styled.div`
+/* 달력 본문은 '주 단위 행(WeekRow)'들을 수직으로 쌓는 형태 */
+const CalendarBody = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+/* 한 주(7일)를 감싸는 행 */
+const WeekRow = styled.div`
+    position: relative;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-auto-rows: 100px;
+    min-height: 120px;
+    border-bottom: 1px solid #d0d0d0;
+    &:last-child {
+        border-bottom: none;
+    }
 `;
 
-const DateCell = styled.div`
+/* 각 칸(요일 한 칸) */
+const DayCellWrapper = styled.div`
     position: relative;
-    border-bottom: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
+    min-height: 120px;
+    border-right: 1px solid #d0d0d0;
+    background-color: ${props => (props.$isOtherMonth ? '#f5f5f5' : 'white')};
     padding: 6px;
-    background-color: ${(props) => (props.$isOtherMonth ? '#f5f5f5' : 'white')};
-    min-height: 100px;
-    visibility: ${(props) => (props.$isEmpty ? 'hidden' : 'visible')};
-
+    box-sizing: border-box;
     &:nth-child(7n) {
         border-right: none;
-    }
-
-    &:nth-last-child(-n + 7) {
-        border-bottom: none;
     }
 `;
 
 const DateNumber = styled.div`
     font-size: 14px;
-    font-weight: ${(props) => (props.$isToday ? 'bold' : '400')};
-    color: ${(props) => {
+    font-weight: ${props => (props.$isToday ? 'bold' : '400')};
+    color: ${props => {
         if (props.$isToday) return '#fff';
         if (props.$isOtherMonth) return '#bbb';
         if (props.$isSunday) return 'red';
         if (props.$isSaturday) return 'blue';
         return '#666';
     }};
-    background-color: ${(props) => (props.$isToday ? '#dc3545' : 'transparent')};
-    border-radius: ${(props) => (props.$isToday ? '50%' : '0')};
-    width: ${(props) => (props.$isToday ? '24px' : 'auto')};
-    height: ${(props) => (props.$isToday ? '24px' : 'auto')};
-    display: ${(props) => (props.$isToday ? 'flex' : 'block')};
-    align-items: ${(props) => (props.$isToday ? 'center' : 'auto')};
-    justify-content: ${(props) => (props.$isToday ? 'center' : 'auto')};
+    background-color: ${props => (props.$isToday ? '#dc3545' : 'transparent')};
+    border-radius: ${props => (props.$isToday ? '50%' : '0')};
+    width: ${props => (props.$isToday ? '24px' : 'auto')};
+    height: ${props => (props.$isToday ? '24px' : 'auto')};
+    display: ${props => (props.$isToday ? 'flex' : 'block')};
+    align-items: ${props => (props.$isToday ? 'center' : 'auto')};
+    justify-content: ${props => (props.$isToday ? 'center' : 'auto')};
     margin-bottom: 6px;
 `;
 
-const EventText = styled.p`
-    margin: 0;
-    padding: 2px 4px;
-    font-size: 0.7rem;
-    background-color: #e6f4ea;
-    border-radius: 3px;
-    width: 100%;
-    box-sizing: border-box;
-    text-align: left;
-    color: #3e664a;
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-`;
-
-const SectionTitle = styled.div`
-    width: 100%;
-    background-color: #f8f9fa;
-    color: #495057;
-    font-weight: 600;
-    padding: 12px 0;
-    border-radius: 8px;
-    text-align: center;
-    font-size: 1rem;
-    border: 1px solid #e9ecef;
-`;
-
-const KeywordSection = styled.div`
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-`;
-
-const KeywordsContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 20px;
-    width: 100%;
-    padding: 16px 0;
-`;
-
-const KeywordWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-`;
-
-const RankBadge = styled.div`
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: white;
-    background-color: ${(props) => {
-        switch (props.$rank) {
-            case 1:
-                return '#FFD700';
-            case 2:
-                return '#C0C0C0';
-            case 3:
-                return '#CD7F32';
-            default:
-                return '#6c757d';
-        }
+/* 주 단위로 깔리는 일정 막대 */
+const SpanningEventBar = styled.div`
+    position: absolute;
+    height: 18px;
+    background-color: ${({ $rowIndex }) => {
+        const baseColor = 144;
+        const intensity = Math.max(0, baseColor - $rowIndex * 20);
+        return `rgb(${intensity}, ${intensity + 50}, ${intensity})`;
     }};
-`;
-
-const KeywordButton = styled.button`
-    padding: 8px 20px;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
-    background-color: white;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    color: #495057;
+    color: #2d5016;
+    font-size: 11px;
+    font-weight: 400;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    border-radius: ${({ $isFirst, $isLast }) =>
+            $isFirst && $isLast
+                    ? '8px'
+                    : $isFirst
+                            ? '8px 0 0 8px'
+                            : $isLast
+                                    ? '0 8px 8px 0'
+                                    : '0'};
+    border: none;
+    top: ${({ $rowIndex }) => 30 + $rowIndex * 20}px;
     transition: all 0.2s ease;
-
-    &:hover {
-        background-color: #f8f9fa;
-        border-color: #dee2e6;
-    }
 `;
 
+/* 로그인 / 추천 영역 */
 const RecommendationSection = styled.div`
     width: 100%;
     display: flex;
@@ -304,18 +249,15 @@ const RecommendationItem = styled.div`
     border-left: 3px solid #91D0A6;
     cursor: pointer;
     transition: background 0.2s;
-
     &:hover {
         background: #e9f7ee;
     }
-
     h4 {
         margin: 0 0 6px 0;
         color: #495057;
         font-size: 0.9rem;
         font-weight: 600;
     }
-
     p {
         margin: 0;
         color: #6c757d;
@@ -345,13 +287,18 @@ const SearchIcon = () => (
 );
 
 /* =========================
-   데모 캘린더 이벤트
+   날짜 유틸
    ========================= */
-const events = {
-    '2025-5-2': '청년 주택 드림',
-    '2025-5-11': '아동 복지 마감',
-    '2025-5-27': '연금',
-};
+
+// 안전한 로컬 Date 생성 ("2025-10-11" → 로컬 2025-10-11 00:00)
+function parseYyyyMmDdLocal(str) {
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+}
+
+function ymdKey(date) {
+    return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+}
 
 /* =========================
    메인 컴포넌트
@@ -360,15 +307,14 @@ const MainPage = () => {
     const navigate = useNavigate();
 
     const [currentDate, setCurrentDate] = useState(new Date());
-
-    // ✅ 검색어 상태 추가
     const [searchText, setSearchText] = useState('');
 
-    // 로그인 여부
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
-
-    // 사용자 이름
     const [displayName, setDisplayName] = useState('');
+
+    // 서버에서 가져올 전체 일정들 (로그인한 유저만)
+    // [{ id,welfareId,title,description,department, applicationPeriod:{startDate,endDate} }, ...]
+    const [calendarServices, setCalendarServices] = useState([]);
 
     // 추천 복지 리스트
     const [recommendList, setRecommendList] = useState([]);
@@ -378,13 +324,13 @@ const MainPage = () => {
         const loggedIn = isLoggedIn();
         setIsUserLoggedIn(loggedIn);
 
-        // 1차: localStorage에 있는 정보 사용
+        // 1차: localStorage 기반
         const localUser = getUserInfo();
         if (localUser?.name) {
             setDisplayName(localUser.name);
         }
 
-        // 2차: 백엔드 정보로 갱신
+        // 2차: 서버 정보로 갱신
         if (loggedIn) {
             try {
                 const res = await fetch('/user/me', {
@@ -407,7 +353,6 @@ const MainPage = () => {
             setRecommendList([]);
             return;
         }
-
         try {
             const res = await fetch('/api/catalog/recommend', {
                 method: 'GET',
@@ -426,22 +371,18 @@ const MainPage = () => {
                 setRecommendList(raw.slice(0, 3));
                 return;
             }
-
             if (Array.isArray(raw.data)) {
                 setRecommendList(raw.data.slice(0, 3));
                 return;
             }
-
             if (Array.isArray(raw.content)) {
                 setRecommendList(raw.content.slice(0, 3));
                 return;
             }
-
             if (raw.data && Array.isArray(raw.data.items)) {
                 setRecommendList(raw.data.items.slice(0, 3));
                 return;
             }
-
             if (raw.data && Array.isArray(raw.data.recommendations)) {
                 setRecommendList(raw.data.recommendations.slice(0, 3));
                 return;
@@ -455,107 +396,180 @@ const MainPage = () => {
         }
     }, []);
 
-    /* 초기 로드 + 주기 동기화 */
+    /* 로그인돼 있으면 캘린더 일정도 불러오기 */
+    const fetchCalendar = useCallback(async () => {
+        if (!isLoggedIn()) {
+            setCalendarServices([]);
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/calendar', {
+                method: 'GET',
+                credentials: 'include',
+            });
+            if (!res.ok) {
+                console.warn('캘린더 API HTTP 오류:', res.status);
+                setCalendarServices([]);
+                return;
+            }
+
+            const data = await res.json();
+            setCalendarServices(data || []);
+        } catch (err) {
+            console.error('메인페이지 캘린더 불러오기 실패:', err);
+            setCalendarServices([]);
+        }
+    }, []);
+
+    /* 초기 로드 & 주기 동기화 */
     useEffect(() => {
         syncLoginInfo();
         fetchRecommendations();
+        fetchCalendar();
 
         const interval = setInterval(() => {
             syncLoginInfo();
             fetchRecommendations();
+            fetchCalendar();
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [syncLoginInfo, fetchRecommendations]);
+    }, [syncLoginInfo, fetchRecommendations, fetchCalendar]);
 
     /* 달 이동 */
     const changeMonth = useCallback((direction) => {
         setCurrentDate((prevDate) => {
             const newDate = new Date(prevDate);
-            newDate.setDate(1);
-            if (direction === 'prev') {
-                newDate.setMonth(newDate.getMonth() - 1);
-            } else {
-                newDate.setMonth(newDate.getMonth() + 1);
-            }
+            newDate.setMonth(
+                prevDate.getMonth() + (direction === 'next' ? 1 : -1)
+            );
             return newDate;
         });
     }, []);
 
-    /* 캘린더 렌더 */
-    const renderCalendar = useCallback(() => {
+    /* month grid 만들기 (지난달 끝 ~ 이번달 ~ 다음달 시작까지) */
+    const monthMatrix = useMemo(() => {
         const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-        const firstDay = new Date(year, month, 1).getDay();
+        const month = currentDate.getMonth(); // 0-index
+        const firstOfMonth = new Date(year, month, 1);
+        const firstDayOfWeek = firstOfMonth.getDay(); // 0=Sun
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const today = new Date();
 
-        const calendarData = [];
+        const allDates = [];
 
-        // 이전 달 날짜
+        // 이전 달에서 채우는 날짜들
         const prevMonthLastDay = new Date(year, month, 0).getDate();
-        for (let i = firstDay - 1; i >= 0; i--) {
-            calendarData.push({
-                date: prevMonthLastDay - i,
-                isOtherMonth: true,
-            });
+        for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+            allDates.push(new Date(year, month - 1, prevMonthLastDay - i));
         }
 
-        // 이번 달 날짜
-        for (let day = 1; day <= daysInMonth; day++) {
-            calendarData.push({
-                date: day,
-                isOtherMonth: false,
-                year,
-                month,
-            });
+        // 이번 달 날짜들
+        for (let d = 1; d <= daysInMonth; d++) {
+            allDates.push(new Date(year, month, d));
         }
 
-        // 다음 달 날짜 (35 또는 42 채우기)
-        const totalCells = calendarData.length > 35 ? 42 : 35;
-        const remainingCells = totalCells - calendarData.length;
-        for (let day = 1; day <= remainingCells; day++) {
-            calendarData.push({
-                date: day,
-                isOtherMonth: true,
-            });
-        }
-
-        return calendarData.map((cell, index) => {
-            const isToday =
-                !cell.isOtherMonth &&
-                today.getFullYear() === year &&
-                today.getMonth() === month &&
-                today.getDate() === cell.date;
-
-            const eventKey = `${cell.year}-${cell.month + 1}-${cell.date}`;
-            const event = events[eventKey];
-
-            return (
-                <DateCell key={index} $isOtherMonth={cell.isOtherMonth}>
-                    <DateNumber
-                        $isSunday={index % 7 === 0}
-                        $isSaturday={index % 7 === 6}
-                        $isOtherMonth={cell.isOtherMonth}
-                        $isToday={isToday}
-                    >
-                        {cell.date}
-                    </DateNumber>
-
-                    {event && !cell.isOtherMonth && <EventText>{event}</EventText>}
-                </DateCell>
+        // 다음 달로 채우기 -> 총 35 또는 42칸
+        while (allDates.length % 7 !== 0 || allDates.length < 35) {
+            const last = allDates[allDates.length - 1];
+            allDates.push(
+                new Date(
+                    last.getFullYear(),
+                    last.getMonth(),
+                    last.getDate() + 1
+                )
             );
-        });
+            if (allDates.length >= 42) break;
+        }
+
+        // 7일씩 끊어서 weeks 배열로
+        const weeks = [];
+        for (let i = 0; i < allDates.length; i += 7) {
+            weeks.push(allDates.slice(i, i + 7));
+        }
+
+        return weeks;
     }, [currentDate]);
 
-    /* ✅ 메인페이지 검색 제출 핸들러 */
+    /* 이번 달력에 깔릴 bar들 계산 (주 단위) */
+    const computeBarsForWeek = useCallback(
+        (weekDates) => {
+            if (!isUserLoggedIn) return [];
+
+            const weekStart = weekDates[0];
+            const weekEnd = weekDates[6];
+
+            const rawBars = [];
+            calendarServices.forEach((svc) => {
+                const startStr = svc?.applicationPeriod?.startDate;
+                const endStr = svc?.applicationPeriod?.endDate;
+                if (!startStr || !endStr) return;
+
+                // 타임존 안전하게 변환
+                const start = parseYyyyMmDdLocal(startStr);
+                const end = parseYyyyMmDdLocal(endStr);
+
+                // 이 주와 전혀 안 겹치면 패스
+                if (end < weekStart || start > weekEnd) return;
+
+                // 이 주에서 시작하는 셀 index
+                let firstIdx = 0;
+                if (start > weekStart) {
+                    const matchIdx = weekDates.findIndex(
+                        (d) => ymdKey(d) === ymdKey(start)
+                    );
+                    firstIdx = matchIdx === -1 ? 0 : matchIdx;
+                }
+
+                // 이 주에서 끝나는 셀 index
+                let lastIdx = 6;
+                if (end < weekEnd) {
+                    const matchIdx = weekDates.findIndex(
+                        (d) => ymdKey(d) === ymdKey(end)
+                    );
+                    lastIdx = matchIdx === -1 ? 6 : matchIdx;
+                }
+
+                rawBars.push({
+                    svc,
+                    firstIdx,
+                    lastIdx,
+                    isFirst: start >= weekStart,
+                    isLast: end <= weekEnd,
+                });
+            });
+
+            // 겹치는 bar들끼리 안 겹치도록 rowIndex 할당
+            const placed = [];
+            rawBars.forEach((bar) => {
+                let rowIndex = 0;
+                while (true) {
+                    const conflict = placed.some(
+                        (p) =>
+                            p.rowIndex === rowIndex &&
+                            !(
+                                bar.lastIdx < p.firstIdx ||
+                                bar.firstIdx > p.lastIdx
+                            )
+                    );
+                    if (!conflict) break;
+                    rowIndex++;
+                }
+                placed.push({ ...bar, rowIndex });
+            });
+
+            return placed;
+        },
+        [calendarServices, isUserLoggedIn]
+    );
+
+    /* 검색 제출 */
     const handleSearchSubmit = useCallback(() => {
         const keyword = searchText.trim();
         if (!keyword) return;
-
         navigate('/ServicePage', {
             state: {
-                initialKeyword: keyword, // ServicePage에서 초기 검색어로 사용
+                initialKeyword: keyword,
             },
         });
     }, [navigate, searchText]);
@@ -563,9 +577,12 @@ const MainPage = () => {
     /* =========================
        렌더
        ========================= */
+    const today = new Date();
+    const viewYear = currentDate.getFullYear();
+    const viewMonth = currentDate.getMonth(); // 0-index
+
     return (
         <MainContainer>
-
             {/* 검색 영역 */}
             <SearchWrapper>
                 <SearchInput
@@ -584,86 +601,140 @@ const MainPage = () => {
                 </SearchButton>
             </SearchWrapper>
 
-            {/* 캘린더 */}
-            <CalendarWrapper>
+            {/* 캘린더 카드 */}
+            <CalendarCard>
                 <CalendarHeader>
                     <NavigationButton onClick={() => changeMonth('prev')}>
                         ◀
                     </NavigationButton>
                     <CalendarTitle>
-                        {currentDate.getFullYear()}년 {currentDate.getMonth() + 1}월
+                        {viewYear}년 {viewMonth + 1}월
                     </CalendarTitle>
                     <NavigationButton onClick={() => changeMonth('next')}>
                         ▶
                     </NavigationButton>
                 </CalendarHeader>
 
+                {/* 요일 헤더 */}
                 <CalendarHeaderGrid>
-                    {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
-                        <DayHeader
-                            key={index}
-                            $isSunday={index === 0}
-                            $isSaturday={index === 6}
-                        >
-                            {day}
-                        </DayHeader>
-                    ))}
+                    {['일', '월', '화', '수', '목', '금', '토'].map(
+                        (day, idx) => (
+                            <DayHeader
+                                key={idx}
+                                $isSunday={idx === 0}
+                                $isSaturday={idx === 6}
+                            >
+                                {day}
+                            </DayHeader>
+                        )
+                    )}
                 </CalendarHeaderGrid>
 
-                <CalendarGrid>{renderCalendar()}</CalendarGrid>
-            </CalendarWrapper>
+                {/* 한 주씩 렌더 */}
+                <CalendarBody>
+                    {monthMatrix.map((weekDates, wIdx) => {
+                        const bars = computeBarsForWeek(weekDates);
 
-            {/* 이달의 키워드 */}
+                        return (
+                            <WeekRow key={wIdx}>
+                                {/* 날짜 칸들 */}
+                                {weekDates.map((dateObj, dIdx) => {
+                                    const isOtherMonth =
+                                        dateObj.getMonth() !== viewMonth;
+                                    const isToday =
+                                        dateObj.getFullYear() ===
+                                        today.getFullYear() &&
+                                        dateObj.getMonth() ===
+                                        today.getMonth() &&
+                                        dateObj.getDate() ===
+                                        today.getDate();
+
+                                    return (
+                                        <DayCellWrapper
+                                            key={dIdx}
+                                            $isOtherMonth={isOtherMonth}
+                                        >
+                                            <DateNumber
+                                                $isSunday={dIdx === 0}
+                                                $isSaturday={dIdx === 6}
+                                                $isOtherMonth={isOtherMonth}
+                                                $isToday={isToday}
+                                            >
+                                                {dateObj.getDate()}
+                                            </DateNumber>
+                                        </DayCellWrapper>
+                                    );
+                                })}
+
+                                {/* 이 주에 걸리는 일정 바들 */}
+                                {bars.map((bar, idx) => {
+                                    const svc = bar.svc;
+                                    const startCell = bar.firstIdx;
+                                    const endCell = bar.lastIdx;
+
+                                    return (
+                                        <SpanningEventBar
+                                            key={idx}
+                                            $rowIndex={bar.rowIndex}
+                                            $isFirst={bar.isFirst}
+                                            $isLast={bar.isLast}
+                                            style={{
+                                                left: `calc(${(startCell / 7) * 100}% + ${
+                                                    bar.isFirst
+                                                        ? '6px'
+                                                        : '0px'
+                                                })`,
+                                                right: `calc(${(
+                                                    (6 - endCell) /
+                                                    7
+                                                ) * 100}% + ${
+                                                    bar.isLast
+                                                        ? '6px'
+                                                        : '0px'
+                                                })`,
+                                            }}
+                                            onClick={() => {
+                                                if (!isUserLoggedIn) return;
+                                                // 홈에서 일정 클릭하면 /calendar 로 이동
+                                                const jumpDate =
+                                                    parseYyyyMmDdLocal(
+                                                        svc.applicationPeriod
+                                                            .startDate
+                                                    );
+                                                navigate('/calendar', {
+                                                    state: {
+                                                        targetDate: jumpDate,
+                                                    },
+                                                });
+                                            }}
+                                        >
+                                            {bar.isFirst ? svc.title : ''}
+                                        </SpanningEventBar>
+                                    );
+                                })}
+                            </WeekRow>
+                        );
+                    })}
+                </CalendarBody>
+            </CalendarCard>
+
+            {/* ====== 이달의 복지 키워드 (주석처리 요청) ====== */}
+            {/*
             <KeywordSection>
                 <SectionTitle>이달의 복지 키워드</SectionTitle>
                 <KeywordsContainer>
-                    <KeywordWrapper>
-                        <RankBadge $rank={2}>2</RankBadge>
-                        <KeywordButton
-                            onClick={() => {
-                                setSearchText('연금');
-                                navigate('/ServicePage', {
-                                    state: { initialKeyword: '연금' },
-                                });
-                            }}
-                        >
-                            연금
-                        </KeywordButton>
-                    </KeywordWrapper>
-                    <KeywordWrapper>
-                        <RankBadge $rank={1}>1</RankBadge>
-                        <KeywordButton
-                            onClick={() => {
-                                setSearchText('청년월세');
-                                navigate('/ServicePage', {
-                                    state: { initialKeyword: '청년월세' },
-                                });
-                            }}
-                        >
-                            청년월세
-                        </KeywordButton>
-                    </KeywordWrapper>
-                    <KeywordWrapper>
-                        <RankBadge $rank={3}>3</RankBadge>
-                        <KeywordButton
-                            onClick={() => {
-                                setSearchText('아동복지');
-                                navigate('/ServicePage', {
-                                    state: { initialKeyword: '아동복지' },
-                                });
-                            }}
-                        >
-                            아동복지
-                        </KeywordButton>
-                    </KeywordWrapper>
+                    ...
                 </KeywordsContainer>
             </KeywordSection>
+            */}
 
             {/* 맞춤 추천 복지 */}
             <RecommendationSection>
-                <SectionTitle>맞춤 추천 복지</SectionTitle>
-
-                {isUserLoggedIn ? (
+                {!isUserLoggedIn ? (
+                    <LoginPromptBox>
+                        <p>로그인 후 이용해 주세요.</p>
+                    </LoginPromptBox>
+                ) : (
                     <RecommendationBox>
                         <RecommendationTitle>
                             안녕하세요, {displayName || '사용자'}님!
@@ -689,36 +760,45 @@ const MainPage = () => {
                                                 service: {
                                                     id: item.id,
                                                     title: item.welfareName,
-                                                    description: item.description,
-                                                    department: item.department,
+                                                    description:
+                                                    item.description,
+                                                    department:
+                                                    item.department,
                                                     cycle: item.supportCycle,
                                                     type: item.supplyType,
                                                     contact: item.contact,
                                                     tags: [
-                                                        ...(item.lifecycles || []),
-                                                        ...(item.households || []),
-                                                        ...(item.interests || []),
+                                                        ...(item.lifecycles ||
+                                                            []),
+                                                        ...(item.households ||
+                                                            []),
+                                                        ...(item.interests ||
+                                                            []),
                                                     ],
                                                     applicationPeriod: {
-                                                        startDate: item.startDate,
+                                                        startDate:
+                                                        item.startDate,
                                                         endDate: item.endDate,
-                                                        isOngoing: !item.endDate,
+                                                        isOngoing:
+                                                            !item.endDate,
                                                     },
                                                 },
                                             },
                                         });
                                     }}
                                 >
-                                    <h4>{item.welfareName || '복지 서비스'}</h4>
-                                    <p>{item.description || '설명이 준비중입니다.'}</p>
+                                    <h4>
+                                        {item.welfareName ||
+                                            '복지 서비스'}
+                                    </h4>
+                                    <p>
+                                        {item.description ||
+                                            '설명이 준비중입니다.'}
+                                    </p>
                                 </RecommendationItem>
                             ))
                         )}
                     </RecommendationBox>
-                ) : (
-                    <LoginPromptBox>
-                        <p>로그인 후 이용해 주세요.</p>
-                    </LoginPromptBox>
                 )}
             </RecommendationSection>
         </MainContainer>
