@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { colors, fonts, spacing, breakpoints } from '../styles/CommonStyles';
-import { createDeadlineNotificationEmail, getUserEmail, isEmailNotificationEnabled } from '../utils/emailNotification';
+import {
+  createDeadlineNotificationEmail,
+  getUserEmail,
+  isEmailNotificationEnabled,
+} from '../utils/emailNotification';
 import { useAuth } from '../hooks/useAuth';
-import { checkAuthAndRedirect } from '../utils/auth';
+
+/* ==== styled-components 그대로 (너 코드 그대로 복붙) ==== */
 
 const Container = styled.div`
   min-height: 100vh;
@@ -28,7 +33,7 @@ const BackButton = styled.button`
   display: flex;
   align-items: center;
   gap: ${spacing.xs};
-  
+
   &:hover {
     color: ${colors.primaryHover};
   }
@@ -139,7 +144,7 @@ const PeriodInfo = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: ${spacing.md};
-  
+
   @media (max-width: ${breakpoints.mobile}) {
     flex-direction: column;
     align-items: flex-start;
@@ -166,7 +171,7 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: ${spacing.md};
   margin-top: ${spacing.xl};
-  
+
   @media (max-width: ${breakpoints.mobile}) {
     flex-direction: column;
   }
@@ -187,13 +192,13 @@ const AddToCalendarButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: ${spacing.sm};
-  
+
   &:hover {
     background-color: ${colors.primaryHover};
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(145, 208, 166, 0.3);
   }
-  
+
   &:disabled {
     background-color: #ccc;
     cursor: not-allowed;
@@ -213,7 +218,7 @@ const ContactButton = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   flex: 1;
-  
+
   &:hover {
     background-color: #5a6268;
     transform: translateY(-2px);
@@ -221,39 +226,93 @@ const ContactButton = styled.button`
   }
 `;
 
+/* =========================
+   본체
+   ========================= */
+
 const ServiceDetailPage = () => {
   const navigate = useNavigate();
+  const { id } = useParams(); // /service/:id
   const location = useLocation();
-  const service = location.state?.service;
-  const [isAddingToCalendar, setIsAddingToCalendar] = useState(false);
   const { isAuthenticated } = useAuth();
 
-  // 복지서비스 상세 페이지는 로그인 없이도 접근 가능
+  // 1) 먼저 MainPage → navigate할 때 넘긴 state로 초기화 시도
+  const initialStateFromNav = location.state?.service || null;
 
-  // 페이지 로드 시 가운데로 스크롤
-  useEffect(() => {
-    const scrollToCenter = () => {
-      const container = document.querySelector('[data-service-detail]');
-      if (container) {
-        container.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
-        });
+  const [service, setService] = useState(initialStateFromNav);
+  const [isAddingToCalendar, setIsAddingToCalendar] = useState(false);
+
+  // 2) state가 없으면 (새로고침 등) 서버에서 다시 불러오기
+  const loadServiceDetail = useCallback(async () => {
+    if (service) return; // 이미 있으면 안 불러옴
+
+    try {
+      const res = await fetch(`/api/catalog/${id}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      // 404 등 에러 응답일 경우 대비
+      if (!res.ok) {
+        console.error('상세 API HTTP 오류:', res.status);
+        return;
       }
-    };
-    
-    // 약간의 지연을 두고 실행 (DOM이 완전히 렌더링된 후)
-    setTimeout(scrollToCenter, 100);
-  }, []);
 
-  // 서비스 데이터가 없으면 홈으로 리다이렉트
+      const data = await res.json();
+
+      // 서버 응답을 최대한 안전하게 매핑
+      const s = data.data || data || {};
+
+      const mapped = {
+        id: s.id ?? id,
+        title: s.welfareName || s.title || s.name || '(제목 없음)',
+        description: s.description || s.summary || s.detail || '',
+        department: s.department || s.dept || '',
+        cycle: s.supportCycle || s.cycle || '',
+        type: s.supplyType || s.type || '',
+        contact: s.contact || s.phone || '',
+        tags: [
+          ...(s.lifecycles || []),
+          ...(s.households || []),
+          ...(s.interests || []),
+        ],
+        applicationPeriod: {
+          startDate: s.startDate || s.applicationStartDate || '',
+          endDate: s.endDate || s.applicationEndDate || '',
+          isOngoing: !(s.endDate || s.applicationEndDate),
+        },
+      };
+
+      setService(mapped);
+    } catch (err) {
+      console.error('서비스 상세 불러오기 실패:', err);
+    }
+  }, [id, service]);
+
+  useEffect(() => {
+    loadServiceDetail();
+  }, [loadServiceDetail]);
+
+  // 아직 아무 정보도 못 얻었을 때
   if (!service) {
-    navigate('/ServicePage');
-    return null;
+    return (
+        <Container data-service-detail>
+          <MainContent>
+            <BackButton onClick={() => navigate(-1)}>← 뒤로가기</BackButton>
+            <DetailCard>
+              <ServiceHeader>
+                <ServiceTitle>불러오는 중...</ServiceTitle>
+              </ServiceHeader>
+            </DetailCard>
+          </MainContent>
+        </Container>
+    );
   }
 
+  /* =========================
+     캘린더 추가
+     ========================= */
   const handleAddToCalendar = async () => {
-    // 로그인하지 않은 사용자는 로그인 페이지로 리다이렉트
     if (!isAuthenticated) {
       alert('캘린더에 추가하려면 로그인이 필요합니다.');
       navigate('/LoginPage');
@@ -261,19 +320,17 @@ const ServiceDetailPage = () => {
     }
 
     setIsAddingToCalendar(true);
-    
+
     try {
-      // 중복 체크
-      const existingServices = JSON.parse(localStorage.getItem('calendarServices') || '[]');
-      const isAlreadyAdded = existingServices.some(existingService => existingService.id === service.id);
-      
-      if (isAlreadyAdded) {
+      const existing = JSON.parse(localStorage.getItem('calendarServices') || '[]');
+      const already = existing.some((sv) => sv.id === service.id);
+
+      if (already) {
         alert('이미 추가된 일정입니다.');
         setIsAddingToCalendar(false);
         return;
       }
 
-      // 캘린더에 추가할 데이터 준비
       const calendarData = {
         id: service.id,
         title: service.title,
@@ -281,60 +338,45 @@ const ServiceDetailPage = () => {
         department: service.department,
         contact: service.contact,
         tags: service.tags,
-        applicationPeriod: service.applicationPeriod || {
-          startDate: new Date().toISOString().split('T')[0], // 오늘 날짜
-          endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7일 후
-          isOngoing: false
-        }
+        applicationPeriod: service.applicationPeriod,
       };
 
-      // 로컬 스토리지에 저장
-      const updatedServices = [...existingServices, calendarData];
-      localStorage.setItem('calendarServices', JSON.stringify(updatedServices));
-      
-      console.log('캘린더에 추가된 서비스:', calendarData);
-      console.log('전체 캘린더 서비스:', updatedServices);
+      const updated = [...existing, calendarData];
+      localStorage.setItem('calendarServices', JSON.stringify(updated));
 
-      // 이메일 알림 생성 (마감 3일 전)
+      // 이메일 알림 예약
       if (isEmailNotificationEnabled() && service.applicationPeriod) {
         const userEmail = getUserEmail();
-        if (userEmail) {
+        if (userEmail && service.applicationPeriod.endDate) {
           const endDate = new Date(service.applicationPeriod.endDate);
           const today = new Date();
-          const daysUntilDeadline = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
-          
+          const daysUntilDeadline = Math.ceil(
+              (endDate - today) / (1000 * 60 * 60 * 24)
+          );
+
           if (daysUntilDeadline > 3) {
-            createDeadlineNotificationEmail(service, 3, userEmail)
-              .then(result => {
-                if (result.success) {
-                  console.log('✅ 이메일 알림이 예약되었습니다:', result.message);
-                } else {
-                  console.warn('⚠️ 이메일 알림 예약 실패:', result.message);
-                }
-              })
-              .catch(error => {
-                console.error('❌ 이메일 알림 예약 중 오류:', error);
-              });
+            createDeadlineNotificationEmail(service, 3, userEmail).catch((error) => {
+              console.error('이메일 알림 예약 중 오류:', error);
+            });
           }
         }
       }
 
-      // 성공 알림 및 캘린더 이동 확인
-      const shouldNavigateToCalendar = window.confirm(
-        `${service.title}이 캘린더에 추가되었습니다!\n마감 3일 전에 이메일 알림이 발송됩니다.\n\n캘린더 페이지로 이동하시겠습니까?`
+      const goCalendar = window.confirm(
+          `${service.title}이 캘린더에 추가되었습니다!\n마감 3일 전에 이메일 알림이 발송됩니다.\n\n캘린더 페이지로 이동할까요?`
       );
-      
-      if (shouldNavigateToCalendar) {
-        // 서비스의 시작 날짜로 이동
-        const serviceStartDate = new Date(calendarData.applicationPeriod.startDate);
-        navigate('/calendar', { 
-          state: { 
+
+      if (goCalendar) {
+        const start = new Date(
+            service.applicationPeriod.startDate || Date.now()
+        );
+        navigate('/calendar', {
+          state: {
             newService: calendarData,
-            targetDate: serviceStartDate
-          } 
+            targetDate: start,
+          },
         });
       }
-      
     } catch (error) {
       console.error('캘린더 추가 중 오류:', error);
       alert('캘린더 추가 중 오류가 발생했습니다.');
@@ -344,86 +386,84 @@ const ServiceDetailPage = () => {
   };
 
   const handleContact = () => {
-    // 연락처 정보 표시 또는 전화 걸기
     if (service.contact) {
-      alert(`문의처: ${service.contact}\n\n전화를 걸거나 해당 번호로 문의해주세요.`);
+      alert(
+          `문의처: ${service.contact}\n\n전화를 걸거나 해당 번호로 문의해주세요.`
+      );
     }
   };
 
   return (
-    <Container data-service-detail>
-      <MainContent>
-        <BackButton onClick={() => navigate('/ServicePage')}>
-          ← 복지 서비스 목록으로 돌아가기
-        </BackButton>
-        
-        <DetailCard>
-          <ServiceHeader>
-            <ServiceTags>
-              {service.tags?.map(tag => (
-                <ServiceTag key={tag}>{tag}</ServiceTag>
-              ))}
-            </ServiceTags>
-            <ServiceTitle>{service.title}</ServiceTitle>
-            <ServiceDescription>{service.description}</ServiceDescription>
-          </ServiceHeader>
+      <Container data-service-detail>
+        <MainContent>
+          <BackButton onClick={() => navigate('/ServicePage')}>
+            ← 복지 서비스 목록으로 돌아가기
+          </BackButton>
 
-          {service.applicationPeriod && (
-            <ApplicationPeriodSection>
-              <PeriodTitle>신청 기간</PeriodTitle>
-              <PeriodInfo>
-                <PeriodDate>
-                  {service.applicationPeriod.startDate} ~ {service.applicationPeriod.endDate}
-                </PeriodDate>
-                <StatusBadge isOngoing={service.applicationPeriod.isOngoing}>
-                  신청 가능
-                </StatusBadge>
-              </PeriodInfo>
-            </ApplicationPeriodSection>
-          )}
+          <DetailCard>
+            <ServiceHeader>
+              <ServiceTags>
+                {service.tags?.map((tag) => (
+                    <ServiceTag key={tag}>{tag}</ServiceTag>
+                ))}
+              </ServiceTags>
 
-          <DetailSection>
-            <SectionTitle>서비스 정보</SectionTitle>
-            <DetailGrid>
-              <DetailItem>
-                <DetailLabel>담당부서</DetailLabel>
-                <DetailValue>{service.department}</DetailValue>
-              </DetailItem>
-              <DetailItem>
-                <DetailLabel>지원주기</DetailLabel>
-                <DetailValue>{service.cycle}</DetailValue>
-              </DetailItem>
-              <DetailItem>
-                <DetailLabel>제공유형</DetailLabel>
-                <DetailValue>{service.type}</DetailValue>
-              </DetailItem>
-              <DetailItem>
-                <DetailLabel>문의처</DetailLabel>
-                <DetailValue>{service.contact}</DetailValue>
-              </DetailItem>
-            </DetailGrid>
-          </DetailSection>
+              <ServiceTitle>{service.title || '-'}</ServiceTitle>
+              <ServiceDescription>{service.description || '-'}</ServiceDescription>
+            </ServiceHeader>
 
-          <ButtonContainer>
-            <AddToCalendarButton 
-              onClick={handleAddToCalendar}
-              disabled={isAddingToCalendar}
-            >
-              {isAddingToCalendar ? (
-                <>캘린더에 추가 중...</>
-              ) : isAuthenticated ? (
-                <>캘린더에 추가</>
-              ) : (
-                <>로그인 후 캘린더에 추가</>
-              )}
-            </AddToCalendarButton>
-            <ContactButton onClick={handleContact}>
-              문의하기
-            </ContactButton>
-          </ButtonContainer>
-        </DetailCard>
-      </MainContent>
-    </Container>
+            {service.applicationPeriod && (
+                <ApplicationPeriodSection>
+                  <PeriodTitle>신청 기간</PeriodTitle>
+                  <PeriodInfo>
+                    <PeriodDate>
+                      {service.applicationPeriod.startDate || ''} ~{' '}
+                      {service.applicationPeriod.endDate || '상시'}
+                    </PeriodDate>
+                    <StatusBadge>신청 가능</StatusBadge>
+                  </PeriodInfo>
+                </ApplicationPeriodSection>
+            )}
+
+            <DetailSection>
+              <SectionTitle>서비스 정보</SectionTitle>
+              <DetailGrid>
+                <DetailItem>
+                  <DetailLabel>담당부서</DetailLabel>
+                  <DetailValue>{service.department || '-'}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>지원주기</DetailLabel>
+                  <DetailValue>{service.cycle || '-'}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>제공유형</DetailLabel>
+                  <DetailValue>{service.type || '-'}</DetailValue>
+                </DetailItem>
+                <DetailItem>
+                  <DetailLabel>문의처</DetailLabel>
+                  <DetailValue>{service.contact || '-'}</DetailValue>
+                </DetailItem>
+              </DetailGrid>
+            </DetailSection>
+
+            <ButtonContainer>
+              <AddToCalendarButton
+                  onClick={handleAddToCalendar}
+                  disabled={isAddingToCalendar}
+              >
+                {isAddingToCalendar
+                    ? '캘린더에 추가 중...'
+                    : isAuthenticated
+                        ? '캘린더에 추가'
+                        : '로그인 후 캘린더에 추가'}
+              </AddToCalendarButton>
+
+              <ContactButton onClick={handleContact}>문의하기</ContactButton>
+            </ButtonContainer>
+          </DetailCard>
+        </MainContent>
+      </Container>
   );
 };
 
