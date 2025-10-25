@@ -637,7 +637,7 @@ function MyPage() {
       });
 
       setIsEditing(false);
-      alert('서버에 저장되었습니다!');
+      alert('수정이 완료되었습니다!');
     } catch (err) {
       console.error('PATCH /user/me 실패:', err);
       alert('저장 중 오류가 발생했습니다.');
