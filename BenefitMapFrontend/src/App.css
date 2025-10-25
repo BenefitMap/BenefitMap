@@ -1,4 +1,11 @@
-<<<<<<< HEAD
+/* ====== Global Reset ====== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ====== CRA 기본 구조 ====== */
 .App {
   text-align: center;
 }
@@ -37,5 +44,3 @@
     transform: rotate(360deg);
   }
 }
-=======
->>>>>>> 2d692c974f6b22d02ff6e7be734ff13b3af9a3d2
