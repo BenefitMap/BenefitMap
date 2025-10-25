@@ -587,7 +587,6 @@ const codeToKorean = {
   LAW: '법률',
   EDUCATION: '교육',
   CARE_PROTECT: '보호, 돌봄',
-  PREGNANCY_BIRTH: '임신, 출산',
 };
 
 /* =========================
@@ -939,7 +938,7 @@ const ServicePage = () => {
             } else {
               setCurrentLocation('현재 위치를 확인하지 못했어요.');
             }
-          } catch (e) {
+          } catch {
             setCurrentLocation('위치 정보를 가져오는 중 오류가 발생했어요.');
           }
         },

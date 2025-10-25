@@ -9,7 +9,46 @@ import {
 } from '../utils/emailNotification';
 import { useAuth } from '../hooks/useAuth';
 
-/* ==== styled-components 그대로 (너 코드 그대로 복붙) ==== */
+/* =========================
+   코드값 → 한글 라벨 맵 ★
+   ========================= */
+const TAG_LABELS = {
+  // 생애주기
+  PREGNANCY_BIRTH: '임신·출산',
+  INFANT: '영유아',
+  CHILD: '아동',
+  TEEN: '청소년',
+  YOUTH: '청년',
+  MIDDLE_AGED: '중장년',
+  SENIOR: '노년',
+
+  // 가구상황
+  LOW_INCOME: '저소득',
+  DISABLED: '장애인',
+  SINGLE_PARENT: '한부모·조손',
+  MULTI_CHILDREN: '다자녀',
+  MULTICULTURAL_NK: '다문화·탈북민',
+  PROTECTED: '보호대상자',
+  NONE: '해당사항 없음',
+
+  // 관심주제
+  PHYSICAL_HEALTH: '신체건강',
+  MENTAL_HEALTH: '정신건강',
+  LIVING_SUPPORT: '생활지원',
+  HOUSING: '주거',
+  JOBS: '일자리',
+  CULTURE_LEISURE: '문화·여가',
+  SAFETY_CRISIS: '안전·위기',
+  CHILDCARE: '보육',
+  ADOPTION_TRUST: '입양·위탁',
+  CARE_PROTECT: '보호·돌봄',
+  MICRO_FINANCE: '서민금융',
+  ENERGY: '에너지',
+  LAW: '법률',
+  EDUCATION: '교육',
+};
+
+/* ==== styled-components (네 코드 그대로) ==== */
 
 const Container = styled.div`
   min-height: 100vh;
@@ -236,15 +275,15 @@ const ServiceDetailPage = () => {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
 
-  // 1) 먼저 MainPage → navigate할 때 넘긴 state로 초기화 시도
+  // 메인에서 넘어온 상태 (페이지 이동 시 state로 준 service)
   const initialStateFromNav = location.state?.service || null;
 
   const [service, setService] = useState(initialStateFromNav);
   const [isAddingToCalendar, setIsAddingToCalendar] = useState(false);
 
-  // 2) state가 없으면 (새로고침 등) 서버에서 다시 불러오기
+  // 상세 API (새로고침 등으로 state 없을 때)
   const loadServiceDetail = useCallback(async () => {
-    if (service) return; // 이미 있으면 안 불러옴
+    if (service) return;
 
     try {
       const res = await fetch(`/api/catalog/${id}`, {
@@ -252,15 +291,12 @@ const ServiceDetailPage = () => {
         credentials: 'include',
       });
 
-      // 404 등 에러 응답일 경우 대비
       if (!res.ok) {
         console.error('상세 API HTTP 오류:', res.status);
         return;
       }
 
       const data = await res.json();
-
-      // 서버 응답을 최대한 안전하게 매핑
       const s = data.data || data || {};
 
       const mapped = {
@@ -293,7 +329,6 @@ const ServiceDetailPage = () => {
     loadServiceDetail();
   }, [loadServiceDetail]);
 
-  // 아직 아무 정보도 못 얻었을 때
   if (!service) {
     return (
         <Container data-service-detail>
@@ -404,7 +439,9 @@ const ServiceDetailPage = () => {
             <ServiceHeader>
               <ServiceTags>
                 {service.tags?.map((tag) => (
-                    <ServiceTag key={tag}>{tag}</ServiceTag>
+                    <ServiceTag key={tag}>
+                      {TAG_LABELS[tag] || tag /* ★ 여기서 한글 라벨로 보여줌 */}
+                    </ServiceTag>
                 ))}
               </ServiceTags>
 
@@ -432,14 +469,17 @@ const ServiceDetailPage = () => {
                   <DetailLabel>담당부서</DetailLabel>
                   <DetailValue>{service.department || '-'}</DetailValue>
                 </DetailItem>
+
                 <DetailItem>
                   <DetailLabel>지원주기</DetailLabel>
                   <DetailValue>{service.cycle || '-'}</DetailValue>
                 </DetailItem>
+
                 <DetailItem>
                   <DetailLabel>제공유형</DetailLabel>
                   <DetailValue>{service.type || '-'}</DetailValue>
                 </DetailItem>
+
                 <DetailItem>
                   <DetailLabel>문의처</DetailLabel>
                   <DetailValue>{service.contact || '-'}</DetailValue>

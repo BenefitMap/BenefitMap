@@ -81,7 +81,7 @@ const ToggleSwitch = styled.div`
   position: relative;
   width: 50px;
   height: 24px;
-  background-color: ${props => props.active ? '#4a9d5f' : '#ccc'};
+  background-color: ${props => (props.active ? '#4a9d5f' : '#ccc')};
   border-radius: 12px;
   transition: background-color 0.3s ease;
   cursor: pointer;
@@ -90,7 +90,7 @@ const ToggleSwitch = styled.div`
     content: '';
     position: absolute;
     top: 2px;
-    left: ${props => props.active ? '26px' : '2px'};
+    left: ${props => (props.active ? '26px' : '2px')};
     width: 20px;
     height: 20px;
     background-color: white;
@@ -140,21 +140,21 @@ const ModalButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 80px;
-  
+
   &.save {
     background-color: #4a9d5f;
     color: white;
-    
+
     &:hover {
       background-color: #3d8450;
       transform: translateY(-1px);
     }
   }
-  
+
   &.cancel {
     background-color: #6c757d;
     color: white;
-    
+
     &:hover {
       background-color: #5a6268;
       transform: translateY(-1px);
@@ -162,16 +162,11 @@ const ModalButton = styled.button`
   }
 `;
 
-const ServiceNotificationModal = ({ 
-  isOpen, 
-  onClose, 
-  service, 
-  onSave 
-}) => {
+const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
   const [settings, setSettings] = useState({
-    headerNotifications: true,
+    headerNotifications: true, // 브라우저 알림 (UI는 숨김)
     emailNotifications: false,
-    reminderDays: [3] // 기본값: 3일 전
+    reminderDays: [3], // 기본값: 3일 전
   });
 
   const availableDays = [1, 3, 5, 7]; // 선택 가능한 일수
@@ -187,13 +182,13 @@ const ServiceNotificationModal = ({
   useEffect(() => {
     if (service) {
       const serviceSettings = JSON.parse(
-        localStorage.getItem(`serviceNotification_${service.id}`) || '{}'
+          localStorage.getItem(`serviceNotification_${service.id}`) || '{}'
       );
       setSettings({
         headerNotifications: true,
         emailNotifications: false,
         reminderDays: [3],
-        ...serviceSettings
+        ...serviceSettings,
       });
     }
   }, [service]);
@@ -202,16 +197,16 @@ const ServiceNotificationModal = ({
   const handleSettingChange = (key, value) => {
     setSettings(prev => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
   // 알림 일수 토글
-  const toggleReminderDay = (day) => {
+  const toggleReminderDay = day => {
     const newReminderDays = settings.reminderDays.includes(day)
-      ? settings.reminderDays.filter(d => d !== day)
-      : [...settings.reminderDays, day].sort();
-    
+        ? settings.reminderDays.filter(d => d !== day)
+        : [...settings.reminderDays, day].sort();
+
     handleSettingChange('reminderDays', newReminderDays);
   };
 
@@ -220,10 +215,10 @@ const ServiceNotificationModal = ({
     if (service) {
       // 서비스별 설정 저장
       localStorage.setItem(
-        `serviceNotification_${service.id}`, 
-        JSON.stringify(settings)
+          `serviceNotification_${service.id}`,
+          JSON.stringify(settings)
       );
-      
+
       onSave?.(service.id, settings);
       onClose();
     }
@@ -232,76 +227,91 @@ const ServiceNotificationModal = ({
   if (!isOpen || !service) return null;
 
   return (
-    <ModalOverlay onClick={onClose}>
-      <ModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>
-          🔔 알림 설정
-        </ModalHeader>
-        
-        <ModalBody>
-          <ServiceInfo>
-            <ServiceTitle>{service.title}</ServiceTitle>
-            <ServicePeriod>
-              신청기간: {service.applicationPeriod?.startDate} ~ {service.applicationPeriod?.endDate}
-            </ServicePeriod>
-            <ServiceDepartment>
-              담당부서: {service.department}
-            </ServiceDepartment>
-          </ServiceInfo>
-          
+      <ModalOverlay onClick={onClose}>
+        <ModalContent onClick={e => e.stopPropagation()}>
+          <ModalHeader>🔔 알림 설정</ModalHeader>
+
+          <ModalBody>
+            <ServiceInfo>
+              <ServiceTitle>{service.title}</ServiceTitle>
+              <ServicePeriod>
+                신청기간:{' '}
+                {service.applicationPeriod?.startDate} ~{' '}
+                {service.applicationPeriod?.endDate}
+              </ServicePeriod>
+              <ServiceDepartment>
+                담당부서: {service.department}
+              </ServiceDepartment>
+            </ServiceInfo>
+
+            {/* 🔕 브라우저 알림 받기 섹션 숨김
           <SettingGroup>
             <SettingLabel>
               <Checkbox
                 type="checkbox"
                 checked={settings.headerNotifications}
-                onChange={(e) => handleSettingChange('headerNotifications', e.target.checked)}
+                onChange={(e) =>
+                  handleSettingChange('headerNotifications', e.target.checked)
+                }
               />
               <ToggleSwitch active={settings.headerNotifications} />
               브라우저 알림 받기
             </SettingLabel>
           </SettingGroup>
+          */}
 
-          <SettingGroup>
-            <SettingLabel>
-              <Checkbox
-                type="checkbox"
-                checked={settings.emailNotifications}
-                onChange={(e) => handleSettingChange('emailNotifications', e.target.checked)}
-              />
-              <ToggleSwitch active={settings.emailNotifications} />
-              이메일로 알림 받기 ({userEmail || '이메일 없음'})
-            </SettingLabel>
-          </SettingGroup>
-
-          <SettingGroup>
-            <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px' }}>
-              언제 알림을 받을까요?
-            </div>
-            <CheckboxGroup>
-              {availableDays.map(day => (
-                <CheckboxItem key={day}>
-                  <CheckboxInput
+            <SettingGroup>
+              <SettingLabel>
+                <Checkbox
                     type="checkbox"
-                    checked={settings.reminderDays.includes(day)}
-                    onChange={() => toggleReminderDay(day)}
-                  />
-                  {day}일 전에 알려주세요
-                </CheckboxItem>
-              ))}
-            </CheckboxGroup>
-          </SettingGroup>
-        </ModalBody>
+                    checked={settings.emailNotifications}
+                    onChange={e =>
+                        handleSettingChange(
+                            'emailNotifications',
+                            e.target.checked
+                        )
+                    }
+                />
+                <ToggleSwitch active={settings.emailNotifications} />
+                이메일로 알림 받기 ({userEmail || '이메일 없음'})
+              </SettingLabel>
+            </SettingGroup>
 
-        <ModalFooter>
-          <ModalButton className="cancel" onClick={onClose}>
-            취소
-          </ModalButton>
-          <ModalButton className="save" onClick={handleSave}>
-            저장
-          </ModalButton>
-        </ModalFooter>
-      </ModalContent>
-    </ModalOverlay>
+            <SettingGroup>
+              <div
+                  style={{
+                    fontSize: '14px',
+                    color: '#666',
+                    marginBottom: '12px',
+                  }}
+              >
+                언제 알림을 받을까요?
+              </div>
+              <CheckboxGroup>
+                {availableDays.map(day => (
+                    <CheckboxItem key={day}>
+                      <CheckboxInput
+                          type="checkbox"
+                          checked={settings.reminderDays.includes(day)}
+                          onChange={() => toggleReminderDay(day)}
+                      />
+                      {day}일 전에 알려주세요
+                    </CheckboxItem>
+                ))}
+              </CheckboxGroup>
+            </SettingGroup>
+          </ModalBody>
+
+          <ModalFooter>
+            <ModalButton className="cancel" onClick={onClose}>
+              취소
+            </ModalButton>
+            <ModalButton className="save" onClick={handleSave}>
+              저장
+            </ModalButton>
+          </ModalFooter>
+        </ModalContent>
+      </ModalOverlay>
   );
 };
 
