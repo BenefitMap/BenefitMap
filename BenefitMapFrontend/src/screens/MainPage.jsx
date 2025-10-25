@@ -5,7 +5,6 @@ import { isLoggedIn, getUserInfo } from '../utils/auth';
 
 /* =========================
    styled-components
-   (transient props: $prop 사용)
    ========================= */
 
 const MainContainer = styled.div`
@@ -346,7 +345,7 @@ const SearchIcon = () => (
 );
 
 /* =========================
-   더미 캘린더 이벤트
+   데모 캘린더 이벤트
    ========================= */
 const events = {
     '2025-5-2': '청년 주택 드림',
@@ -362,6 +361,9 @@ const MainPage = () => {
 
     const [currentDate, setCurrentDate] = useState(new Date());
 
+    // ✅ 검색어 상태 추가
+    const [searchText, setSearchText] = useState('');
+
     // 로그인 여부
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
@@ -376,13 +378,13 @@ const MainPage = () => {
         const loggedIn = isLoggedIn();
         setIsUserLoggedIn(loggedIn);
 
-        // 1차: localStorage에 있는 정보 사용 (빠름)
+        // 1차: localStorage에 있는 정보 사용
         const localUser = getUserInfo();
         if (localUser?.name) {
             setDisplayName(localUser.name);
         }
 
-        // 2차: 서버 정보로 업데이트 (정확)
+        // 2차: 백엔드 정보로 갱신
         if (loggedIn) {
             try {
                 const res = await fetch('/user/me', {
@@ -420,7 +422,6 @@ const MainPage = () => {
 
             const raw = await res.json();
 
-            // 응답 형태 유연하게 처리
             if (Array.isArray(raw)) {
                 setRecommendList(raw.slice(0, 3));
                 return;
@@ -454,7 +455,7 @@ const MainPage = () => {
         }
     }, []);
 
-    /* 초기 로드 + 주기적 동기화 */
+    /* 초기 로드 + 주기 동기화 */
     useEffect(() => {
         syncLoginInfo();
         fetchRecommendations();
@@ -481,17 +482,17 @@ const MainPage = () => {
         });
     }, []);
 
-    /* 캘린더 칸 렌더 */
+    /* 캘린더 렌더 */
     const renderCalendar = useCallback(() => {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
-        const firstDay = new Date(year, month, 1).getDay(); // 이번달 1일 요일 (0=일)
-        const daysInMonth = new Date(year, month + 1, 0).getDate(); // 이번달 총 일수
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
         const today = new Date();
 
         const calendarData = [];
 
-        // 이전 달 날짜들
+        // 이전 달 날짜
         const prevMonthLastDay = new Date(year, month, 0).getDate();
         for (let i = firstDay - 1; i >= 0; i--) {
             calendarData.push({
@@ -500,7 +501,7 @@ const MainPage = () => {
             });
         }
 
-        // 이번 달 날짜들
+        // 이번 달 날짜
         for (let day = 1; day <= daysInMonth; day++) {
             calendarData.push({
                 date: day,
@@ -510,7 +511,7 @@ const MainPage = () => {
             });
         }
 
-        // 다음 달 날짜들 (셀 개수 고정 35 또는 42)
+        // 다음 달 날짜 (35 또는 42 채우기)
         const totalCells = calendarData.length > 35 ? 42 : 35;
         const remainingCells = totalCells - calendarData.length;
         for (let day = 1; day <= remainingCells; day++) {
@@ -547,15 +548,38 @@ const MainPage = () => {
         });
     }, [currentDate]);
 
+    /* ✅ 메인페이지 검색 제출 핸들러 */
+    const handleSearchSubmit = useCallback(() => {
+        const keyword = searchText.trim();
+        if (!keyword) return;
+
+        navigate('/ServicePage', {
+            state: {
+                initialKeyword: keyword, // ServicePage에서 초기 검색어로 사용
+            },
+        });
+    }, [navigate, searchText]);
+
     /* =========================
        렌더
        ========================= */
     return (
         <MainContainer>
-            {/* 검색 */}
+
+            {/* 검색 영역 */}
             <SearchWrapper>
-                <SearchInput type="text" placeholder="검색어를 입력하세요." />
-                <SearchButton>
+                <SearchInput
+                    type="text"
+                    placeholder="검색어를 입력하세요."
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleSearchSubmit();
+                        }
+                    }}
+                />
+                <SearchButton onClick={handleSearchSubmit}>
                     <SearchIcon />
                 </SearchButton>
             </SearchWrapper>
@@ -595,15 +619,42 @@ const MainPage = () => {
                 <KeywordsContainer>
                     <KeywordWrapper>
                         <RankBadge $rank={2}>2</RankBadge>
-                        <KeywordButton>연금</KeywordButton>
+                        <KeywordButton
+                            onClick={() => {
+                                setSearchText('연금');
+                                navigate('/ServicePage', {
+                                    state: { initialKeyword: '연금' },
+                                });
+                            }}
+                        >
+                            연금
+                        </KeywordButton>
                     </KeywordWrapper>
                     <KeywordWrapper>
                         <RankBadge $rank={1}>1</RankBadge>
-                        <KeywordButton>청년월세</KeywordButton>
+                        <KeywordButton
+                            onClick={() => {
+                                setSearchText('청년월세');
+                                navigate('/ServicePage', {
+                                    state: { initialKeyword: '청년월세' },
+                                });
+                            }}
+                        >
+                            청년월세
+                        </KeywordButton>
                     </KeywordWrapper>
                     <KeywordWrapper>
                         <RankBadge $rank={3}>3</RankBadge>
-                        <KeywordButton>아동복지</KeywordButton>
+                        <KeywordButton
+                            onClick={() => {
+                                setSearchText('아동복지');
+                                navigate('/ServicePage', {
+                                    state: { initialKeyword: '아동복지' },
+                                });
+                            }}
+                        >
+                            아동복지
+                        </KeywordButton>
                     </KeywordWrapper>
                 </KeywordsContainer>
             </KeywordSection>
@@ -633,8 +684,6 @@ const MainPage = () => {
                                 <RecommendationItem
                                     key={item.id ?? item.welfareName}
                                     onClick={() => {
-                                        // 상세 페이지로 이동하면서
-                                        // 데이터 자체도 같이 넘겨준다 (즉시 렌더용)
                                         navigate(`/service/${item.id}`, {
                                             state: {
                                                 service: {

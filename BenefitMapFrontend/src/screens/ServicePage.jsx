@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../hooks/useAuth';
 import ScrollToTopButton from '../components/ScrollToTopButton';
@@ -102,7 +102,7 @@ const CheckboxItem = styled.label`
     color: #4a9d5f;
   }
 
-  input[type="checkbox"] {
+  input[type='checkbox'] {
     appearance: none;
     margin: 0;
     width: 16px;
@@ -114,11 +114,11 @@ const CheckboxItem = styled.label`
     place-content: center;
     transition: all 0.2s ease;
   }
-  input[type="checkbox"]:checked {
+  input[type='checkbox']:checked {
     border-color: #4a9d5f;
     background-color: #4a9d5f;
   }
-  input[type="checkbox"]:checked::after {
+  input[type='checkbox']:checked::after {
     content: '✓';
     color: white;
     font-size: 12px;
@@ -251,11 +251,11 @@ const ResetButton = styled(Button)`
 `;
 
 const SearchButtonStyled = styled(Button)`
-  background-color: #B8E6C9;
+  background-color: #b8e6c9;
   color: #333;
 
   &:hover {
-    background-color: #A5D9B8;
+    background-color: #a5d9b8;
   }
 `;
 
@@ -289,13 +289,13 @@ const SortOptions = styled.div`
 
 const SortButton = styled.button`
   background-color: transparent;
-  color: ${(props) => (props.active ? '#333' : '#999')};
+  color: ${props => (props.active ? '#333' : '#999')};
   border: none;
   padding: 0;
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
-  font-weight: ${(props) => (props.active ? '600' : '400')};
+  font-weight: ${props => (props.active ? '600' : '400')};
 
   &:hover {
     color: #333;
@@ -590,18 +590,14 @@ const codeToKorean = {
 };
 
 /* =========================
-   태그 표기 변환 (카드 표시용)
+   태그 표기 변환
    ========================= */
-
-const translateTag = (tagCode) => {
-  return codeToKorean[tagCode] || tagCode;
-};
+const translateTag = tagCode => codeToKorean[tagCode] || tagCode;
 
 /* =========================
    API 함수
    ========================= */
-
-const searchWelfareServices = async (searchParams) => {
+const searchWelfareServices = async searchParams => {
   try {
     const response = await fetch(`/api/catalog/search`, {
       method: 'POST',
@@ -630,21 +626,12 @@ const searchWelfareServices = async (searchParams) => {
 /* =========================
    프론트엔드 최종 필터링 로직
    ========================= */
-
-/**
- * svc      : 서버에서 온 raw 서비스 1건
- * keyword  : 사용자가 입력한 검색어 (예: "청년", "저소득")
- *
- * 이 함수는 true면 화면에 남기고, false면 숨김
- * 즉, 여기서 태그 한글도 잡아준다.
- */
 function cardMatchesKeywordIncludingTags(svc, keyword) {
-  // 키워드 없으면 무조건 통과 (전체 보여주기 모드)
   if (!keyword || keyword.trim() === '') return true;
 
   const kw = keyword.trim().toLowerCase();
 
-  // 1) 기본 텍스트 필드들
+  // 기본 텍스트 필드들
   const haystackText = [
     svc.welfareName,
     svc.description,
@@ -658,7 +645,7 @@ function cardMatchesKeywordIncludingTags(svc, keyword) {
 
   if (haystackText.includes(kw)) return true;
 
-  // 2) 태그 코드들 (예: "YOUTH", "LOW_INCOME")
+  // 태그 코드들 (영문 enum)
   const tagCodes = [
     ...(svc.lifecycles || []),
     ...(svc.households || []),
@@ -667,9 +654,9 @@ function cardMatchesKeywordIncludingTags(svc, keyword) {
   const tagCodesJoined = tagCodes.join(' ').toLowerCase();
   if (tagCodesJoined.includes(kw)) return true;
 
-  // 3) 태그 한글 변환 후 검사 (예: "청년", "저소득", "정신건강")
+  // 태그 한글 변환 후 검사
   const tagLabelsKorean = tagCodes
-      .map((code) => codeToKorean[code] || '')
+      .map(code => codeToKorean[code] || '')
       .join(' ')
       .toLowerCase();
   if (tagLabelsKorean.includes(kw)) return true;
@@ -678,32 +665,35 @@ function cardMatchesKeywordIncludingTags(svc, keyword) {
 }
 
 /* =========================
-   메인 컴포넌트
+   컴포넌트
    ========================= */
 
 const ServicePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated } = useAuth();
 
-  // 필터 상태 (생애주기 / 가구상황 / 관심주제 체크박스)
+  // MainPage에서 넘어온 검색어
+  const initialKeywordFromNav = location.state?.initialKeyword || '';
+
   const [selectedFilters, setSelectedFilters] = useState({
     lifeCycle: [],
     household: [],
     topics: [],
   });
 
-  // 폼 상태 (나이, 지역, 키워드 등)
   const [searchForm, setSearchForm] = useState({
     age: '',
     province: '',
     city: '',
-    keyword: '',
+    keyword: initialKeywordFromNav || '',
   });
 
-  // UI 상태들
   const [activeCategory, setActiveCategory] = useState('central');
   const [sortOption, setSortOption] = useState('popular');
-  const [currentLocation, setCurrentLocation] = useState('위치 정보를 가져오는 중...');
+  const [currentLocation, setCurrentLocation] = useState(
+      '위치 정보를 가져오는 중...'
+  );
   const [welfareServices, setWelfareServices] = useState([]);
   const [serviceSummary, setServiceSummary] = useState({
     total: 0,
@@ -714,7 +704,7 @@ const ServicePage = () => {
   const [loading, setLoading] = useState(false);
   const [expandedTags, setExpandedTags] = useState({});
 
-  // 시/도 / 시군구 옵션
+  /* 시/도, 시군구 옵션 */
   const provinces = [
     '서울특별시',
     '부산광역시',
@@ -736,74 +726,285 @@ const ServicePage = () => {
   ];
 
   const cities = {
-    '서울특별시': [
-      '강남구','강동구','강북구','강서구','관악구','광진구','구로구','금천구','노원구','도봉구','동대문구','동작구','마포구','서대문구','서초구','성동구','성북구','송파구','양천구','영등포구','용산구','은평구','종로구','중구','중랑구',
+    서울특별시: [
+      '강남구',
+      '강동구',
+      '강북구',
+      '강서구',
+      '관악구',
+      '광진구',
+      '구로구',
+      '금천구',
+      '노원구',
+      '도봉구',
+      '동대문구',
+      '동작구',
+      '마포구',
+      '서대문구',
+      '서초구',
+      '성동구',
+      '성북구',
+      '송파구',
+      '양천구',
+      '영등포구',
+      '용산구',
+      '은평구',
+      '종로구',
+      '중구',
+      '중랑구',
     ],
-    '부산광역시': [
-      '강서구','금정구','남구','동구','동래구','부산진구','북구','사상구','사하구','서구','수영구','연제구','영도구','중구','해운대구','기장군',
+    부산광역시: [
+      '강서구',
+      '금정구',
+      '남구',
+      '동구',
+      '동래구',
+      '부산진구',
+      '북구',
+      '사상구',
+      '사하구',
+      '서구',
+      '수영구',
+      '연제구',
+      '영도구',
+      '중구',
+      '해운대구',
+      '기장군',
     ],
-    '대구광역시': [
-      '남구','달서구','동구','북구','서구','수성구','중구','달성군','군위군',
+    대구광역시: [
+      '남구',
+      '달서구',
+      '동구',
+      '북구',
+      '서구',
+      '수성구',
+      '중구',
+      '달성군',
+      '군위군',
     ],
-    '인천광역시': [
-      '강화군','계양구','남동구','동구','미추홀구','부평구','서구','연수구','옹진군','중구',
+    인천광역시: [
+      '강화군',
+      '계양구',
+      '남동구',
+      '동구',
+      '미추홀구',
+      '부평구',
+      '서구',
+      '연수구',
+      '옹진군',
+      '중구',
     ],
-    '광주광역시': ['광산구','남구','동구','북구','서구'],
-    '대전광역시': ['대덕구','동구','서구','유성구','중구'],
-    '울산광역시': ['남구','동구','북구','중구','울주군'],
-    '세종특별자치시': ['세종시'],
-    '경기도': [
-      '가평군','고양시 덕양구','고양시 일산동구','고양시 일산서구','과천시','광명시','광주시','구리시','군포시','김포시','남양주시','동두천시','부천시','성남시 분당구','성남시 수정구','성남시 중원구','수원시 권선구','수원시 영통구','수원시 장안구','수원시 팔달구','시흥시','안산시 단원구','안산시 상록구','안성시','안양시 동안구','안양시 만안구','양주시','양평군','여주시','연천군','오산시','용인시 기흥구','용인시 수지구','용인시 처인구','의왕시','의정부시','이천시','파주시','평택시','포천시','하남시','화성시',
+    광주광역시: ['광산구', '남구', '동구', '북구', '서구'],
+    대전광역시: ['대덕구', '동구', '서구', '유성구', '중구'],
+    울산광역시: ['남구', '동구', '북구', '중구', '울주군'],
+    세종특별자치시: ['세종시'],
+    경기도: [
+      '가평군',
+      '고양시 덕양구',
+      '고양시 일산동구',
+      '고양시 일산서구',
+      '과천시',
+      '광명시',
+      '광주시',
+      '구리시',
+      '군포시',
+      '김포시',
+      '남양주시',
+      '동두천시',
+      '부천시',
+      '성남시 분당구',
+      '성남시 수정구',
+      '성남시 중원구',
+      '수원시 권선구',
+      '수원시 영통구',
+      '수원시 장안구',
+      '수원시 팔달구',
+      '시흥시',
+      '안산시 단원구',
+      '안산시 상록구',
+      '안성시',
+      '안양시 동안구',
+      '안양시 만안구',
+      '양주시',
+      '양평군',
+      '여주시',
+      '연천군',
+      '오산시',
+      '용인시 기흥구',
+      '용인시 수지구',
+      '용인시 처인구',
+      '의왕시',
+      '의정부시',
+      '이천시',
+      '파주시',
+      '평택시',
+      '포천시',
+      '하남시',
+      '화성시',
     ],
-    '강원특별자치도': [
-      '강릉시','동해시','삼척시','속초시','원주시','춘천시','태백시','고성군','양구군','양양군','영월군','인제군','정선군','철원군','평창군','홍천군','화천군','횡성군',
+    강원특별자치도: [
+      '강릉시',
+      '동해시',
+      '삼척시',
+      '속초시',
+      '원주시',
+      '춘천시',
+      '태백시',
+      '고성군',
+      '양구군',
+      '양양군',
+      '영월군',
+      '인제군',
+      '정선군',
+      '철원군',
+      '평창군',
+      '홍천군',
+      '화천군',
+      '횡성군',
     ],
-    '충청북도': [
-      '제천시','청주시 상당구','청주시 서원구','청주시 청원구','청주시 흥덕구','충주시','괴산군','단양군','보은군','영동군','옥천군','음성군','증평군','진천군',
+    충청북도: [
+      '제천시',
+      '청주시 상당구',
+      '청주시 서원구',
+      '청주시 청원구',
+      '청주시 흥덕구',
+      '충주시',
+      '괴산군',
+      '단양군',
+      '보은군',
+      '영동군',
+      '옥천군',
+      '음성군',
+      '증평군',
+      '진천군',
     ],
-    '충청남도': [
-      '계룡시','공주시','논산시','당진시','보령시','서산시','아산시','천안시 동남구','천안시 서북구','금산군','부여군','서천군','예산군','청양군','태안군','홍성군',
+    충청남도: [
+      '계룡시',
+      '공주시',
+      '논산시',
+      '당진시',
+      '보령시',
+      '서산시',
+      '아산시',
+      '천안시 동남구',
+      '천안시 서북구',
+      '금산군',
+      '부여군',
+      '서천군',
+      '예산군',
+      '청양군',
+      '태안군',
+      '홍성군',
     ],
-    '전북특별자치도': [
-      '군산시','김제시','남원시','익산시','전주시 덕진구','전주시 완산구','정읍시','고창군','무주군','부안군','순창군','완주군','임실군','장수군','진안군',
+    전북특별자치도: [
+      '군산시',
+      '김제시',
+      '남원시',
+      '익산시',
+      '전주시 덕진구',
+      '전주시 완산구',
+      '정읍시',
+      '고창군',
+      '무주군',
+      '부안군',
+      '순창군',
+      '완주군',
+      '임실군',
+      '장수군',
+      '진안군',
     ],
-    '전라남도': [
-      '광양시','나주시','목포시','순천시','여수시','강진군','고흥군','곡성군','구례군','담양군','무안군','보성군','신안군','영광군','영암군','완도군','장성군','장흥군','진도군','함평군','해남군','화순군',
+    전라남도: [
+      '광양시',
+      '나주시',
+      '목포시',
+      '순천시',
+      '여수시',
+      '강진군',
+      '고흥군',
+      '곡성군',
+      '구례군',
+      '담양군',
+      '무안군',
+      '보성군',
+      '신안군',
+      '영광군',
+      '영암군',
+      '완도군',
+      '장성군',
+      '장흥군',
+      '진도군',
+      '함평군',
+      '해남군',
+      '화순군',
     ],
-    '경상북도': [
-      '경산시','경주시','구미시','김천시','문경시','상주시','안동시','영주시','영천시','포항시 남구','포항시 북구','고령군','군위군','봉화군','성주군','영덕군','영양군','예천군','울릉군','울진군','의성군','청도군','청송군',
+    경상북도: [
+      '경산시',
+      '경주시',
+      '구미시',
+      '김천시',
+      '문경시',
+      '상주시',
+      '안동시',
+      '영주시',
+      '영천시',
+      '포항시 남구',
+      '포항시 북구',
+      '고령군',
+      '군위군',
+      '봉화군',
+      '성주군',
+      '영덕군',
+      '영양군',
+      '예천군',
+      '울릉군',
+      '울진군',
+      '의성군',
+      '청도군',
+      '청송군',
     ],
-    '경상남도': [
-      '거제시','김해시','밀양시','사천시','양산시','진주시','창원시 마산합포구','창원시 마산회원구','창원시 성산구','창원시 의창구','창원시 진해구','통영시','거창군','고성군','남해군','산청군','의령군','창녕군','하동군','함안군','함양군','합천군',
+    경상남도: [
+      '거제시',
+      '김해시',
+      '밀양시',
+      '사천시',
+      '양산시',
+      '진주시',
+      '창원시 마산합포구',
+      '창원시 마산회원구',
+      '창원시 성산구',
+      '창원시 의창구',
+      '창원시 진해구',
+      '통영시',
+      '거창군',
+      '고성군',
+      '남해군',
+      '산청군',
+      '의령군',
+      '창녕군',
+      '하동군',
+      '함안군',
+      '함양군',
+      '합천군',
     ],
-    '제주특별자치도': ['서귀포시','제주시'],
+    제주특별자치도: ['서귀포시', '제주시'],
   };
 
-  /* ========= 검색 payload 변환 =========
-     서버에는 "keyword"를 안 보낸다.
-     왜냐면 서버는 keyword로 태그 이름까지 못 찾기 때문.
-     서버는 생애주기/가구상황/관심주제 체크박스만 보고 1차 필터한 '후보 목록'을 준다.
-  */
+  /* =========================
+     helpers
+     ========================= */
+
   const toEnumArray = (arr, mapObj) =>
-      arr.length > 0 ? arr.map((kor) => mapObj[kor]).filter(Boolean) : null;
+      arr.length > 0 ? arr.map(kor => mapObj[kor]).filter(Boolean) : null;
 
-  const buildSearchPayload = useCallback(
-      (filters /* , form */) => {
-        return {
-          keyword: null, // 중요: 서버 검색어는 항상 null로
-          lifecycles: toEnumArray(filters.lifeCycle, lifecyclesMap),
-          households: toEnumArray(filters.household, householdMap),
-          interests: toEnumArray(filters.topics, interestMap),
-          // age / region 도 백엔드가 지원하면 여기에 넣기
-        };
-      },
-      []
-  );
+  const buildSearchPayload = useCallback(filters => {
+    return {
+      keyword: null, // 서버는 keyword 기반 검색 안함
+      lifecycles: toEnumArray(filters.lifeCycle, lifecyclesMap),
+      households: toEnumArray(filters.household, householdMap),
+      interests: toEnumArray(filters.topics, interestMap),
+    };
+  }, []);
 
-  /* ========= 서비스 로더 =========
-     1) 서버에서 후보(전체 혹은 체크박스 기반 결과) 받아온다
-     2) 프론트에서 keyword까지 포함해 최종 필터한다
-  */
   const loadWelfareServices = useCallback(
       async (filtersArg, formArg) => {
         const filters = filtersArg ?? selectedFilters;
@@ -811,17 +1012,17 @@ const ServicePage = () => {
 
         setLoading(true);
         try {
-          // 1차: 서버 호출 (keyword 없이)
+          // 1) 서버 호출: 체크박스 기반 후보만 받아옴
           const payload = buildSearchPayload(filters);
           const servicesFromServer = await searchWelfareServices(payload);
 
-          // 2차: 프론트에서 keyword까지 반영
-          const refinedServerList = servicesFromServer.filter((svc) =>
+          // 2) 프론트 최종 필터: keyword 포함 여부로 거르기
+          const refinedServerList = servicesFromServer.filter(svc =>
               cardMatchesKeywordIncludingTags(svc, form.keyword)
           );
 
-          // 3차: 카드 표시용 구조로 변환
-          const transformedServices = refinedServerList.map((svc) => ({
+          // 3) 카드에 뿌릴 형태로 변환
+          const transformedServices = refinedServerList.map(svc => ({
             id: svc.id,
             tags: [
               ...(svc.lifecycles || []),
@@ -843,19 +1044,19 @@ const ServicePage = () => {
 
           setWelfareServices(transformedServices);
 
-          // 4차: 요약 숫자
+          // 4) 상단 요약 숫자
           setServiceSummary({
             total: transformedServices.length,
-            central: transformedServices.filter((s) =>
+            central: transformedServices.filter(s =>
                 s.department?.includes('부')
             ).length,
             local: transformedServices.filter(
-                (s) =>
+                s =>
                     s.department?.includes('시') ||
                     s.department?.includes('도')
             ).length,
             private: transformedServices.filter(
-                (s) =>
+                s =>
                     s.department?.includes('재단') ||
                     s.department?.includes('센터')
             ).length,
@@ -876,7 +1077,9 @@ const ServicePage = () => {
       [buildSearchPayload, searchForm, selectedFilters]
   );
 
-  /* ========= 위치 불러오기 ========= */
+  /* 위치 정보 가져오기 */
+  const [locationLoaded, setLocationLoaded] = useState(false);
+
   const updateLocationFromBrowser = useCallback(() => {
     if (!('geolocation' in navigator)) {
       setCurrentLocation('브라우저에서 위치 정보를 지원하지 않아요.');
@@ -885,7 +1088,7 @@ const ServicePage = () => {
 
     setCurrentLocation('위치 정보를 가져오는 중...');
     navigator.geolocation.getCurrentPosition(
-        async (pos) => {
+        async pos => {
           try {
             const { latitude, longitude } = pos.coords;
             const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ko`;
@@ -922,13 +1125,11 @@ const ServicePage = () => {
             if (parts.length > 0) {
               setCurrentLocation(parts.join(' '));
             } else if (data?.display_name) {
-              const rough = data.display_name.split(',').map((s) => s.trim());
+              const rough = data.display_name.split(',').map(s => s.trim());
               const reversed = [...rough].reverse();
-              const findSi = reversed.find((t) => /(시|군)$/.test(t));
-              const findGu = reversed.find((t) => /구$/.test(t));
-              const findDong = reversed.find((t) =>
-                  /(동|읍|면)$/.test(t)
-              );
+              const findSi = reversed.find(t => /(시|군)$/.test(t));
+              const findGu = reversed.find(t => /구$/.test(t));
+              const findDong = reversed.find(t => /(동|읍|면)$/.test(t));
               const fallbackParts = [findSi, findGu, findDong].filter(Boolean);
               if (fallbackParts.length > 0) {
                 setCurrentLocation(fallbackParts.join(' '));
@@ -940,24 +1141,30 @@ const ServicePage = () => {
             }
           } catch {
             setCurrentLocation('위치 정보를 가져오는 중 오류가 발생했어요.');
+          } finally {
+            setLocationLoaded(true);
           }
         },
-        (err) => {
+        err => {
           if (err.code === err.PERMISSION_DENIED) {
             setCurrentLocation('위치 권한이 거부되었어요.');
           } else {
             setCurrentLocation('위치 정보를 가져올 수 없어요.');
           }
+          setLocationLoaded(true);
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
     );
   }, []);
 
+  // 위치 최초 로드
   useEffect(() => {
-    updateLocationFromBrowser();
-  }, [updateLocationFromBrowser]);
+    if (!locationLoaded) {
+      updateLocationFromBrowser();
+    }
+  }, [updateLocationFromBrowser, locationLoaded]);
 
-  /* ========= 필터 토글 ========= */
+  /* 필터 토글 핸들러 */
   const handleFilterChange = useCallback(
       (category, value) => {
         // household만 특수 규칙 (NONE 단독선택)
@@ -975,7 +1182,6 @@ const ServicePage = () => {
             };
             setSelectedFilters(newFilters);
 
-            // 필터 바뀌면 바로 다시 로드
             setTimeout(() => {
               loadWelfareServices(newFilters, searchForm);
             }, 0);
@@ -984,7 +1190,7 @@ const ServicePage = () => {
           } else {
             const base = prev.includes(NONE_LABEL) ? [] : prev;
             const newHousehold = base.includes(value)
-                ? base.filter((item) => item !== value)
+                ? base.filter(item => item !== value)
                 : [...base, value];
 
             const newFilters = {
@@ -1005,7 +1211,7 @@ const ServicePage = () => {
         const newFilters = {
           ...selectedFilters,
           [category]: selectedFilters[category].includes(value)
-              ? selectedFilters[category].filter((item) => item !== value)
+              ? selectedFilters[category].filter(item => item !== value)
               : [...selectedFilters[category], value],
         };
         setSelectedFilters(newFilters);
@@ -1017,7 +1223,7 @@ const ServicePage = () => {
       [selectedFilters, searchForm, loadWelfareServices]
   );
 
-  /* ========= 폼 값 변경 ========= */
+  /* 값 변경 (나이, 지역, 키워드) */
   const handleFormChange = useCallback(
       (field, value) => {
         const newForm = {
@@ -1026,7 +1232,7 @@ const ServicePage = () => {
         };
         setSearchForm(newForm);
 
-        // keyword 입력은 디바운스 없이 바로 트리거 가능 (원하면 300ms 지연 줘도 됨)
+        // keyword 입력 즉시 반영
         if (field === 'keyword') {
           setTimeout(() => {
             loadWelfareServices(selectedFilters, newForm);
@@ -1036,7 +1242,7 @@ const ServicePage = () => {
       [searchForm, selectedFilters, loadWelfareServices]
   );
 
-  /* ========= 초기화 ========= */
+  /* 초기화 */
   const handleReset = useCallback(() => {
     const clearedFilters = { lifeCycle: [], household: [], topics: [] };
     const clearedForm = { age: '', province: '', city: '', keyword: '' };
@@ -1045,31 +1251,33 @@ const ServicePage = () => {
     loadWelfareServices(clearedFilters, clearedForm);
   }, [loadWelfareServices]);
 
-  /* ========= 수동 검색 버튼 ========= */
+  /* 검색 버튼 */
   const handleSearch = useCallback(() => {
     loadWelfareServices(selectedFilters, searchForm);
   }, [selectedFilters, searchForm, loadWelfareServices]);
 
-  /* ========= 태그 더보기 ========= */
-  const toggleTags = useCallback((serviceId) => {
-    setExpandedTags((prev) => ({
+  /* 태그 더보기/접기 */
+  const toggleTags = useCallback(serviceId => {
+    setExpandedTags(prev => ({
       ...prev,
       [serviceId]: !prev[serviceId],
     }));
   }, []);
 
-  /* ========= 상세보기 ========= */
+  /* 상세보기 */
   const handleViewDetails = useCallback(
-      (service) => {
+      service => {
         navigate(`/service/${service.id}`, { state: { service } });
       },
       [navigate]
   );
 
-  /* ========= 캘린더 추가 ========= */
+  /* 캘린더에 추가 */
+  const { isAuthenticated: authInHeader } = useAuth();
+
   const handleAddToCalendar = useCallback(
-      (service) => {
-        if (!isAuthenticated) {
+      service => {
+        if (!authInHeader) {
           const shouldLogin = window.confirm(
               '캘린더에 추가하려면 로그인이 필요합니다.\n\n로그인 페이지로 이동하시겠습니까?'
           );
@@ -1083,7 +1291,7 @@ const ServicePage = () => {
             localStorage.getItem('calendarServices') || '[]'
         );
         const isAlreadyAdded = existingServices.some(
-            (existingService) => existingService.id === service.id
+            existingService => existingService.id === service.id
         );
 
         if (isAlreadyAdded) {
@@ -1101,9 +1309,7 @@ const ServicePage = () => {
           applicationPeriod:
               service.applicationPeriod || {
                 startDate: new Date().toISOString().split('T')[0],
-                endDate: new Date(
-                    Date.now() + 7 * 24 * 60 * 60 * 1000
-                )
+                endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                     .toISOString()
                     .split('T')[0],
                 isOngoing: false,
@@ -1128,16 +1334,28 @@ const ServicePage = () => {
           });
         }
       },
-      [isAuthenticated, navigate]
+      [authInHeader, navigate]
   );
 
-  // 첫 로드시 서비스 목록 불러오기
+  /* ✅ 여기서 핵심: 처음 로드될 때 initialKeywordFromNav로 검색을 강제로 한 번 돌린다 */
   useEffect(() => {
-    loadWelfareServices();
-  }, [loadWelfareServices]);
+    const firstForm = {
+      age: '',
+      province: '',
+      city: '',
+      keyword: initialKeywordFromNav || '',
+    };
+
+    // 내부 상태도 맞춰두고
+    setSearchForm(firstForm);
+
+    // 그 값으로 검색까지 즉시 수행
+    loadWelfareServices(selectedFilters, firstForm);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialKeywordFromNav]);
 
   /* =========================
-     렌더 옵션
+     렌더
      ========================= */
 
   const lifeCycleOptions = [
@@ -1201,8 +1419,10 @@ const ServicePage = () => {
                       {lifeCycleOptions.map((option, index) => (
                           <CheckboxItem key={`lifecycle-${index}`}>
                             <input
-                                type="checkbox"
-                                checked={selectedFilters.lifeCycle.includes(option)}
+                                type='checkbox'
+                                checked={selectedFilters.lifeCycle.includes(
+                                    option
+                                )}
                                 onChange={() =>
                                     handleFilterChange('lifeCycle', option)
                                 }
@@ -1220,8 +1440,10 @@ const ServicePage = () => {
                       {householdOptions.map((option, index) => (
                           <CheckboxItem key={`household-${index}`}>
                             <input
-                                type="checkbox"
-                                checked={selectedFilters.household.includes(option)}
+                                type='checkbox'
+                                checked={selectedFilters.household.includes(
+                                    option
+                                )}
                                 onChange={() =>
                                     handleFilterChange('household', option)
                                 }
@@ -1239,8 +1461,10 @@ const ServicePage = () => {
                       {topicOptions.map((option, index) => (
                           <CheckboxItem key={`topic-${index}`}>
                             <input
-                                type="checkbox"
-                                checked={selectedFilters.topics.includes(option)}
+                                type='checkbox'
+                                checked={selectedFilters.topics.includes(
+                                    option
+                                )}
                                 onChange={() =>
                                     handleFilterChange('topics', option)
                                 }
@@ -1274,14 +1498,14 @@ const ServicePage = () => {
                     만
                   </span>
                     <AgeInput
-                        type="number"
-                        min="1"
-                        max="150"
+                        type='number'
+                        min='1'
+                        max='150'
                         value={searchForm.age}
-                        onChange={(e) =>
+                        onChange={e =>
                             handleFormChange('age', e.target.value)
                         }
-                        placeholder="0"
+                        placeholder='0'
                     />
                     <span style={{ fontSize: '14px', color: '#6c757d' }}>
                     세
@@ -1297,7 +1521,7 @@ const ServicePage = () => {
                     {/* 시/도 */}
                     <RegionSelect
                         value={searchForm.province}
-                        onChange={(e) => {
+                        onChange={e => {
                           const selectedProvince = e.target.value;
                           const newForm = {
                             ...searchForm,
@@ -1307,8 +1531,8 @@ const ServicePage = () => {
                           setSearchForm(newForm);
                         }}
                     >
-                      <option value="">시/도 선택</option>
-                      {provinces.map((province) => (
+                      <option value=''>시/도 선택</option>
+                      {provinces.map(province => (
                           <option key={province} value={province}>
                             {province}
                           </option>
@@ -1318,7 +1542,7 @@ const ServicePage = () => {
                     {/* 시/군/구 */}
                     <RegionSelect
                         value={searchForm.city}
-                        onChange={(e) => {
+                        onChange={e => {
                           const selectedCity = e.target.value;
                           const newForm = {
                             ...searchForm,
@@ -1328,10 +1552,10 @@ const ServicePage = () => {
                         }}
                         disabled={!searchForm.province}
                     >
-                      <option value="">시/군/구 선택</option>
+                      <option value=''>시/군/구 선택</option>
                       {searchForm.province &&
                           cities[searchForm.province] &&
-                          cities[searchForm.province].map((city) => (
+                          cities[searchForm.province].map(city => (
                               <option key={city} value={city}>
                                 {city}
                               </option>
@@ -1355,9 +1579,9 @@ const ServicePage = () => {
                 <FormRow style={{ gridColumn: '1 / -1' }}>
                   <FormLabel>키워드 검색</FormLabel>
                   <KeywordInput
-                      type="text"
+                      type='text'
                       value={searchForm.keyword}
-                      onChange={(e) =>
+                      onChange={e =>
                           handleFormChange('keyword', e.target.value)
                       }
                       placeholder="검색어를 입력하세요. (예: 청년, 저소득, 정신건강...)"
@@ -1380,8 +1604,8 @@ const ServicePage = () => {
               <ServiceSummary>
                 <SummaryHeader>
                   <TotalServicesText>
-                    총 {serviceSummary.total.toLocaleString()} 건의 복지 서비스가
-                    있습니다.
+                    총 {serviceSummary.total.toLocaleString()} 건의 복지
+                    서비스가 있습니다.
                   </TotalServicesText>
                   <SortOptions>
                     <SortButton
@@ -1404,26 +1628,32 @@ const ServicePage = () => {
                     <TabButton
                         active={activeCategory === 'central'}
                         onClick={() => setActiveCategory('central')}
-                        position="left"
+                        position='left'
                     >
                       중앙부처{' '}
-                      <span>{serviceSummary.central.toLocaleString()}</span>
+                      <span>
+                      {serviceSummary.central.toLocaleString()}
+                    </span>
                     </TabButton>
                     <TabButton
                         active={activeCategory === 'local'}
                         onClick={() => setActiveCategory('local')}
-                        position="center"
+                        position='center'
                     >
                       지자체{' '}
-                      <span>{serviceSummary.local.toLocaleString()}</span>
+                      <span>
+                      {serviceSummary.local.toLocaleString()}
+                    </span>
                     </TabButton>
                     <TabButton
                         active={activeCategory === 'private'}
                         onClick={() => setActiveCategory('private')}
-                        position="right"
+                        position='right'
                     >
                       민간{' '}
-                      <span>{serviceSummary.private.toLocaleString()}</span>
+                      <span>
+                      {serviceSummary.private.toLocaleString()}
+                    </span>
                     </TabButton>
                   </TabHeader>
                 </TabContainer>
@@ -1433,8 +1663,8 @@ const ServicePage = () => {
                   <LoadingSpinner>서비스를 불러오는 중...</LoadingSpinner>
               ) : (
                   <ServiceCardGrid>
-                    {welfareServices.map((service) => {
-                      const translatedTags = service.tags.map((tag) =>
+                    {welfareServices.map(service => {
+                      const translatedTags = service.tags.map(tag =>
                           translateTag(tag)
                       );
                       const isExpanded = expandedTags[service.id];
@@ -1453,20 +1683,24 @@ const ServicePage = () => {
                                           </ServiceTag>
                                       ))}
                                       <ShowTagsButton
-                                          onClick={() => toggleTags(service.id)}
+                                          onClick={() =>
+                                              toggleTags(service.id)
+                                          }
                                       >
                                         접기
                                       </ShowTagsButton>
                                     </>
                                 ) : (
                                     <>
-                                      {translatedTags.slice(0, 2).map((tag, index) => (
-                                          <ServiceTag
-                                              key={`${service.id}-tag-${index}`}
-                                          >
-                                            {tag}
-                                          </ServiceTag>
-                                      ))}
+                                      {translatedTags
+                                          .slice(0, 2)
+                                          .map((tag, index) => (
+                                              <ServiceTag
+                                                  key={`${service.id}-tag-${index}`}
+                                              >
+                                                {tag}
+                                              </ServiceTag>
+                                          ))}
                                       {translatedTags.length > 2 && (
                                           <ShowTagsButton
                                               onClick={() =>
@@ -1489,7 +1723,8 @@ const ServicePage = () => {
 
                               <ServiceDetailsList>
                                 <ServiceDetailItem>
-                                  담당부서: {service.department || '-'}
+                                  담당부서:{' '}
+                                  {service.department || '-'}
                                 </ServiceDetailItem>
                                 <ServiceDetailItem>
                                   지원주기: {service.cycle || '-'}
@@ -1504,13 +1739,17 @@ const ServicePage = () => {
                             </div>
 
                             <ViewDetailsButton
-                                onClick={() => handleViewDetails(service)}
+                                onClick={() =>
+                                    handleViewDetails(service)
+                                }
                             >
                               자세히 보기
                             </ViewDetailsButton>
 
                             <AddToCalendarButton
-                                onClick={() => handleAddToCalendar(service)}
+                                onClick={() =>
+                                    handleAddToCalendar(service)
+                                }
                             >
                               캘린더에 추가
                             </AddToCalendarButton>
