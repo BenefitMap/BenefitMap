@@ -1272,11 +1272,14 @@ const ServicePage = () => {
       [navigate]
   );
 
-  /* 캘린더에 추가 */
+  /* =========================
+     캘린더에 추가
+     (수정됨: 이제 DB에 바로 POST)
+     ========================= */
   const { isAuthenticated: authInHeader } = useAuth();
 
   const handleAddToCalendar = useCallback(
-      service => {
+      async service => {
         if (!authInHeader) {
           const shouldLogin = window.confirm(
               '캘린더에 추가하려면 로그인이 필요합니다.\n\n로그인 페이지로 이동하시겠습니까?'
@@ -1287,57 +1290,61 @@ const ServicePage = () => {
           return;
         }
 
-        const existingServices = JSON.parse(
-            localStorage.getItem('calendarServices') || '[]'
-        );
-        const isAlreadyAdded = existingServices.some(
-            existingService => existingService.id === service.id
-        );
-
-        if (isAlreadyAdded) {
-          alert('이미 추가된 일정입니다.');
-          return;
-        }
-
-        const calendarData = {
-          id: service.id,
+        // 서버에 보낼 payload
+        const payload = {
+          welfareId: service.id,
           title: service.title,
           description: service.description,
           department: service.department,
-          contact: service.contact,
-          tags: service.tags,
-          applicationPeriod:
-              service.applicationPeriod || {
-                startDate: new Date().toISOString().split('T')[0],
-                endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          applicationPeriod: {
+            startDate:
+                service.applicationPeriod?.startDate ||
+                new Date().toISOString().split('T')[0],
+            endDate:
+                service.applicationPeriod?.endDate ||
+                new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                     .toISOString()
                     .split('T')[0],
-                isOngoing: false,
-              },
+          },
         };
 
-        const updatedServices = [...existingServices, calendarData];
-        localStorage.setItem('calendarServices', JSON.stringify(updatedServices));
-
-        const shouldNavigateToCalendar = window.confirm(
-            `${service.title}이 캘린더에 추가되었습니다!\n\n캘린더 페이지로 이동하시겠습니까?`
-        );
-
-        if (shouldNavigateToCalendar) {
-          const serviceStartDate = new Date(
-              calendarData.applicationPeriod.startDate
-          );
-          navigate('/calendar', {
-            state: {
-              targetDate: serviceStartDate,
-            },
+        try {
+          const res = await fetch('/api/calendar', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
           });
+
+          if (!res.ok) {
+            if (res.status === 409) {
+              alert('이미 추가된 일정입니다.');
+            } else {
+              alert('일정 추가에 실패했어요.');
+            }
+            return;
+          }
+
+          const go = window.confirm(
+              `${service.title}이(가) 캘린더에 추가되었습니다!\n\n캘린더 페이지로 이동하시겠습니까?`
+          );
+
+          if (go) {
+            navigate('/calendar', {
+              state: {
+                targetDate: new Date(payload.applicationPeriod.startDate),
+              },
+            });
+          }
+        } catch (err) {
+          console.error(err);
+          alert('서버 통신 중 오류가 발생했습니다.');
         }
       },
       [authInHeader, navigate]
   );
 
-  /* ✅ 여기서 핵심: 처음 로드될 때 initialKeywordFromNav로 검색을 강제로 한 번 돌린다 */
+  /* ✅ 처음 로드될 때 initialKeywordFromNav로 검색을 강제로 한 번 돌림 */
   useEffect(() => {
     const firstForm = {
       age: '',
@@ -1419,10 +1426,8 @@ const ServicePage = () => {
                       {lifeCycleOptions.map((option, index) => (
                           <CheckboxItem key={`lifecycle-${index}`}>
                             <input
-                                type='checkbox'
-                                checked={selectedFilters.lifeCycle.includes(
-                                    option
-                                )}
+                                type="checkbox"
+                                checked={selectedFilters.lifeCycle.includes(option)}
                                 onChange={() =>
                                     handleFilterChange('lifeCycle', option)
                                 }
@@ -1440,10 +1445,8 @@ const ServicePage = () => {
                       {householdOptions.map((option, index) => (
                           <CheckboxItem key={`household-${index}`}>
                             <input
-                                type='checkbox'
-                                checked={selectedFilters.household.includes(
-                                    option
-                                )}
+                                type="checkbox"
+                                checked={selectedFilters.household.includes(option)}
                                 onChange={() =>
                                     handleFilterChange('household', option)
                                 }
@@ -1461,10 +1464,8 @@ const ServicePage = () => {
                       {topicOptions.map((option, index) => (
                           <CheckboxItem key={`topic-${index}`}>
                             <input
-                                type='checkbox'
-                                checked={selectedFilters.topics.includes(
-                                    option
-                                )}
+                                type="checkbox"
+                                checked={selectedFilters.topics.includes(option)}
                                 onChange={() =>
                                     handleFilterChange('topics', option)
                                 }
@@ -1498,14 +1499,12 @@ const ServicePage = () => {
                     만
                   </span>
                     <AgeInput
-                        type='number'
-                        min='1'
-                        max='150'
+                        type="number"
+                        min="1"
+                        max="150"
                         value={searchForm.age}
-                        onChange={e =>
-                            handleFormChange('age', e.target.value)
-                        }
-                        placeholder='0'
+                        onChange={e => handleFormChange('age', e.target.value)}
+                        placeholder="0"
                     />
                     <span style={{ fontSize: '14px', color: '#6c757d' }}>
                     세
@@ -1531,7 +1530,7 @@ const ServicePage = () => {
                           setSearchForm(newForm);
                         }}
                     >
-                      <option value=''>시/도 선택</option>
+                      <option value="">시/도 선택</option>
                       {provinces.map(province => (
                           <option key={province} value={province}>
                             {province}
@@ -1552,7 +1551,7 @@ const ServicePage = () => {
                         }}
                         disabled={!searchForm.province}
                     >
-                      <option value=''>시/군/구 선택</option>
+                      <option value="">시/군/구 선택</option>
                       {searchForm.province &&
                           cities[searchForm.province] &&
                           cities[searchForm.province].map(city => (
@@ -1579,11 +1578,9 @@ const ServicePage = () => {
                 <FormRow style={{ gridColumn: '1 / -1' }}>
                   <FormLabel>키워드 검색</FormLabel>
                   <KeywordInput
-                      type='text'
+                      type="text"
                       value={searchForm.keyword}
-                      onChange={e =>
-                          handleFormChange('keyword', e.target.value)
-                      }
+                      onChange={e => handleFormChange('keyword', e.target.value)}
                       placeholder="검색어를 입력하세요. (예: 청년, 저소득, 정신건강...)"
                   />
                 </FormRow>
@@ -1628,7 +1625,7 @@ const ServicePage = () => {
                     <TabButton
                         active={activeCategory === 'central'}
                         onClick={() => setActiveCategory('central')}
-                        position='left'
+                        position="left"
                     >
                       중앙부처{' '}
                       <span>
@@ -1638,7 +1635,7 @@ const ServicePage = () => {
                     <TabButton
                         active={activeCategory === 'local'}
                         onClick={() => setActiveCategory('local')}
-                        position='center'
+                        position="center"
                     >
                       지자체{' '}
                       <span>
@@ -1648,7 +1645,7 @@ const ServicePage = () => {
                     <TabButton
                         active={activeCategory === 'private'}
                         onClick={() => setActiveCategory('private')}
-                        position='right'
+                        position="right"
                     >
                       민간{' '}
                       <span>
@@ -1667,7 +1664,7 @@ const ServicePage = () => {
                       const translatedTags = service.tags.map(tag =>
                           translateTag(tag)
                       );
-                      const isExpanded = expandedTags[service.id];
+                      const isExpanded = !!expandedTags[service.id];
 
                       return (
                           <ServiceCard key={service.id}>
@@ -1683,29 +1680,23 @@ const ServicePage = () => {
                                           </ServiceTag>
                                       ))}
                                       <ShowTagsButton
-                                          onClick={() =>
-                                              toggleTags(service.id)
-                                          }
+                                          onClick={() => toggleTags(service.id)}
                                       >
                                         접기
                                       </ShowTagsButton>
                                     </>
                                 ) : (
                                     <>
-                                      {translatedTags
-                                          .slice(0, 2)
-                                          .map((tag, index) => (
-                                              <ServiceTag
-                                                  key={`${service.id}-tag-${index}`}
-                                              >
-                                                {tag}
-                                              </ServiceTag>
-                                          ))}
+                                      {translatedTags.slice(0, 2).map((tag, index) => (
+                                          <ServiceTag
+                                              key={`${service.id}-tag-${index}`}
+                                          >
+                                            {tag}
+                                          </ServiceTag>
+                                      ))}
                                       {translatedTags.length > 2 && (
                                           <ShowTagsButton
-                                              onClick={() =>
-                                                  toggleTags(service.id)
-                                              }
+                                              onClick={() => toggleTags(service.id)}
                                           >
                                             태그 더보기 (
                                             {translatedTags.length - 2})
@@ -1723,8 +1714,7 @@ const ServicePage = () => {
 
                               <ServiceDetailsList>
                                 <ServiceDetailItem>
-                                  담당부서:{' '}
-                                  {service.department || '-'}
+                                  담당부서: {service.department || '-'}
                                 </ServiceDetailItem>
                                 <ServiceDetailItem>
                                   지원주기: {service.cycle || '-'}
@@ -1739,17 +1729,13 @@ const ServicePage = () => {
                             </div>
 
                             <ViewDetailsButton
-                                onClick={() =>
-                                    handleViewDetails(service)
-                                }
+                                onClick={() => handleViewDetails(service)}
                             >
                               자세히 보기
                             </ViewDetailsButton>
 
                             <AddToCalendarButton
-                                onClick={() =>
-                                    handleAddToCalendar(service)
-                                }
+                                onClick={() => handleAddToCalendar(service)}
                             >
                               캘린더에 추가
                             </AddToCalendarButton>
