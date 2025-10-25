@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BenefitmapBackendApplication {
+public class BenefitMapBackendApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BenefitmapBackendApplication.class, args);
+		SpringApplication.run(BenefitMapBackendApplication.class, args);
 	}
 
 }
