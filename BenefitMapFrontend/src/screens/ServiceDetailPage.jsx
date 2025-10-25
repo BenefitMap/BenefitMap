@@ -345,7 +345,7 @@ const ServiceDetailPage = () => {
   }
 
   /* =========================
-     캘린더 추가
+     캘린더 추가 (DB 연동)
      ========================= */
   const handleAddToCalendar = async () => {
     if (!isAuthenticated) {
@@ -357,32 +357,70 @@ const ServiceDetailPage = () => {
     setIsAddingToCalendar(true);
 
     try {
-      const existing = JSON.parse(localStorage.getItem('calendarServices') || '[]');
-      const already = existing.some((sv) => sv.id === service.id);
+      // 1) 이미 등록된 일정인지 서버에서 확인
+      const existingRes = await fetch('/api/calendar', {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!existingRes.ok) {
+        console.warn('캘린더 GET 실패 상태코드:', existingRes.status);
+      }
+
+      const existingJson = existingRes.ok ? await existingRes.json() : [];
+      // existingJson 은 [{ id, welfareId, title, ... }, ...] 형태라고 가정
+      const already = Array.isArray(existingJson)
+          ? existingJson.some((sv) => {
+            // sv.welfareId 는 서버가 갖고있는 복지ID
+            // service.id 는 지금 보고 있는 복지ID
+            return sv.welfareId === service.id;
+          })
+          : false;
 
       if (already) {
-        alert('이미 추가된 일정입니다.');
+        alert('이미 캘린더에 추가된 일정입니다.');
         setIsAddingToCalendar(false);
         return;
       }
 
-      const calendarData = {
-        id: service.id,
+      // 2) 서버에 신규 등록
+      const postBody = {
+        welfareId: service.id,
         title: service.title,
         description: service.description,
         department: service.department,
         contact: service.contact,
-        tags: service.tags,
-        applicationPeriod: service.applicationPeriod,
+        applicationPeriod: {
+          startDate: service.applicationPeriod.startDate,
+          endDate: service.applicationPeriod.endDate,
+        },
       };
 
-      const updated = [...existing, calendarData];
-      localStorage.setItem('calendarServices', JSON.stringify(updated));
+      const postRes = await fetch('/api/calendar', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postBody),
+      });
 
-      // 이메일 알림 예약
-      if (isEmailNotificationEnabled() && service.applicationPeriod) {
+      if (!postRes.ok) {
+        console.error('POST /api/calendar 실패', postRes.status);
+        alert('캘린더에 추가하지 못했어요. 잠시 후 다시 시도해 주세요.');
+        setIsAddingToCalendar(false);
+        return;
+      }
+
+      // 서버가 성공적으로 저장했다고 가정
+      // 이메일 알림 예약 로직 유지
+      if (
+          isEmailNotificationEnabled() &&
+          service.applicationPeriod &&
+          service.applicationPeriod.endDate
+      ) {
         const userEmail = getUserEmail();
-        if (userEmail && service.applicationPeriod.endDate) {
+        if (userEmail) {
           const endDate = new Date(service.applicationPeriod.endDate);
           const today = new Date();
           const daysUntilDeadline = Math.ceil(
@@ -390,24 +428,29 @@ const ServiceDetailPage = () => {
           );
 
           if (daysUntilDeadline > 3) {
-            createDeadlineNotificationEmail(service, 3, userEmail).catch((error) => {
-              console.error('이메일 알림 예약 중 오류:', error);
-            });
+            createDeadlineNotificationEmail(service, 3, userEmail).catch(
+                (error) => {
+                  console.error('이메일 알림 예약 중 오류:', error);
+                }
+            );
           }
         }
       }
 
       const goCalendar = window.confirm(
-          `${service.title}이 캘린더에 추가되었습니다!\n마감 3일 전에 이메일 알림이 발송됩니다.\n\n캘린더 페이지로 이동할까요?`
+          `${service.title}이(가) 캘린더에 추가되었습니다!\n\n캘린더 페이지로 이동할까요?`
       );
 
       if (goCalendar) {
         const start = new Date(
             service.applicationPeriod.startDate || Date.now()
         );
+
         navigate('/calendar', {
           state: {
-            newService: calendarData,
+            // 캘린더 페이지에서는 어차피 자기 쪽에서 /api/calendar 다시 GET 하니까
+            // 여기서 newService 넘겨줘도 되고 안 넘겨줘도 크게 문제 없음.
+            newService: postBody,
             targetDate: start,
           },
         });
@@ -446,7 +489,9 @@ const ServiceDetailPage = () => {
               </ServiceTags>
 
               <ServiceTitle>{service.title || '-'}</ServiceTitle>
-              <ServiceDescription>{service.description || '-'}</ServiceDescription>
+              <ServiceDescription>
+                {service.description || '-'}
+              </ServiceDescription>
             </ServiceHeader>
 
             {service.applicationPeriod && (

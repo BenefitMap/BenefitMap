@@ -40,6 +40,7 @@ const SettingsMain = styled.main`
   justify-content: center;
 `;
 
+/* 남겨둔 ProgressSidebar 관련 스타일 */
 const SidebarContainer = styled.div`
   position: sticky;
   top: 20px;
@@ -343,16 +344,19 @@ const SearchInput = styled.input`
 const DropdownItem = styled.div`
   padding: 8px 12px;
   cursor: pointer;
-  color: ${props => props.$isSelected ? '#2c3e50' : '#2c3e50'};
+  color: #2c3e50;
   background-color: ${props => props.$isSelected ? '#e8f5e9' : 'transparent'};
   transition: background-color 0.2s ease;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
   gap: 8px;
+  opacity: ${props => props.$disabled ? 0.4 : 1};         /* ★ disable 시 흐리게 */
+  pointer-events: ${props => props.$disabled ? 'none' : 'auto'}; /* 클릭 막기 */
 
   &:hover {
-    background-color: ${props => props.$isSelected ? '#d4edda' : '#f8f9fa'};
+    background-color: ${props =>
+        props.$isSelected ? '#d4edda' : props.$disabled ? 'transparent' : '#f8f9fa'};
   }
 `;
 
@@ -488,6 +492,8 @@ const CheckboxList = styled.div`
 const CheckboxItem = styled.div`
   display: flex;
   align-items: center;
+  opacity: ${props => props.$disabled ? 0.4 : 1};          /* ★ 체크박스에서도 흐리게 */
+  pointer-events: ${props => props.$disabled ? 'none' : 'auto'};
 `;
 
 const CheckboxInput = styled.input`
@@ -569,6 +575,16 @@ const SubmitButton = styled.button`
    하위 컴포넌트들
 ----------------------------*/
 
+/**
+ * SimpleDropdown
+ * - isSingleSelect=true  → 드롭다운 (지역, 성별 등)
+ * - isSingleSelect=false → 체크박스 UI (생애주기, 가구상황, 관심주제)
+ *
+ * fieldName:
+ *   - "lifeCycle": 생애주기
+ *   - "household": 가구상황 ("해당사항 없음" 특수 로직 O)
+ *   - "interest": 관심주제 (이제 제한 없음) ★ 수정
+ */
 function SimpleDropdown({
                           options,
                           selectedItems,
@@ -578,8 +594,16 @@ function SimpleDropdown({
                           nextFieldRef,
                           fieldName = ''
                         }) {
+  // 가구상황 전용 상태 로직을 계산해둘게
+  const hasNoneSelected =
+      fieldName === 'household' && selectedItems.includes('해당사항 없음');
+  const hasOtherSelected =
+      fieldName === 'household' &&
+      selectedItems.some(item => item !== '해당사항 없음');
+
   const handleOptionChange = (option) => {
     if (isSingleSelect) {
+      // 단일 선택 모드 (지역, 성별 등)
       onSelectionChange([option]);
       setTimeout(() => {
         if (nextFieldRef && nextFieldRef.current) {
@@ -590,33 +614,54 @@ function SimpleDropdown({
           });
         }
       }, 100);
-    } else {
-      let newSelection;
+      return;
+    }
+
+    // 멀티 선택 모드 (생애주기, 가구상황, 관심주제)
+    let newSelection = [...selectedItems];
+
+    if (fieldName === 'household') {
+      // ★ 가구상황 전용 처리
 
       if (option === '해당사항 없음') {
-        newSelection = selectedItems.includes(option) ? [] : ['해당사항 없음'];
-      } else {
-        const filteredItems = selectedItems.filter(item => item !== '해당사항 없음');
-
-        if (fieldName === 'interest') {
-          const MAX_INTEREST_SELECTIONS = 3;
-          if (!filteredItems.includes(option) && filteredItems.length >= MAX_INTEREST_SELECTIONS) {
-            const newFilteredItems = filteredItems.slice(1);
-            newSelection = [...newFilteredItems, option];
-          } else {
-            newSelection = filteredItems.includes(option)
-                ? filteredItems.filter(item => item !== option)
-                : [...filteredItems, option];
-          }
+        // "해당사항 없음" 클릭
+        if (hasNoneSelected) {
+          // 이미 선택돼 있으면 해제
+          newSelection = [];
         } else {
-          newSelection = filteredItems.includes(option)
-              ? filteredItems.filter(item => item !== option)
-              : [...filteredItems, option];
+          // 단독으로만 활성화
+          newSelection = ['해당사항 없음'];
+        }
+      } else {
+        // 다른 옵션 클릭
+        if (hasNoneSelected) {
+          // 이미 "해당사항 없음"만 선택된 상태라면, 먼저 그걸 빼고 현재 옵션만 선택
+          newSelection = [option];
+        } else {
+          // 토글
+          if (newSelection.includes(option)) {
+            newSelection = newSelection.filter(item => item !== option);
+          } else {
+            newSelection = [...newSelection, option];
+          }
         }
       }
 
       onSelectionChange(newSelection);
+      return;
     }
+
+    // 생애주기 / 관심주제
+    // ★ 관심주제: 이제 최대 3개 제한 없음
+    if (newSelection.includes(option)) {
+      // 이미 선택된 경우 -> 제거
+      newSelection = newSelection.filter(item => item !== option);
+    } else {
+      // 새로 추가
+      newSelection = [...newSelection, option];
+    }
+
+    onSelectionChange(newSelection);
   };
 
   const removeSelectedItem = (itemToRemove) => {
@@ -624,6 +669,7 @@ function SimpleDropdown({
     onSelectionChange(newSelection);
   };
 
+  // 단일 선택 모드일 때는 검색형/드롭다운 UI 사용
   if (isSingleSelect) {
     return (
         <SearchableDropdown
@@ -636,6 +682,7 @@ function SimpleDropdown({
     );
   }
 
+  // 멀티 선택 모드 → 체크박스 UI
   return (
       <CheckboxContainer>
         {selectedItems.length > 0 && (
@@ -643,9 +690,11 @@ function SimpleDropdown({
               <SummaryTitle>
                 {fieldName === 'household'
                     ? '가구상황'
-                    : fieldName === 'interest'
-                        ? '관심주제'
-                        : '선택된 항목'}{' '}
+                    : fieldName === 'lifeCycle'
+                        ? '생애주기'
+                        : fieldName === 'interest'
+                            ? '관심주제'
+                            : '선택된 항목'}{' '}
                 선택됨 ({selectedItems.length}개)
               </SummaryTitle>
 
@@ -673,23 +722,42 @@ function SimpleDropdown({
             </SelectedItemsSummary>
         )}
 
+        {/* 체크박스 목록 */}
         <CheckboxList>
-          {options.map(option => (
-              <CheckboxItem key={option}>
-                <CheckboxInput
-                    type="checkbox"
-                    id={`checkbox-${option}`}
-                    checked={selectedItems.includes(option)}
-                    onChange={() => handleOptionChange(option)}
-                />
-                <CheckboxLabel htmlFor={`checkbox-${option}`}>
-                  <CustomCheckbox $isChecked={selectedItems.includes(option)}>
-                    {selectedItems.includes(option) && '✓'}
-                  </CustomCheckbox>
-                  <CheckboxText>{option}</CheckboxText>
-                </CheckboxLabel>
-              </CheckboxItem>
-          ))}
+          {options.map(option => {
+            // household 전용 disabled 규칙
+            const isNone = option === '해당사항 없음';
+            const disabledForThisOption =
+                fieldName === 'household'
+                    ? (isNone && hasOtherSelected) || (!isNone && hasNoneSelected)
+                    : false;
+
+            const checked = selectedItems.includes(option);
+
+            return (
+                <CheckboxItem
+                    key={option}
+                    $disabled={disabledForThisOption}
+                >
+                  <CheckboxInput
+                      type="checkbox"
+                      id={`checkbox-${fieldName}-${option}`}
+                      checked={checked}
+                      onChange={() => {
+                        if (!disabledForThisOption) {
+                          handleOptionChange(option);
+                        }
+                      }}
+                  />
+                  <CheckboxLabel htmlFor={`checkbox-${fieldName}-${option}`}>
+                    <CustomCheckbox $isChecked={checked}>
+                      {checked && '✓'}
+                    </CustomCheckbox>
+                    <CheckboxText>{option}</CheckboxText>
+                  </CheckboxLabel>
+                </CheckboxItem>
+            );
+          })}
         </CheckboxList>
       </CheckboxContainer>
   );
@@ -892,10 +960,6 @@ function SearchableDropdown({
                             key={option}
                             onClick={() => handleOptionClick(option)}
                             $isSelected={selectedItems.includes(option)}
-                            style={{
-                              backgroundColor:
-                                  index === highlightedIndex ? '#e8f5e9' : 'transparent',
-                            }}
                         >
                           {option}
                         </DropdownItem>
@@ -912,6 +976,7 @@ function SearchableDropdown({
   );
 }
 
+// SingleSelectDropdown 남겨둔 상태 (지금은 안 씀)
 function SingleSelectDropdown({
                                 options,
                                 selectedItems,
@@ -1030,21 +1095,22 @@ function SettingsPage() {
     navigate('/LoginPage', { replace: true });
   }, [navigate, location]);
 
-  // 지역 / 태그 등 상태
+  // 상태값들
   const [selectedRegion1, setSelectedRegion1] = useState([]);
   const [selectedRegion2, setSelectedRegion2] = useState([]);
   const [region2Options, setRegion2Options] = useState([]);
 
   const [age, setAge] = useState('');
   const [selectedGender, setSelectedGender] = useState([]);
-  const [selectedLifeCycle, setSelectedLifeCycle] = useState([]);
-  const [selectedHousehold, setSelectedHousehold] = useState([]);
-  const [selectedInterest, setSelectedInterest] = useState([]);
+
+  const [selectedLifeCycle, setSelectedLifeCycle] = useState([]); // 복수 선택
+  const [selectedHousehold, setSelectedHousehold] = useState([]); // 복수 선택
+  const [selectedInterest, setSelectedInterest] = useState([]);   // 복수 선택
 
   const [loading, setLoading] = useState(true);
   const [ageError, setAgeError] = useState(null);
 
-  // 지역1 바뀌면 지역2 옵션 갱신
+  // 지역1 → 지역2 연결
   const region1Options = [
     '서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시', '대전광역시', '울산광역시', '세종특별자치시',
     '경기도', '강원도', '충청북도', '충청남도', '전라북도', '전라남도', '경상북도', '경상남도', '제주특별자치도'
@@ -1072,6 +1138,7 @@ function SettingsPage() {
 
   const genderOptions = ['남성', '여성'];
 
+  // 지역1 바뀌면 지역2 갱신
   useEffect(() => {
     const province = selectedRegion1[0];
     if (!province) {
@@ -1084,7 +1151,7 @@ function SettingsPage() {
     setSelectedRegion2([]);
   }, [selectedRegion1]);
 
-  // 태그 옵션 하드코딩
+  // 옵션 (생애주기/가구상황/관심주제)
   const [lifeCycleOptions, setLifeCycleOptions] = useState([]);
   const [householdOptions, setHouseholdOptions] = useState([]);
   const [interestOptions, setInterestOptions] = useState([]);
@@ -1092,6 +1159,7 @@ function SettingsPage() {
   useEffect(() => {
     setLoading(true);
 
+    // 생애주기: '해당사항 없음' 없음  ★ 수정
     setLifeCycleOptions([
       '임신·출산',
       '영유아',
@@ -1102,6 +1170,7 @@ function SettingsPage() {
       '노년'
     ]);
 
+    // 가구상황: '해당사항 없음' 유지
     setHouseholdOptions([
       '저소득',
       '장애인',
@@ -1112,6 +1181,7 @@ function SettingsPage() {
       '해당사항 없음'
     ]);
 
+    // 관심주제: 그대로, 제한은 JS 로직에서 해제됨
     setInterestOptions([
       '신체건강',
       '정신건강',
@@ -1174,7 +1244,7 @@ function SettingsPage() {
     }
   }, []);
 
-  // 나이 입력 컨트롤
+  // 나이 컨트롤
   const handleAgeChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
     const numAge = parseInt(value);
@@ -1224,8 +1294,8 @@ function SettingsPage() {
       selectedRegion1.length > 0 && selectedRegion2.length > 0,
       age !== '',
       selectedGender.length > 0,
-      selectedLifeCycle.length > 0,
-      selectedHousehold.length > 0
+      selectedLifeCycle.length > 0, // 생애주기 필수
+      selectedHousehold.length > 0  // 가구상황 필수
     ];
 
     const completedRequired = requiredFields.filter(Boolean).length;
@@ -1261,22 +1331,22 @@ function SettingsPage() {
       return;
     }
     if (!isLifeCycleCompleted) {
-      alert('생애주기를 선택해주세요.');
+      alert('생애주기를 최소 1개 이상 선택해주세요.');
       if (lifeCycleRef.current) lifeCycleRef.current.focus();
       return;
     }
     if (!isHouseholdCompleted) {
-      alert('가구상황을 선택해주세요.');
+      alert('가구상황을 최소 1개 이상 선택해주세요.');
       if (householdRef.current) householdRef.current.focus();
       return;
     }
 
     try {
-      // 서버에 보낼 형식 (birthDate 제거, age 추가)
+      // 서버로 보낼 온보딩 데이터
       const onboardingData = {
         profile: {
           gender: selectedGender[0] === '남성' ? 'MALE' : 'FEMALE',
-          age: parseInt(age, 10), // ✅ 이제 age로 보냄
+          age: parseInt(age, 10),
           regionDo: selectedRegion1[0] || '',
           regionSi: selectedRegion2[0] || ''
         },
@@ -1292,48 +1362,45 @@ function SettingsPage() {
           };
           return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
         }),
-        householdCodes: selectedHousehold
-            .map(name => {
-              const codeMap = {
-                '저소득': 'LOW_INCOME',
-                '장애인': 'DISABLED',
-                '한부모·조손': 'SINGLE_PARENT',
-                '다자녀': 'MULTI_CHILDREN',
-                '다문화·탈북민': 'MULTICULTURAL_NK',
-                '보호대상자': 'PROTECTED',
-                '해당사항 없음': 'NONE'
-              };
-              return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
-            }),
-        interestCodes: selectedInterest
-            .filter(name => name !== '해당사항 없음')
-            .map(name => {
-              const codeMap = {
-                '신체건강': 'PHYSICAL_HEALTH',
-                '정신건강': 'MENTAL_HEALTH',
-                '생활지원': 'LIVING_SUPPORT',
-                '주거': 'HOUSING',
-                '일자리': 'JOBS',
-                '문화·여가': 'CULTURE_LEISURE',
-                '안전·위기': 'SAFETY_CRISIS',
-                '임신·출산': 'PREGNANCY_BIRTH',
-                '보육': 'CHILDCARE',
-                '교육': 'EDUCATION',
-                '입양·위탁': 'ADOPTION_TRUST',
-                '보호·돌봄': 'CARE_PROTECT',
-                '서민금융': 'MICRO_FINANCE',
-                '법률': 'LAW',
-                '에너지': 'ENERGY'
-              };
-              return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
-            })
+        householdCodes: selectedHousehold.map(name => {
+          const codeMap = {
+            '저소득': 'LOW_INCOME',
+            '장애인': 'DISABLED',
+            '한부모·조손': 'SINGLE_PARENT',
+            '다자녀': 'MULTI_CHILDREN',
+            '다문화·탈북민': 'MULTICULTURAL_NK',
+            '보호대상자': 'PROTECTED',
+            '해당사항 없음': 'NONE'
+          };
+          return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
+        }),
+        interestCodes: selectedInterest.map(name => {
+          const codeMap = {
+            '신체건강': 'PHYSICAL_HEALTH',
+            '정신건강': 'MENTAL_HEALTH',
+            '생활지원': 'LIVING_SUPPORT',
+            '주거': 'HOUSING',
+            '일자리': 'JOBS',
+            '문화·여가': 'CULTURE_LEISURE',
+            '안전·위기': 'SAFETY_CRISIS',
+            '임신·출산': 'PREGNANCY_BIRTH',
+            '보육': 'CHILDCARE',
+            '교육': 'EDUCATION',
+            '입양·위탁': 'ADOPTION_TRUST',
+            '보호·돌봄': 'CARE_PROTECT',
+            '서민금융': 'MICRO_FINANCE',
+            '법률': 'LAW',
+            '에너지': 'ENERGY'
+          };
+          return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
+        })
       };
 
       console.log('전송할 온보딩 데이터:', onboardingData);
 
       await saveOnboarding(onboardingData);
 
-      // localStorage에도 저장 (기존 로직 유지)
+      // localStorage에도 저장
       const userSettings = {
         region1: selectedRegion1[0] || '',
         region2: selectedRegion2[0] || '',
@@ -1506,11 +1573,11 @@ function SettingsPage() {
               </FormRow>
             </RequiredFormGroup>
 
-            {/* 생애주기 */}
-            <RequiredFormGroup>
+            {/* 생애주기 (필수, 복수선택, '해당사항 없음' 없음) */}
+            <RequiredFormGroup ref={lifeCycleRef}>
               <Label>
-                생애주기
-                <HelpTooltip $tooltip="현재 나이와 상황에 맞는 생애주기를 선택해주세요. 생애주기에 따라 받을 수 있는 복지 혜택이 달라집니다.">
+                생애주기 (복수 선택 가능)
+                <HelpTooltip $tooltip="현재 나이 또는 상황에 맞는 생애주기를 선택해주세요. 여러 항목을 동시에 선택할 수 있어요.">
                   ⓘ
                 </HelpTooltip>
               </Label>
@@ -1519,16 +1586,16 @@ function SettingsPage() {
                   selectedItems={selectedLifeCycle}
                   onSelectionChange={setSelectedLifeCycle}
                   placeholder="생애주기 선택"
-                  isSingleSelect={true}
                   nextFieldRef={householdRef}
+                  fieldName="lifeCycle"
               />
             </RequiredFormGroup>
 
-            {/* 가구상황 */}
-            <RequiredFormGroup>
+            {/* 가구상황 (필수, 복수선택, '해당사항 없음' 단독 선택 제약) */}
+            <RequiredFormGroup ref={householdRef}>
               <Label>
                 가구상황 (복수 선택 가능)
-                <HelpTooltip $tooltip="가구의 특수한 상황을 선택해주세요. 여러 상황이 해당되는 경우 모두 선택하실 수 있습니다. 해당사항이 없는 경우 '해당사항 없음'을 선택해주세요.">
+                <HelpTooltip $tooltip="가구의 특수한 상황을 선택해주세요. 여러 상황이 해당되면 모두 선택할 수 있어요. '해당사항 없음'을 고르면 다른 항목은 선택할 수 없어요.">
                   ⓘ
                 </HelpTooltip>
               </Label>
@@ -1542,11 +1609,11 @@ function SettingsPage() {
               />
             </RequiredFormGroup>
 
-            {/* 관심주제 */}
-            <OptionalFormGroup>
+            {/* 관심주제 (선택, 제한 없음) */}
+            <OptionalFormGroup ref={interestRef}>
               <Label>
-                관심주제 (최대 3개까지 선택 가능, 선택사항)
-                <HelpTooltip $tooltip="관심 있는 복지 분야를 선택해주세요. 최대 3개까지 선택 가능하며, 선택하지 않으셔도 됩니다. 선택한 관심주제에 맞는 혜택을 우선적으로 추천해드립니다.">
+                관심주제 (복수 선택 가능, 선택사항)
+                <HelpTooltip $tooltip="관심 있는 복지 분야를 선택해주세요. 선택하지 않아도 됩니다.">
                   ⓘ
                 </HelpTooltip>
               </Label>
@@ -1554,7 +1621,7 @@ function SettingsPage() {
                   options={interestOptions}
                   selectedItems={selectedInterest}
                   onSelectionChange={setSelectedInterest}
-                  placeholder="관심주제를 선택해주세요 (최대 3개)"
+                  placeholder="관심주제를 선택해주세요"
                   nextFieldRef={submitRef}
                   fieldName="interest"
               />

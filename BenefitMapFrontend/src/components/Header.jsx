@@ -36,124 +36,124 @@ const CuteXIcon = () => (...);
    스타일 컴포넌트
    ========================= */
 const HeaderContainer = styled.header`
-  width: 100%;
-  height: 130px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 ${spacing.xxl};
-  background-color: ${colors.background};
-  border-bottom: 1px solid ${colors.border};
-  box-sizing: border-box;
+    width: 100%;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 ${spacing.xxl};
+    background-color: ${colors.background};
+    border-bottom: 1px solid ${colors.border};
+    box-sizing: border-box;
 
-  @media (max-width: ${breakpoints.desktop}) {
-    padding: 0 ${spacing.lg};
-  }
-  @media (max-width: ${breakpoints.mobile}) {
-    height: 80px;
-    padding: 0 ${spacing.md};
-  }
+    @media (max-width: ${breakpoints.desktop}) {
+        padding: 0 ${spacing.lg};
+    }
+    @media (max-width: ${breakpoints.mobile}) {
+        height: 80px;
+        padding: 0 ${spacing.md};
+    }
 `;
 
 const LeftSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${spacing.xxl};
+    display: flex;
+    align-items: center;
+    gap: ${spacing.xxl};
 `;
 
 const Logo = styled.img`
-  height: 32px;
-  cursor: pointer;
-  display: block;
+    height: 32px;
+    cursor: pointer;
+    display: block;
 `;
 
 const Nav = styled.nav`
-  display: flex;
-  align-items: center;
-  gap: ${spacing.xl};
+    display: flex;
+    align-items: center;
+    gap: ${spacing.xl};
 `;
 
 const NavItem = styled.a`
-  font-size: ${fonts.sizes.large};
-  color: ${colors.text};
-  text-decoration: none;
-  cursor: pointer;
-  font-family: ${fonts.primary};
-  transition: color 0.2s ease;
+    font-size: ${fonts.sizes.large};
+    color: ${colors.text};
+    text-decoration: none;
+    cursor: pointer;
+    font-family: ${fonts.primary};
+    transition: color 0.2s ease;
 
-  &:hover {
-    color: ${colors.primary};
-  }
+    &:hover {
+        color: ${colors.primary};
+    }
 `;
 
 const RightSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${spacing.lg};
+    display: flex;
+    align-items: center;
+    gap: ${spacing.lg};
 `;
 
 const LoginText = styled.span`
-  font-size: ${fonts.sizes.large};
-  color: ${colors.text};
-  letter-spacing: 2px;
-  cursor: pointer;
-  font-family: ${fonts.primary};
-  font-weight: ${fonts.weights.medium};
-  transition: color 0.2s ease;
+    font-size: ${fonts.sizes.large};
+    color: ${colors.text};
+    letter-spacing: 2px;
+    cursor: pointer;
+    font-family: ${fonts.primary};
+    font-weight: ${fonts.weights.medium};
+    transition: color 0.2s ease;
 
-  &:hover {
-    color: ${colors.primary};
-  }
+    &:hover {
+        color: ${colors.primary};
+    }
 `;
 
 const ProfileImage = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid ${colors.primary};
-  object-fit: cover;
-  transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid ${colors.primary};
+    object-fit: cover;
+    transition: all 0.2s ease;
 
-  &:hover {
-    border-color: ${colors.primaryHover};
-    box-shadow: 0 2px 8px ${colors.shadowHover};
-  }
+    &:hover {
+        border-color: ${colors.primaryHover};
+        box-shadow: 0 2px 8px ${colors.shadowHover};
+    }
 `;
 
 const ProfileDropdown = styled(Dropdown)`
-  top: 60px;
-  right: 0;
-  min-width: 160px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
-  padding: 8px 0;
+    top: 60px;
+    right: 0;
+    min-width: 160px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+    padding: 8px 0;
 `;
 
 const StyledDropdownItem = styled(DropdownItem)`
-  padding: 12px 16px;
-  font-size: 14px;
-  color: ${colors.text};
-  font-weight: 500;
-  border-radius: 0;
-  transition: background-color 0.2s ease;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: ${colors.text};
+    font-weight: 500;
+    border-radius: 0;
+    transition: background-color 0.2s ease;
 
-  &:hover {
-    background-color: #f8f9fa;
-    color: ${colors.primary};
-  }
+    &:hover {
+        background-color: #f8f9fa;
+        color: ${colors.primary};
+    }
 
-  &:first-child {
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-  }
+    &:first-child {
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
 
-  &:last-child {
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
-  }
+    &:last-child {
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
 `;
 
 /* 🔕 알림용 스타일 전부 주석 처리
@@ -191,24 +191,38 @@ const ViewAllNotificationsButton = styled.button` ... `;
 const Header = () => {
     const navigate = useNavigate();
 
-    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-
-    // 🔕 알림 관련 state 전부 주석
-    // const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(false);
-    // const [visibleMenu, setVisibleMenu] = useState(null);
-    // const [showDeletedNotifications, setShowDeletedNotifications] = useState(false);
-
-    // 로그인 상태 / 유저 정보 (이름, 이메일 등)
+    // 전역 인증 여부 (토큰/서버 기준)
     const { isAuthenticated } = useAuth() || {
         isAuthenticated: false,
     };
 
-    // ✅ 프로필 이미지 전용 state
+    // 👇 헤더에서 실제로 렌더에 사용할 로그인 여부
+    // (logout 직후 바로 LOGIN으로 바꾸려고 따로 둔 로컬 상태)
+    const [authView, setAuthView] = useState(isAuthenticated);
+
+    // 프로필 드롭다운 열림 여부
+    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+
+    // 현재 프로필 이미지 (없으면 기본 아이콘)
     const [profileImageUrl, setProfileImageUrl] = useState(null);
 
-    // 마운트 시 백엔드에서 최신 이미지URL 들고오기
+    // 드롭다운 밖 클릭 시 닫기
+    const profileRef = useClickOutside(() => setIsProfileDropdownOpen(false));
+
+    /* 🔄 전역 isAuthenticated 값이 바뀌면 authView도 맞춰준다
+       (예: 로그인 완료 후 헤더도 로그인 상태가 되어야 하니까) */
     useEffect(() => {
-        if (!isAuthenticated) return;
+        setAuthView(isAuthenticated);
+    }, [isAuthenticated]);
+
+    /* 🖼 프로필 이미지 가져오기
+       authView === true 일 때만 /user/me 호출
+       authView === false 면 즉시 이미지 비움 */
+    useEffect(() => {
+        if (!authView) {
+            setProfileImageUrl(null);
+            return;
+        }
 
         (async () => {
             try {
@@ -227,7 +241,7 @@ const Header = () => {
                 setProfileImageUrl(null);
             }
         })();
-    }, [isAuthenticated]);
+    }, [authView]);
 
     // 🔕 알림 훅 전부 주석
     /*
@@ -244,9 +258,6 @@ const Header = () => {
     } = useNotifications();
     */
 
-    // 드롭다운 밖 클릭 시 닫기
-    const profileRef = useClickOutside(() => setIsProfileDropdownOpen(false));
-
     // 🔕 알림 드롭다운 ref, 외부클릭 처리 주석
     /*
     const notificationRef = useClickOutside(() => {
@@ -258,12 +269,12 @@ const Header = () => {
     // 🔕 알림 데드라인 체크 인터벌 주석
     /*
     useEffect(() => {
-      if (isAuthenticated) {
+      if (authView) {
         checkDeadlineNotifications();
         const interval = setInterval(checkDeadlineNotifications, 5 * 60 * 1000); // 5분
         return () => clearInterval(interval);
       }
-    }, [isAuthenticated, checkDeadlineNotifications]);
+    }, [authView, checkDeadlineNotifications]);
     */
 
     // 🔕 알림 아이템 클릭 핸들러 주석
@@ -306,7 +317,12 @@ const Header = () => {
 
     // 로그아웃
     const handleLogoutClick = useCallback(() => {
-        logout(navigate); // 서버 로그아웃 + localStorage 정리 + 리다이렉트
+        // 1) 서버/스토리지 로그아웃 처리 및 페이지 이동
+        logout(navigate);
+
+        // 2) 헤더 UI를 즉시 '비로그인' 상태로 전환
+        setAuthView(false);          // 바로 LOGIN 보이게
+        setProfileImageUrl(null);    // 프로필 이미지 즉시 제거
         setIsProfileDropdownOpen(false);
     }, [navigate]);
 
@@ -370,7 +386,7 @@ const Header = () => {
 
             {/* 오른쪽: (알림은 제거) 프로필 or 로그인 */}
             <RightSection>
-                {isAuthenticated ? (
+                {authView ? (
                     <>
                         {/* 🔕 알림 아이콘/드롭다운 전체 블록 통째로 주석
             <div ref={notificationRef} style={{ position: 'relative' }}>
@@ -410,7 +426,9 @@ const Header = () => {
                     </>
                 ) : (
                     // 비로그인 상태 - LOGIN 버튼
-                    <LoginText onClick={() => navigate('/LoginPage')}>LOGIN</LoginText>
+                    <LoginText onClick={() => navigate('/LoginPage')}>
+                        LOGIN
+                    </LoginText>
                 )}
             </RightSection>
         </HeaderContainer>
