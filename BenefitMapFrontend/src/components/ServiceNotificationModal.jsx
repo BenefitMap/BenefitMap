@@ -163,37 +163,76 @@ const ModalButton = styled.button`
 `;
 
 const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
+  // 알림 설정 값
   const [settings, setSettings] = useState({
-    headerNotifications: true, // 브라우저 알림 (UI는 숨김)
+    headerNotifications: true, // (브라우저 알림은 UI에서 숨김 유지)
     emailNotifications: false,
-    reminderDays: [3], // 기본값: 3일 전
+    reminderDays: [3], // 기본값: 마감 3일 전
   });
 
-  const availableDays = [1, 3, 5, 7]; // 선택 가능한 일수
+  // 유저 이메일 표시용
   const [userEmail, setUserEmail] = useState('');
 
-  // 사용자 이메일 주소 가져오기
+  // 선택 가능한 안내일
+  const availableDays = [1, 3, 5, 7];
+
+  // 사용자 이메일 세팅
   useEffect(() => {
-    const email = getUserEmail();
-    setUserEmail(email);
+    // 1순위: util에서 가져온 이메일
+    let emailFromLocal = getUserEmail?.() || '';
+
+    // 만약 util에서 못 가져오면 서버에서 받아와본다 (/user/me 같은 엔드포인트 가정)
+    const fetchEmailFromServer = async () => {
+      try {
+        const res = await fetch('/user/me', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          // 백엔드 응답 구조에 맞게 email 경로 수정
+          // 예시: json.data.basic.email
+          const apiEmail =
+              json?.data?.basic?.email ||
+              json?.data?.email ||
+              json?.email ||
+              '';
+
+          if (apiEmail) {
+            setUserEmail(apiEmail);
+            return;
+          }
+        }
+
+        // 서버에서도 못 받았으면 local fallback
+        setUserEmail(emailFromLocal || '');
+      } catch (err) {
+        console.error('이메일 정보 가져오기 실패:', err);
+        setUserEmail(emailFromLocal || '');
+      }
+    };
+
+    fetchEmailFromServer();
   }, []);
 
-  // 서비스별 설정 불러오기
+  // 특정 서비스의 기존 설정 불러오기 (로컬 저장된 거)
   useEffect(() => {
-    if (service) {
-      const serviceSettings = JSON.parse(
-          localStorage.getItem(`serviceNotification_${service.id}`) || '{}'
-      );
-      setSettings({
-        headerNotifications: true,
-        emailNotifications: false,
-        reminderDays: [3],
-        ...serviceSettings,
-      });
-    }
+    if (!service) return;
+
+    const serviceSettings = JSON.parse(
+        localStorage.getItem(`serviceNotification_${service.id}`) || '{}'
+    );
+
+    setSettings({
+      headerNotifications: true,
+      emailNotifications: false,
+      reminderDays: [3],
+      ...serviceSettings,
+    });
   }, [service]);
 
-  // 설정 변경 핸들러
+  // 설정 일부 변경
   const handleSettingChange = (key, value) => {
     setSettings(prev => ({
       ...prev,
@@ -201,7 +240,7 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
     }));
   };
 
-  // 알림 일수 토글
+  // "X일 전에 알려주세요" 체크 토글
   const toggleReminderDay = day => {
     const newReminderDays = settings.reminderDays.includes(day)
         ? settings.reminderDays.filter(d => d !== day)
@@ -210,18 +249,20 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
     handleSettingChange('reminderDays', newReminderDays);
   };
 
-  // 저장 핸들러
+  // 저장 버튼 클릭
   const handleSave = () => {
-    if (service) {
-      // 서비스별 설정 저장
-      localStorage.setItem(
-          `serviceNotification_${service.id}`,
-          JSON.stringify(settings)
-      );
+    if (!service) return;
 
-      onSave?.(service.id, settings);
-      onClose();
-    }
+    // 서비스별 개별 설정 로컬스토리지에 저장
+    localStorage.setItem(
+        `serviceNotification_${service.id}`,
+        JSON.stringify(settings)
+    );
+
+    // 부모에게도 알려주기 (ex. 캘린더에서 console.log 하던 거)
+    onSave?.(service.id, settings);
+
+    onClose();
   };
 
   if (!isOpen || !service) return null;
@@ -232,6 +273,7 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
           <ModalHeader>🔔 알림 설정</ModalHeader>
 
           <ModalBody>
+            {/* 서비스 기본 정보 */}
             <ServiceInfo>
               <ServiceTitle>{service.title}</ServiceTitle>
               <ServicePeriod>
@@ -240,11 +282,12 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
                 {service.applicationPeriod?.endDate}
               </ServicePeriod>
               <ServiceDepartment>
-                담당부서: {service.department}
+                담당부서:{' '}
+                {service.department || '담당부서 정보 없음'}
               </ServiceDepartment>
             </ServiceInfo>
 
-            {/* 🔕 브라우저 알림 받기 섹션 숨김
+            {/* 🔕 브라우저 알림(헤더 알림)은 임시 비표시 상태라 주석 유지 중
           <SettingGroup>
             <SettingLabel>
               <Checkbox
@@ -260,6 +303,7 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
           </SettingGroup>
           */}
 
+            {/* 이메일 알림 설정 */}
             <SettingGroup>
               <SettingLabel>
                 <Checkbox
@@ -273,10 +317,13 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
                     }
                 />
                 <ToggleSwitch active={settings.emailNotifications} />
-                이메일로 알림 받기 ({userEmail || '이메일 없음'})
+                이메일로 알림 받기 (
+                {userEmail || '이메일 없음'}
+                )
               </SettingLabel>
             </SettingGroup>
 
+            {/* 며칠 전에 알려줄지 */}
             <SettingGroup>
               <div
                   style={{

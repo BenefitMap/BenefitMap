@@ -29,7 +29,7 @@ const NavigationButton = styled.button`
   cursor: pointer;
   padding: 8px 16px;
   transition: all 0.2s ease;
-  
+
   &:hover {
     color: #333;
   }
@@ -57,7 +57,7 @@ const EditButton = styled.button`
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  
+
   &:hover {
     background-color: ${props => props.children === '캘린더 수정' ? '#3d8450' : '#c82333'};
     transform: translateY(-2px);
@@ -102,7 +102,7 @@ const DateCell = styled.div`
   padding: 6px;
   background-color: ${props => props.isOtherMonth ? '#f5f5f5' : 'white'};
   min-height: 120px;
-  
+
   &:nth-last-child(-n+7) {
     border-bottom: none;
   }
@@ -137,35 +137,12 @@ const HolidayText = styled.div`
   margin-left: 8px;
 `;
 
-const MultiDayEventBar = styled.div`
-  background-color: #90ee90;
-  padding: 4px 8px;
-  margin-bottom: 3px;
-  font-size: 11px;
-  color: #2d5016;
-  font-weight: 400;
-  cursor: pointer;
-  position: absolute;
-  left: 8px;
-    right: 8px;
-  top: ${props => 30 + (props.rowIndex * 20)}px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  border-radius: 3px;
-  z-index: 1;
-  
-  &:hover {
-    background-color: #7fd97f;
-  }
-`;
-
 const SpanningEventBar = styled.div`
   background-color: ${props => {
-    const baseColor = 144; // #90ee90의 green 값
-    const intensity = Math.max(0, baseColor - (props.stackIndex * 20)); // 스택 인덱스에 따라 진하게
-    return `rgb(${intensity}, ${intensity + 50}, ${intensity})`;
-  }};
+  const baseColor = 144; // #90ee90의 green-ish
+  const intensity = Math.max(0, baseColor - (props.stackIndex * 20));
+  return `rgb(${intensity}, ${intensity + 50}, ${intensity})`;
+}};
   padding: 4px 8px;
   margin-bottom: 3px;
   font-size: 11px;
@@ -180,25 +157,26 @@ const SpanningEventBar = styled.div`
   display: flex;
   align-items: center;
   border-radius: ${props => {
-    if (props.isFirst && props.isLast) return '8px'; // 하루짜리 서비스는 전체 둥글게
-    if (props.isFirst) return '8px 0 0 8px'; // 첫 번째 날짜는 왼쪽만 둥글게
-    if (props.isLast) return '0 8px 8px 0'; // 마지막 날짜는 오른쪽만 둥글게
-    return '0'; // 중간 날짜들은 직각
-  }};
+  if (props.isFirst && props.isLast) return '8px'; // 하루짜리
+  if (props.isFirst) return '8px 0 0 8px';
+  if (props.isLast) return '0 8px 8px 0';
+  return '0';
+}};
   z-index: 1;
   opacity: ${props => props.editMode ? '0.8' : '1'};
   border: ${props => props.editMode ? '2px dashed #dc3545' : 'none'};
     
-    &:hover {
+  &:hover {
     background-color: ${props => {
-      const baseColor = 127; // hover 시 더 진한 색상
-      const intensity = Math.max(0, baseColor - (props.stackIndex * 20));
-      return `rgb(${intensity}, ${intensity + 30}, ${intensity})`;
-    }};
+  const baseColor = 127;
+  const intensity = Math.max(0, baseColor - (props.stackIndex * 20));
+  return `rgb(${intensity}, ${intensity + 30}, ${intensity})`;
+}};
     opacity: ${props => props.editMode ? '1' : '0.9'};
   }
 `;
 
+/* 삭제 확인 모달 스타일 */
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -255,21 +233,21 @@ const ModalButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 80px;
-  
+
   &.confirm {
     background-color: #4a9d5f;
     color: white;
-    
+
     &:hover {
       background-color: #3d8450;
       transform: translateY(-1px);
     }
   }
-  
+
   &.cancel {
     background-color: #6c757d;
     color: white;
-    
+
     &:hover {
       background-color: #5a6268;
       transform: translateY(-1px);
@@ -282,56 +260,72 @@ const Calendar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuth();
 
-  // 캘린더 페이지는 로그인 없이도 접근 가능
+  // 현재 보고 있는 년/월
   const [currentDate, setCurrentDate] = useState(() => {
-    // targetDate가 있으면 해당 날짜로, 없으면 현재 날짜로 초기화
     const targetDate = location.state?.targetDate;
     return targetDate ? new Date(targetDate) : new Date();
   });
-  const [editMode, setEditMode] = useState(false);
+
+  // UI 상태들
+  const [editMode, setEditMode] = useState(false); // 캘린더 수정 모드
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState(null);
+
+  // 알림 설정 모달 관련
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
 
   const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
-  
-  // 로컬 스토리지에서 데이터를 읽어와서 캘린더 데이터 생성
+
+  // ✅ localStorage에서 불러온 서비스들을 날짜별로 매핑한 구조
   const [welfareServices, setWelfareServices] = useState(() => {
     const savedServices = JSON.parse(localStorage.getItem('calendarServices') || '[]');
-    
-    // 로컬 스토리지에서 불러온 서비스들만 사용
+
+    // localStorage에 넣어둔 원본 정보 유지해서 들고오기 (부서 등 포함)
     const allServices = savedServices.map((service, index) => ({
       id: service.id,
       text: service.title,
+      description: service.description,   // ✅ 추가
+      department: service.department,     // ✅ 추가
       applicationPeriod: service.applicationPeriod,
-      isMultiDay: service.applicationPeriod ? 
-        new Date(service.applicationPeriod.startDate).getTime() !== new Date(service.applicationPeriod.endDate).getTime() : false,
+      isMultiDay: service.applicationPeriod
+          ? new Date(service.applicationPeriod.startDate).getTime() !==
+          new Date(service.applicationPeriod.endDate).getTime()
+          : false,
       startDate: service.applicationPeriod.startDate,
       endDate: service.applicationPeriod.endDate,
-      span: service.applicationPeriod ? 
-        Math.ceil((new Date(service.applicationPeriod.endDate) - new Date(service.applicationPeriod.startDate)) / (1000 * 60 * 60 * 24)) + 1 : 1,
+      span: service.applicationPeriod
+          ? Math.ceil(
+          (new Date(service.applicationPeriod.endDate) -
+              new Date(service.applicationPeriod.startDate)) /
+          (1000 * 60 * 60 * 24)
+      ) + 1
+          : 1,
       serviceId: service.id,
-      addedOrder: index // 추가 순서 저장
+      addedOrder: index, // 추가 순서 저장
     }));
 
-    // 날짜별로 서비스 매핑
+    // 날짜별로 서비스 배열 매핑
     const servicesMap = {};
-    
-    allServices.forEach(service => {
+
+    allServices.forEach((service) => {
       const startDate = new Date(service.startDate);
       const endDate = new Date(service.endDate);
-      
-      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+
+      for (
+          let d = new Date(startDate);
+          d <= endDate;
+          d.setDate(d.getDate() + 1)
+      ) {
         const dateKey = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-        
+
         if (!servicesMap[dateKey]) {
           servicesMap[dateKey] = [];
         }
-        
+
         servicesMap[dateKey].push({
           ...service,
-          rowIndex: servicesMap[dateKey].length
+          rowIndex: servicesMap[dateKey].length,
         });
       }
     });
@@ -339,43 +333,54 @@ const Calendar = () => {
     return servicesMap;
   });
 
-  // 로컬 스토리지 변경 감지
+  // ✅ localStorage 변경 시 동기화
   useEffect(() => {
     const handleStorageChange = () => {
       const savedServices = JSON.parse(localStorage.getItem('calendarServices') || '[]');
-      
-      // 로컬 스토리지에서 불러온 서비스들만 사용
+
       const allServices = savedServices.map((service, index) => ({
         id: service.id,
         text: service.title,
+        description: service.description,   // ✅ 추가
+        department: service.department,     // ✅ 추가
         applicationPeriod: service.applicationPeriod,
-        isMultiDay: service.applicationPeriod ? 
-          new Date(service.applicationPeriod.startDate).getTime() !== new Date(service.applicationPeriod.endDate).getTime() : false,
+        isMultiDay: service.applicationPeriod
+            ? new Date(service.applicationPeriod.startDate).getTime() !==
+            new Date(service.applicationPeriod.endDate).getTime()
+            : false,
         startDate: service.applicationPeriod.startDate,
         endDate: service.applicationPeriod.endDate,
-        span: service.applicationPeriod ? 
-          Math.ceil((new Date(service.applicationPeriod.endDate) - new Date(service.applicationPeriod.startDate)) / (1000 * 60 * 60 * 24)) + 1 : 1,
+        span: service.applicationPeriod
+            ? Math.ceil(
+            (new Date(service.applicationPeriod.endDate) -
+                new Date(service.applicationPeriod.startDate)) /
+            (1000 * 60 * 60 * 24)
+        ) + 1
+            : 1,
         serviceId: service.id,
-        addedOrder: index // 추가 순서 저장
+        addedOrder: index,
       }));
 
-      // 날짜별로 서비스 매핑
       const servicesMap = {};
-      
-      allServices.forEach(service => {
+
+      allServices.forEach((service) => {
         const startDate = new Date(service.startDate);
         const endDate = new Date(service.endDate);
-        
-        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+
+        for (
+            let d = new Date(startDate);
+            d <= endDate;
+            d.setDate(d.getDate() + 1)
+        ) {
           const dateKey = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-          
+
           if (!servicesMap[dateKey]) {
             servicesMap[dateKey] = [];
           }
-          
+
           servicesMap[dateKey].push({
             ...service,
-            rowIndex: servicesMap[dateKey].length
+            rowIndex: servicesMap[dateKey].length,
           });
         }
       });
@@ -383,10 +388,9 @@ const Calendar = () => {
       setWelfareServices(servicesMap);
     };
 
-    // storage 이벤트 리스너 등록
     window.addEventListener('storage', handleStorageChange);
-    
-    // 컴포넌트 마운트 시에도 한 번 실행
+
+    // 마운트 시 즉시 동기화
     handleStorageChange();
 
     return () => {
@@ -394,91 +398,89 @@ const Calendar = () => {
     };
   }, []);
 
-  // 페이지 로드 시 화면 중앙으로 스크롤 (로그인된 경우만)
+  // 로그인된 경우만 캘린더 위치로 스크롤
   useEffect(() => {
-    // 로그인하지 않은 경우 스크롤하지 않음
     if (!isAuthenticated) return;
-    
-    // 페이지 로드 후 약간의 지연을 두고 스크롤
+
     const timer = setTimeout(() => {
       const calendarElement = document.querySelector('[data-calendar-container]');
       if (calendarElement) {
-        calendarElement.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
+        calendarElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
         });
       } else {
-        // 대체 방법: 전체 페이지를 중앙으로 스크롤
-        window.scrollTo({ 
-          top: window.innerHeight * 0.3, 
-          behavior: 'smooth' 
+        window.scrollTo({
+          top: window.innerHeight * 0.3,
+          behavior: 'smooth',
         });
       }
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [currentDate, isAuthenticated]); // currentDate와 isAuthenticated가 변경될 때마다 실행
+  }, [currentDate, isAuthenticated]);
 
-  // 복지 서비스 삭제 함수
-  const deleteWelfareService = (serviceId) => {
-    const existingServices = JSON.parse(localStorage.getItem('calendarServices') || '[]');
-    const updatedServices = existingServices.filter(service => service.id !== serviceId);
-    localStorage.setItem('calendarServices', JSON.stringify(updatedServices));
-    
-    // 로컬 스토리지 변경 이벤트를 수동으로 트리거
-    window.dispatchEvent(new Event('storage'));
-    
-    alert('복지 서비스가 삭제되었습니다.');
-  };
-
-  // 서비스 클릭 핸들러 (수정 모드일 때 삭제, 일반 모드일 때 알림 설정)
+  // 캘린더에서 일정(복지서비스) 클릭
+  // 수정모드면 삭제 모달 띄우고,
+  // 일반모드면 알림설정 모달 띄움
   const handleServiceClick = (service) => {
     if (editMode) {
       setServiceToDelete(service);
       setShowDeleteModal(true);
     } else {
-      // 서비스 정보를 가져와서 모달에 전달
+      // ✅ 여기서 department, description도 함께 넘김
       const serviceData = {
         id: service.id,
         title: service.text,
         applicationPeriod: service.applicationPeriod,
         department: service.department || '담당부서 정보 없음',
-        description: service.description || ''
+        description: service.description || '',
       };
       setSelectedService(serviceData);
       setShowNotificationModal(true);
     }
   };
 
-  // 삭제 확인 핸들러
+  // 삭제 확정
   const handleConfirmDelete = () => {
     if (serviceToDelete) {
-      deleteWelfareService(serviceToDelete.id);
+      const serviceId = serviceToDelete.id;
+      const existingServices = JSON.parse(localStorage.getItem('calendarServices') || '[]');
+      const updatedServices = existingServices.filter(
+          (s) => s.id !== serviceId
+      );
+      localStorage.setItem('calendarServices', JSON.stringify(updatedServices));
+
+      // 수동으로 storage 이벤트 날려서 화면 싱크
+      window.dispatchEvent(new Event('storage'));
+
+      alert('복지 서비스가 삭제되었습니다.');
       setShowDeleteModal(false);
       setServiceToDelete(null);
     }
   };
 
-  // 삭제 취소 핸들러
+  // 삭제 취소
   const handleCancelDelete = () => {
     setShowDeleteModal(false);
     setServiceToDelete(null);
   };
 
-  // 알림 설정 저장 핸들러
+  // 알림 설정 저장
   const handleNotificationSave = (serviceId, settings) => {
-    console.log(`서비스 ${serviceId}의 알림 설정이 저장되었습니다:`, settings);
-    // 여기서 추가적인 로직을 수행할 수 있습니다 (예: 서버에 저장)
+    console.log(`서비스 ${serviceId} 알림 설정 저장:`, settings);
+    // 필요하면 서버 저장 등 추가 가능
   };
 
-  // 알림 설정 모달 닫기
+  // 알림 모달 닫기
   const handleCloseNotificationModal = () => {
     setShowNotificationModal(false);
     setSelectedService(null);
   };
 
+  // 한국 공휴일 (2024~2025만 예시로 넣어둠)
   const holidays = {
-    // 2024년 휴일
+    // 2024
     '2024-1-1': '신정',
     '2024-2-9': '설날연휴',
     '2024-2-10': '설날연휴',
@@ -496,8 +498,7 @@ const Calendar = () => {
     '2024-10-3': '개천절',
     '2024-10-9': '한글날',
     '2024-12-25': '크리스마스',
-    
-    // 2025년 휴일
+    // 2025
     '2025-1-1': '신정',
     '2025-1-28': '설날연휴',
     '2025-1-29': '설날',
@@ -513,11 +514,12 @@ const Calendar = () => {
     '2025-10-8': '추석연휴',
     '2025-10-3': '개천절',
     '2025-10-9': '한글날',
-    '2025-12-25': '크리스마스'
+    '2025-12-25': '크리스마스',
   };
 
+  // 이전/다음 달로 이동
   const changeMonth = (direction) => {
-    setCurrentDate(prevDate => {
+    setCurrentDate((prevDate) => {
       const newDate = new Date(prevDate);
       if (direction === 'prev') {
         newDate.setMonth(newDate.getMonth() - 1);
@@ -527,283 +529,315 @@ const Calendar = () => {
       return newDate;
     });
   };
-  
+
+  // 달력 셀 데이터 만들기
   const generateCalendarData = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const firstDayOfWeek = firstDay.getDay();
     const daysInMonth = lastDay.getDate();
-    
-    // 오늘 날짜 정보
+
     const today = new Date();
-    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
-    
+    const isCurrentMonth =
+        today.getFullYear() === year && today.getMonth() === month;
+
     const calendarData = [];
-    
-    // 이전 달의 마지막 날들
+
+    // 이전 달 날짜 채우기
     const prevMonthLastDay = new Date(year, month, 0).getDate();
     for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-      calendarData.push({ 
-        date: prevMonthLastDay - i, 
+      calendarData.push({
+        date: prevMonthLastDay - i,
         isOtherMonth: true,
         isToday: false,
-        services: []
+        services: [],
       });
     }
-    
-    // 현재 월의 날짜들
+
+    // 이번 달 날짜
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = `${year}-${month + 1}-${day}`;
       const dayServices = welfareServices[dateKey] || [];
       const isToday = isCurrentMonth && day === today.getDate();
-      
-      calendarData.push({ 
-        date: day, 
+
+      calendarData.push({
+        date: day,
         isOtherMonth: false,
         isToday: isToday,
         services: dayServices,
-        dateKey: dateKey
+        dateKey: dateKey,
       });
     }
-    
-    // 다음 달의 날짜들
+
+    // 다음 달 날짜로 칸 채우기 (5주 = 35칸 가정)
     const remainingCells = 35 - calendarData.length;
     for (let day = 1; day <= remainingCells; day++) {
-      calendarData.push({ 
-        date: day, 
+      calendarData.push({
+        date: day,
         isOtherMonth: true,
         isToday: false,
-        services: []
+        services: [],
       });
     }
-    
+
     return calendarData;
   };
-  
+
   const calendarData = generateCalendarData();
 
-  // 디버깅: 로그인 상태 확인
+  // 디버깅 로그
   console.log('Calendar Debug - isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
   console.log('Calendar Debug - localStorage access_token:', !!localStorage.getItem('access_token'));
   console.log('Calendar Debug - localStorage user_info:', !!localStorage.getItem('user_info'));
   console.log('Calendar Debug - userSettings:', !!localStorage.getItem('userSettings'));
 
-  // 로딩 중인 경우 로딩 화면 표시
+  // 아직 로그인 여부 확인 중이면 로딩
   if (isLoading) {
     return (
-      <Container>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          minHeight: '60vh',
-          textAlign: 'center',
-          fontSize: '18px',
-          color: '#666'
-        }}>
-          로딩 중...
-        </div>
-      </Container>
+        <Container>
+          <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '60vh',
+                textAlign: 'center',
+                fontSize: '18px',
+                color: '#666',
+              }}
+          >
+            로딩 중...
+          </div>
+        </Container>
     );
   }
-  
-  // 로그인하지 않은 경우 로그인 안내 화면 표시
+
+  // 로그인 안 한 상태일 때 보여줄 화면
   if (!isAuthenticated) {
     return (
-      <Container>
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          minHeight: '100vh', // 전체 화면 높이로 변경
-          textAlign: 'center',
-          padding: '40px 20px',
-          position: 'relative',
-          top: '-80px' // 헤더 높이만큼 위로 이동
-        }}>
-          <div style={{
-            backgroundColor: '#f8f9fa',
-            borderRadius: '16px',
-            padding: '40px 60px',
-            maxWidth: '600px',
-            width: '100%',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e9ecef'
-          }}>
-            <h2 style={{
-              fontSize: '24px',
-              fontWeight: '600',
-              color: '#333',
-              marginBottom: '16px'
-            }}>
-              로그인 및 설정이 필요합니다
-            </h2>
-            <p style={{
-              fontSize: '16px',
-              color: '#666',
-              marginBottom: '24px',
-              lineHeight: '1.5'
-            }}>
-              캘린더 기능을 사용하려면<br />
-              로그인과 개인 맞춤형 설정을 완료해주세요.
-            </p>
-            <button
-              onClick={() => navigate('/LoginPage')}
+        <Container>
+          <div
               style={{
-                backgroundColor: '#4a9d5f',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '12px 24px',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s'
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '100vh',
+                textAlign: 'center',
+                padding: '40px 20px',
+                position: 'relative',
+                top: '-80px',
               }}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#3d8450'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#4a9d5f'}
+          >
+            <div
+                style={{
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '16px',
+                  padding: '40px 60px',
+                  maxWidth: '600px',
+                  width: '100%',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                  border: '1px solid #e9ecef',
+                }}
             >
-              로그인하러 가기
-            </button>
+              <h2
+                  style={{
+                    fontSize: '24px',
+                    fontWeight: '600',
+                    color: '#333',
+                    marginBottom: '16px',
+                  }}
+              >
+                로그인 및 설정이 필요합니다
+              </h2>
+              <p
+                  style={{
+                    fontSize: '16px',
+                    color: '#666',
+                    marginBottom: '24px',
+                    lineHeight: '1.5',
+                  }}
+              >
+                캘린더 기능을 사용하려면
+                <br />
+                로그인과 개인 맞춤형 설정을 완료해주세요.
+              </p>
+              <button
+                  onClick={() => navigate('/LoginPage')}
+                  style={{
+                    backgroundColor: '#4a9d5f',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '12px 24px',
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                  }}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = '#3d8450')}
+                  onMouseOut={(e) => (e.target.style.backgroundColor = '#4a9d5f')}
+              >
+                로그인하러 가기
+              </button>
+            </div>
           </div>
-        </div>
-      </Container>
+        </Container>
     );
   }
 
+  // 로그인 된 유저에게 보여줄 실제 캘린더 화면
   return (
-    <Container data-calendar-container>
-      <CalendarHeader>
-        <NavigationButton onClick={() => changeMonth('prev')}>
-          ◀
-        </NavigationButton>
-        <CalendarTitle>
-          {currentDate.getFullYear()}년 {currentDate.getMonth() + 1}월
-        </CalendarTitle>
-        <NavigationButton onClick={() => changeMonth('next')}>
-          ▶
-        </NavigationButton>
-      </CalendarHeader>
-      
-      <CalendarWrapper>
-        <CalendarHeaderGrid>
-          {daysOfWeek.map((day, index) => (
-            <DayHeader 
-              key={index} 
-              isSunday={index === 0} 
-              isSaturday={index === 6}
-            >
-              {day}
-            </DayHeader>
-          ))}
-        </CalendarHeaderGrid>
-        
-        <CalendarGrid>
-          {calendarData.map((cell, index) => {
-            const dayOfWeek = index % 7;
-            const isSunday = dayOfWeek === 0;
-            const isSaturday = dayOfWeek === 6;
-            const holidayName = cell.dateKey ? holidays[cell.dateKey] : null;
-            
-            return (
-              <DateCell key={index} isOtherMonth={cell.isOtherMonth} isToday={cell.isToday}>
-                {cell.date && (
-                  <>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
-                <DateNumber 
-                  isSunday={isSunday} 
-                  isSaturday={isSaturday}
-                  isOtherMonth={cell.isOtherMonth}
-                  isToday={cell.isToday}
-                >
-                  {cell.date}
-                </DateNumber>
-                      
-                      {holidayName && !cell.isOtherMonth && (
-                        <HolidayText>{holidayName}</HolidayText>
-                      )}
-                    </div>
-                    
-                {cell.services.map((service, serviceIndex) => {
-                      // applicationPeriod에서 날짜 정보 가져오기
-                      const startDate = new Date(service.applicationPeriod?.startDate || service.startDate);
-                      const endDate = new Date(service.applicationPeriod?.endDate || service.endDate);
-                      const currentCellDate = new Date(cell.dateKey);
-                      
-                      // 날짜만 비교 (시간 정보 제거)
-                      const startDateOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-                      const endDateOnly = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-                      const currentDateOnly = new Date(currentCellDate.getFullYear(), currentCellDate.getMonth(), currentCellDate.getDate());
-                      
-                      const isFirst = currentDateOnly.getTime() === startDateOnly.getTime();
-                      const isLast = currentDateOnly.getTime() === endDateOnly.getTime();
-                      
-                      // 디버깅용 로그 (개발 중에만 사용)
-                      if (service.text && cell.dateKey && (isFirst || isLast)) {
-                        console.log(`서비스: ${service.text}, 날짜: ${cell.dateKey}, isFirst: ${isFirst}, isLast: ${isLast}`);
-                        console.log(`startDateOnly: ${startDateOnly.toISOString()}, endDateOnly: ${endDateOnly.toISOString()}, currentDateOnly: ${currentDateOnly.toISOString()}`);
-                      }
-                      
-                      return (
-                        <SpanningEventBar 
-                          key={`${service.id}-${serviceIndex}`}
-                          stackIndex={service.rowIndex}
-                          isFirst={isFirst}
-                          isLast={isLast}
-                      editMode={editMode}
-                          onClick={() => handleServiceClick(service)}
-                        >
-                          {isFirst ? service.text : ''}
-                        </SpanningEventBar>
-                  );
-                })}
-                  </>
-                )}
-              </DateCell>
-            );
-          })}
-        </CalendarGrid>
-      </CalendarWrapper>
-      
-      <EditButton onClick={() => setEditMode(!editMode)}>
-        {editMode ? '완료' : '캘린더 수정'}
-      </EditButton>
-      
-      {/* 삭제 확인 모달 */}
-      {showDeleteModal && (
-        <ModalOverlay>
-          <ModalContent>
-            <ModalHeader>
-              캘린더 알림 서비스
-            </ModalHeader>
-            <ModalBody>
-              "{serviceToDelete?.text}" 캘린더 서비스를<br />
-              삭제하시겠습니까?
-            </ModalBody>
-            <ModalFooter>
-              <ModalButton className="cancel" onClick={handleCancelDelete}>
-                취소
-              </ModalButton>
-              <ModalButton className="confirm" onClick={handleConfirmDelete}>
-                삭제
-              </ModalButton>
-            </ModalFooter>
-          </ModalContent>
-        </ModalOverlay>
-      )}
+      <Container data-calendar-container>
+        <CalendarHeader>
+          <NavigationButton onClick={() => changeMonth('prev')}>◀</NavigationButton>
+          <CalendarTitle>
+            {currentDate.getFullYear()}년 {currentDate.getMonth() + 1}월
+          </CalendarTitle>
+          <NavigationButton onClick={() => changeMonth('next')}>▶</NavigationButton>
+        </CalendarHeader>
 
-      {/* 서비스별 알림 설정 모달 */}
-      <ServiceNotificationModal
-        isOpen={showNotificationModal}
-        onClose={handleCloseNotificationModal}
-        service={selectedService}
-        onSave={handleNotificationSave}
-      />
-    </Container>
+        <CalendarWrapper>
+          <CalendarHeaderGrid>
+            {daysOfWeek.map((day, index) => (
+                <DayHeader
+                    key={index}
+                    isSunday={index === 0}
+                    isSaturday={index === 6}
+                >
+                  {day}
+                </DayHeader>
+            ))}
+          </CalendarHeaderGrid>
+
+          <CalendarGrid>
+            {calendarData.map((cell, index) => {
+              const dayOfWeek = index % 7;
+              const isSunday = dayOfWeek === 0;
+              const isSaturday = dayOfWeek === 6;
+              const holidayName = cell.dateKey ? holidays[cell.dateKey] : null;
+
+              return (
+                  <DateCell
+                      key={index}
+                      isOtherMonth={cell.isOtherMonth}
+                      isToday={cell.isToday}
+                  >
+                    {cell.date && (
+                        <>
+                          <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                marginBottom: '6px',
+                              }}
+                          >
+                            <DateNumber
+                                isSunday={isSunday}
+                                isSaturday={isSaturday}
+                                isOtherMonth={cell.isOtherMonth}
+                                isToday={cell.isToday}
+                            >
+                              {cell.date}
+                            </DateNumber>
+
+                            {holidayName && !cell.isOtherMonth && (
+                                <HolidayText>{holidayName}</HolidayText>
+                            )}
+                          </div>
+
+                          {cell.services.map((service, serviceIndex) => {
+                            // 기간 계산
+                            const startDate = new Date(
+                                service.applicationPeriod?.startDate ||
+                                service.startDate
+                            );
+                            const endDate = new Date(
+                                service.applicationPeriod?.endDate || service.endDate
+                            );
+                            const currentCellDate = new Date(cell.dateKey);
+
+                            // 날짜만 비교
+                            const startDateOnly = new Date(
+                                startDate.getFullYear(),
+                                startDate.getMonth(),
+                                startDate.getDate()
+                            );
+                            const endDateOnly = new Date(
+                                endDate.getFullYear(),
+                                endDate.getMonth(),
+                                endDate.getDate()
+                            );
+                            const currentDateOnly = new Date(
+                                currentCellDate.getFullYear(),
+                                currentCellDate.getMonth(),
+                                currentCellDate.getDate()
+                            );
+
+                            const isFirst =
+                                currentDateOnly.getTime() ===
+                                startDateOnly.getTime();
+                            const isLast =
+                                currentDateOnly.getTime() === endDateOnly.getTime();
+
+                            return (
+                                <SpanningEventBar
+                                    key={`${service.id}-${serviceIndex}`}
+                                    stackIndex={service.rowIndex}
+                                    isFirst={isFirst}
+                                    isLast={isLast}
+                                    editMode={editMode}
+                                    onClick={() => handleServiceClick(service)}
+                                >
+                                  {isFirst ? service.text : ''}
+                                </SpanningEventBar>
+                            );
+                          })}
+                        </>
+                    )}
+                  </DateCell>
+              );
+            })}
+          </CalendarGrid>
+        </CalendarWrapper>
+
+        <EditButton onClick={() => setEditMode(!editMode)}>
+          {editMode ? '완료' : '캘린더 수정'}
+        </EditButton>
+
+        {/* 삭제 확인 모달 */}
+        {showDeleteModal && (
+            <ModalOverlay>
+              <ModalContent>
+                <ModalHeader>캘린더 알림 서비스</ModalHeader>
+                <ModalBody>
+                  "{serviceToDelete?.text}" 캘린더 서비스를
+                  <br />
+                  삭제하시겠습니까?
+                </ModalBody>
+                <ModalFooter>
+                  <ModalButton className="cancel" onClick={handleCancelDelete}>
+                    취소
+                  </ModalButton>
+                  <ModalButton className="confirm" onClick={handleConfirmDelete}>
+                    삭제
+                  </ModalButton>
+                </ModalFooter>
+              </ModalContent>
+            </ModalOverlay>
+        )}
+
+        {/* 서비스별 알림 설정 모달 */}
+        <ServiceNotificationModal
+            isOpen={showNotificationModal}
+            onClose={handleCloseNotificationModal}
+            service={selectedService}
+            onSave={handleNotificationSave}
+        />
+      </Container>
   );
 };
 
