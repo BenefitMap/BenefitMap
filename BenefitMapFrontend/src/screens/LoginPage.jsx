@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import GoogleLogo from '../assets/google-logo.svg';
+import { handleGoogleLogin } from '../utils/auth'; // ✅ auth.js에서 가져옴
 
 // --- 스타일 컴포넌트 정의 ---
 const PageContainer = styled.div`
@@ -65,28 +66,20 @@ const GoogleLoginButton = styled.button`
 
 // --- 로그인 페이지 컴포넌트 ---
 function LoginPage() {
-  // ✅ 백엔드 기본 URL (Vite 환경변수 기반)
-  const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-
-  // ✅ 구글 로그인 핸들러
-  const handleGoogleLogin = () => {
-    // Spring Security의 OAuth2 엔드포인트로 리디렉트
-    window.location.href = `${BACKEND_URL}/oauth2/authorization/google`;
-  };
-
   return (
-    <PageContainer>
-      <MainContent>
-        <LoginBox>
-          <h1>로그인</h1>
-          <p>놓치기 쉬운 복지 혜택, 맞춤 알림으로 설정하세요.</p>
-          <GoogleLoginButton onClick={handleGoogleLogin}>
-            <img src={GoogleLogo} alt="Google logo" />
-            Google 계정으로 로그인
-          </GoogleLoginButton>
-        </LoginBox>
-      </MainContent>
-    </PageContainer>
+      <PageContainer>
+        <MainContent>
+          <LoginBox>
+            <h1>로그인</h1>
+            <p>놓치기 쉬운 복지 혜택, 맞춤 알림으로 설정하세요.</p>
+
+            <GoogleLoginButton onClick={handleGoogleLogin}>
+              <img src={GoogleLogo} alt="Google logo" />
+              Google 계정으로 로그인
+            </GoogleLoginButton>
+          </LoginBox>
+        </MainContent>
+      </PageContainer>
   );
 }
 

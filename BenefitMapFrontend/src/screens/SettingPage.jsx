@@ -1,7 +1,9 @@
+// src/screens/SettingPage.jsx
+
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { fetchLifecycleTags, fetchHouseholdTags, fetchInterestTags, saveOnboarding } from '../utils/auth';
+import { saveOnboarding } from '../utils/auth';
 
 // --- 스타일 컴포넌트 정의 ---
 const SettingsContainer = styled.div`
@@ -11,23 +13,23 @@ const SettingsContainer = styled.div`
   align-items: center;
   padding: 40px 20px;
   background-color: #f8f9fa;
-  overflow-y: auto; /* 스크롤 기능 유지 */
+  overflow-y: auto;
 `;
 
 const PageTitleContainer = styled.div`
   text-align: center;
   margin-bottom: 30px;
-  
-  h2 { 
-    font-size: 1.8rem; 
-    font-weight: 600; 
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
     margin-bottom: 8px;
     color: #2c3e50;
   }
-  
-  p { 
-    color: #7f8c8d; 
-    font-size: 0.9rem; 
+
+  p {
+    color: #7f8c8d;
+    font-size: 0.9rem;
     margin: 4px 0;
   }
 `;
@@ -136,7 +138,7 @@ const RequiredFormGroup = styled(FormGroup)`
   border-radius: 8px;
   border-left: 3px solid #43a047;
   position: relative;
-  
+
   &::before {
     content: '필수';
     position: absolute;
@@ -157,7 +159,7 @@ const OptionalFormGroup = styled(FormGroup)`
   border-radius: 8px;
   border-left: 3px solid #6c757d;
   position: relative;
-  
+
   &::before {
     content: '선택';
     position: absolute;
@@ -183,7 +185,7 @@ const Label = styled.label`
 const FormRow = styled.div`
   display: flex;
   gap: 15px;
-  
+
   @media (max-width: 600px) {
     flex-direction: column;
     gap: 10px;
@@ -204,12 +206,12 @@ const StyledInput = styled.input`
   color: #2c3e50;
   transition: border-color 0.2s ease;
   box-sizing: border-box;
-  
+
   &:focus {
     outline: none;
     border-color: #43a047;
   }
-  
+
   &::placeholder {
     color: #adb5bd;
   }
@@ -240,8 +242,8 @@ const AgeSpinButton = styled.button`
   font-size: 10px;
   line-height: 1;
   transition: all 0.2s ease;
-  
-  &:hover { 
+
+  &:hover {
     background-color: #f8f9fa;
     border-color: #43a047;
   }
@@ -267,16 +269,16 @@ const DropdownButton = styled.button`
   justify-content: space-between;
   transition: border-color 0.2s ease;
   box-sizing: border-box;
-  
+
   &:hover {
     border-color: #43a047;
   }
-  
+
   &:focus {
     outline: none;
     border-color: #43a047;
   }
-  
+
   &::after {
     content: '▼';
     color: #43a047;
@@ -315,20 +317,20 @@ const SearchInput = styled.input`
   justify-content: space-between;
   transition: border-color 0.2s ease;
   box-sizing: border-box;
-  
+
   &:hover {
     border-color: #43a047;
   }
-  
+
   &:focus {
     outline: none;
     border-color: #43a047;
   }
-  
+
   &::placeholder {
     color: #adb5bd;
   }
-  
+
   &::after {
     content: '▼';
     color: #43a047;
@@ -348,13 +350,12 @@ const DropdownItem = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  
+
   &:hover {
     background-color: ${props => props.$isSelected ? '#d4edda' : '#f8f9fa'};
   }
 `;
 
-// 새로운 스타일 컴포넌트들
 const SelectedItemsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -395,31 +396,10 @@ const RemoveButton = styled.button`
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);
   }
-`;
-
-const AddMoreText = styled.span`
-  color: #43a047;
-  font-size: 0.8rem;
-  font-style: italic;
-  margin-left: 4px;
-`;
-
-const DropdownHeader = styled.div`
-  padding: 8px 12px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-  font-size: 0.8rem;
-  color: #6c757d;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1;
 `;
 
 const ClearAllButton = styled.button`
@@ -430,32 +410,50 @@ const ClearAllButton = styled.button`
   font-size: 0.75rem;
   padding: 2px 6px;
   border-radius: 3px;
-  
+
   &:hover {
     background-color: #f8d7da;
   }
 `;
 
-const CheckboxIcon = styled.div`
-  width: 16px;
-  height: 16px;
-  border: 2px solid ${props => props.$isSelected ? '#43a047' : '#dee2e6'};
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: ${props => props.$isSelected ? '#43a047' : 'transparent'};
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-  flex-shrink: 0;
+const HelpTooltip = styled.span`
+  position: relative;
+  display: inline-block;
+  margin-left: 8px;
+  cursor: help;
+  color: #6c757d;
+  font-size: 0.9rem;
+
+  &:hover::after {
+    content: "${props => props.$tooltip}";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: normal;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    min-width: 200px;
+    text-align: center;
+  }
+
+  &:hover::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+    z-index: 1000;
+  }
 `;
 
-const OptionText = styled.span`
-  flex: 1;
-`;
-
-// 체크박스 관련 새로운 스타일 컴포넌트들
 const CheckboxContainer = styled.div`
   width: 100%;
 `;
@@ -504,7 +502,7 @@ const CheckboxLabel = styled.label`
   width: 100%;
   padding: 4px 0;
   transition: background-color 0.2s ease;
-  
+
   &:hover {
     background-color: #f8f9fa;
   }
@@ -541,54 +539,6 @@ const ErrorMessage = styled.div`
   gap: 4px;
 `;
 
-const SuccessMessage = styled.div`
-  color: #28a745;
-  font-size: 0.8rem;
-  margin-top: 4px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`;
-
-const HelpTooltip = styled.span`
-  position: relative;
-  display: inline-block;
-  margin-left: 8px;
-  cursor: help;
-  color: #6c757d;
-  font-size: 0.9rem;
-  
-  &:hover::after {
-    content: "${props => props.$tooltip}";
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    white-space: nowrap;
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    min-width: 200px;
-    white-space: normal;
-    text-align: center;
-  }
-  
-  &:hover::before {
-    content: "";
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(100%);
-    border: 5px solid transparent;
-    border-top-color: #333;
-    z-index: 1000;
-  }
-`;
-
 const ButtonContainer = styled.div`
   text-align: center;
   margin-top: 25px;
@@ -604,60 +554,67 @@ const SubmitButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  
+
   &:hover {
     background-color: #2e7d32;
   }
-  
+
   &:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(67, 160, 71, 0.3);
   }
 `;
 
-// 체크박스 기반 다중 선택 컴포넌트
-function SimpleDropdown({ options, selectedItems, onSelectionChange, placeholder, isSingleSelect = false, nextFieldRef, fieldName = '' }) {
+/* ---------------------------
+   하위 컴포넌트들
+----------------------------*/
+
+function SimpleDropdown({
+                          options,
+                          selectedItems,
+                          onSelectionChange,
+                          placeholder,
+                          isSingleSelect = false,
+                          nextFieldRef,
+                          fieldName = ''
+                        }) {
   const handleOptionChange = (option) => {
     if (isSingleSelect) {
       onSelectionChange([option]);
       setTimeout(() => {
         if (nextFieldRef && nextFieldRef.current) {
           nextFieldRef.current.focus();
-          nextFieldRef.current.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
+          nextFieldRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
           });
         }
       }, 100);
     } else {
       let newSelection;
-      
+
       if (option === '해당사항 없음') {
-        // "해당사항 없음"은 무조건 단독 선택 (현재 필드에서만)
         newSelection = selectedItems.includes(option) ? [] : ['해당사항 없음'];
       } else {
-        // 다른 항목을 선택하면 현재 필드에서만 "해당사항 없음"을 제거하고 해당 항목 토글
         const filteredItems = selectedItems.filter(item => item !== '해당사항 없음');
-        
-        // 관심주제는 최대 3개까지만 선택 가능
+
         if (fieldName === 'interest') {
           const MAX_INTEREST_SELECTIONS = 3;
           if (!filteredItems.includes(option) && filteredItems.length >= MAX_INTEREST_SELECTIONS) {
-            // 3개 초과 시 가장 오래된 선택을 제거하고 새로운 항목 추가
-            const newFilteredItems = filteredItems.slice(1); // 첫 번째(가장 오래된) 항목 제거
+            const newFilteredItems = filteredItems.slice(1);
             newSelection = [...newFilteredItems, option];
           } else {
-        newSelection = filteredItems.includes(option)
-          ? filteredItems.filter(item => item !== option)
-          : [...filteredItems, option];
+            newSelection = filteredItems.includes(option)
+                ? filteredItems.filter(item => item !== option)
+                : [...filteredItems, option];
           }
         } else {
           newSelection = filteredItems.includes(option)
-            ? filteredItems.filter(item => item !== option)
-            : [...filteredItems, option];
+              ? filteredItems.filter(item => item !== option)
+              : [...filteredItems, option];
         }
       }
-      
+
       onSelectionChange(newSelection);
     }
   };
@@ -667,72 +624,84 @@ function SimpleDropdown({ options, selectedItems, onSelectionChange, placeholder
     onSelectionChange(newSelection);
   };
 
-  // 단일 선택은 검색 가능한 드롭다운 사용
   if (isSingleSelect) {
-    return <SearchableDropdown 
-      options={options} 
-      selectedItems={selectedItems} 
-      onSelectionChange={onSelectionChange} 
-      placeholder={placeholder} 
-      nextFieldRef={nextFieldRef} 
-    />;
+    return (
+        <SearchableDropdown
+            options={options}
+            selectedItems={selectedItems}
+            onSelectionChange={onSelectionChange}
+            placeholder={placeholder}
+            nextFieldRef={nextFieldRef}
+        />
+    );
   }
 
-  // 다중 선택은 체크박스 리스트
   return (
-    <CheckboxContainer>
-      {selectedItems.length > 0 && (
-        <SelectedItemsSummary>
-          <SummaryTitle>
-            {fieldName === 'household' ? '가구상황' : fieldName === 'interest' ? '관심주제' : '선택된 항목'} 선택됨 ({selectedItems.length}개)
-          </SummaryTitle>
-          <SelectedItemsContainer>
-            {selectedItems.map((item, index) => (
-              <SelectedTag key={index}>
-                <TagText>{item}</TagText>
-                <RemoveButton 
+      <CheckboxContainer>
+        {selectedItems.length > 0 && (
+            <SelectedItemsSummary>
+              <SummaryTitle>
+                {fieldName === 'household'
+                    ? '가구상황'
+                    : fieldName === 'interest'
+                        ? '관심주제'
+                        : '선택된 항목'}{' '}
+                선택됨 ({selectedItems.length}개)
+              </SummaryTitle>
+
+              <SelectedItemsContainer>
+                {selectedItems.map((item, index) => (
+                    <SelectedTag key={index}>
+                      <TagText>{item}</TagText>
+                      <RemoveButton
+                          type="button"
+                          onClick={() => removeSelectedItem(item)}
+                          title="제거"
+                      >
+                        ×
+                      </RemoveButton>
+                    </SelectedTag>
+                ))}
+              </SelectedItemsContainer>
+
+              <ClearAllButton
                   type="button"
-                  onClick={() => removeSelectedItem(item)}
-                  title="제거"
-                >
-                  ×
-                </RemoveButton>
-              </SelectedTag>
-            ))}
-          </SelectedItemsContainer>
-          <ClearAllButton 
-            type="button"
-            onClick={() => onSelectionChange([])}
-          >
-            모두 지우기
-          </ClearAllButton>
-        </SelectedItemsSummary>
-      )}
-      
-      <CheckboxList>
-        {options.map(option => (
-          <CheckboxItem key={option}>
-            <CheckboxInput
-              type="checkbox"
-              id={`checkbox-${option}`}
-              checked={selectedItems.includes(option)}
-              onChange={() => handleOptionChange(option)}
-            />
-            <CheckboxLabel htmlFor={`checkbox-${option}`}>
-              <CustomCheckbox $isChecked={selectedItems.includes(option)}>
-                {selectedItems.includes(option) && '✓'}
-              </CustomCheckbox>
-              <CheckboxText>{option}</CheckboxText>
-            </CheckboxLabel>
-          </CheckboxItem>
-        ))}
-      </CheckboxList>
-    </CheckboxContainer>
+                  onClick={() => onSelectionChange([])}
+              >
+                모두 지우기
+              </ClearAllButton>
+            </SelectedItemsSummary>
+        )}
+
+        <CheckboxList>
+          {options.map(option => (
+              <CheckboxItem key={option}>
+                <CheckboxInput
+                    type="checkbox"
+                    id={`checkbox-${option}`}
+                    checked={selectedItems.includes(option)}
+                    onChange={() => handleOptionChange(option)}
+                />
+                <CheckboxLabel htmlFor={`checkbox-${option}`}>
+                  <CustomCheckbox $isChecked={selectedItems.includes(option)}>
+                    {selectedItems.includes(option) && '✓'}
+                  </CustomCheckbox>
+                  <CheckboxText>{option}</CheckboxText>
+                </CheckboxLabel>
+              </CheckboxItem>
+          ))}
+        </CheckboxList>
+      </CheckboxContainer>
   );
 }
 
-// 키보드 검색 가능한 단일 선택 드롭다운 컴포넌트
-function SearchableDropdown({ options, selectedItems, onSelectionChange, placeholder, nextFieldRef }) {
+function SearchableDropdown({
+                              options,
+                              selectedItems,
+                              onSelectionChange,
+                              placeholder,
+                              nextFieldRef
+                            }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -740,12 +709,10 @@ function SearchableDropdown({ options, selectedItems, onSelectionChange, placeho
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
 
-  // 검색어에 따라 필터링된 옵션
   const filteredOptions = options.filter(option =>
-    option.toLowerCase().includes((searchTerm || inputValue).toLowerCase())
+      option.toLowerCase().includes((searchTerm || inputValue).toLowerCase())
   );
 
-  // 선택된 항목이 변경될 때 inputValue 업데이트
   useEffect(() => {
     if (selectedItems.length > 0) {
       setInputValue(selectedItems[0]);
@@ -760,7 +727,7 @@ function SearchableDropdown({ options, selectedItems, onSelectionChange, placeho
         setIsOpen(false);
         setSearchTerm('');
         setHighlightedIndex(-1);
-        // 외부 클릭 시 선택된 항목으로 복원
+
         if (selectedItems.length > 0) {
           setInputValue(selectedItems[0]);
         } else {
@@ -768,14 +735,11 @@ function SearchableDropdown({ options, selectedItems, onSelectionChange, placeho
         }
       }
     };
-    
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [selectedItems]);
-
-  // 드롭다운 열림/닫힘 시 body overflow 조작 제거 - 화면 흔들림 방지
 
   const handleOptionClick = (option) => {
     onSelectionChange([option]);
@@ -786,9 +750,9 @@ function SearchableDropdown({ options, selectedItems, onSelectionChange, placeho
     setTimeout(() => {
       if (nextFieldRef && nextFieldRef.current) {
         nextFieldRef.current.focus();
-        nextFieldRef.current.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
+        nextFieldRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
         });
       }
     }, 100);
@@ -797,23 +761,20 @@ function SearchableDropdown({ options, selectedItems, onSelectionChange, placeho
   const handleInputChange = (e) => {
     const value = e.target.value;
     setInputValue(value);
-    
-    // 타이핑 중인 곳으로 자동 스크롤 보정
+
     setTimeout(() => {
       if (inputRef.current) {
-        inputRef.current.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
+        inputRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
         });
       }
     }, 50);
-    
-    // 입력값이 있으면 드롭다운 열기
+
     if (value && !isOpen) {
       setIsOpen(true);
     }
-    
-    // 정확히 일치하는 항목이 있으면 자동 선택
+
     const exactMatch = options.find(option => option === value);
     if (exactMatch) {
       onSelectionChange([exactMatch]);
@@ -822,9 +783,9 @@ function SearchableDropdown({ options, selectedItems, onSelectionChange, placeho
       setTimeout(() => {
         if (nextFieldRef && nextFieldRef.current) {
           nextFieldRef.current.focus();
-          nextFieldRef.current.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
+          nextFieldRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
           });
         }
       }, 100);
@@ -832,43 +793,6 @@ function SearchableDropdown({ options, selectedItems, onSelectionChange, placeho
   };
 
   const handleKeyDown = (e) => {
-    // Tab 키로 자동 완성 또는 다음 필드로 이동
-    if (e.key === 'Tab' && inputValue && !isOpen) {
-      const matchingOptions = options.filter(option =>
-        option.toLowerCase().startsWith(inputValue.toLowerCase())
-      );
-      
-      if (matchingOptions.length === 1) {
-        e.preventDefault();
-        const exactMatch = matchingOptions[0];
-        setInputValue(exactMatch);
-        onSelectionChange([exactMatch]);
-        setTimeout(() => {
-          if (nextFieldRef && nextFieldRef.current) {
-            nextFieldRef.current.focus();
-            nextFieldRef.current.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'center' 
-            });
-          }
-        }, 100);
-        return;
-      } else {
-        // 자동 완성할 수 없으면 다음 필드로 이동
-        e.preventDefault();
-        setTimeout(() => {
-          if (nextFieldRef && nextFieldRef.current) {
-            nextFieldRef.current.focus();
-            nextFieldRef.current.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'center' 
-            });
-          }
-        }, 100);
-        return;
-      }
-    }
-
     if (!isOpen) {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
@@ -878,6 +802,15 @@ function SearchableDropdown({ options, selectedItems, onSelectionChange, placeho
         e.preventDefault();
         setIsOpen(true);
         setSearchTerm('');
+      } else if (e.key === 'Tab') {
+        if (nextFieldRef && nextFieldRef.current) {
+          e.preventDefault();
+          nextFieldRef.current.focus();
+          nextFieldRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
       }
       return;
     }
@@ -887,7 +820,6 @@ function SearchableDropdown({ options, selectedItems, onSelectionChange, placeho
         setIsOpen(false);
         setSearchTerm('');
         setHighlightedIndex(-1);
-        // 선택된 항목으로 복원
         if (selectedItems.length > 0) {
           setInputValue(selectedItems[0]);
         } else {
@@ -896,14 +828,14 @@ function SearchableDropdown({ options, selectedItems, onSelectionChange, placeho
         break;
       case 'ArrowDown':
         e.preventDefault();
-        setHighlightedIndex(prev => 
-          prev < filteredOptions.length - 1 ? prev + 1 : 0
+        setHighlightedIndex(prev =>
+            prev < filteredOptions.length - 1 ? prev + 1 : 0
         );
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setHighlightedIndex(prev => 
-          prev > 0 ? prev - 1 : filteredOptions.length - 1
+        setHighlightedIndex(prev =>
+            prev > 0 ? prev - 1 : filteredOptions.length - 1
         );
         break;
       case 'Enter':
@@ -915,84 +847,78 @@ function SearchableDropdown({ options, selectedItems, onSelectionChange, placeho
         }
         break;
       case 'Tab':
-        // 드롭다운이 열린 상태에서 Tab 키로 자동 완성
         if (filteredOptions.length === 1) {
           e.preventDefault();
           handleOptionClick(filteredOptions[0]);
         }
         break;
+      default:
+        break;
     }
-  };
-
-  const toggleDropdown = (e) => {
-    e.preventDefault();
-    setIsOpen(!isOpen);
-    if (!isOpen) {
-      setSearchTerm('');
-      setHighlightedIndex(-1);
-    }
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setHighlightedIndex(-1);
   };
 
   return (
-    <DropdownContainer ref={dropdownRef}>
-      <SearchInput
-        ref={inputRef}
-        type="text"
-        placeholder={placeholder}
-        value={inputValue}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        onClick={() => setIsOpen(true)}
-        $hasValue={inputValue.length > 0}
-        $isOpen={isOpen}
-      />
-      
-      {isOpen && (
-        <DropdownMenu>
-          <div style={{ 
-            maxHeight: '200px', 
-            overflowY: 'auto',
-            scrollbarWidth: 'none', /* Firefox */
-            msOverflowStyle: 'none', /* IE and Edge */
-          }}>
-            <style>{`
+      <DropdownContainer ref={dropdownRef}>
+        <SearchInput
+            ref={inputRef}
+            type="text"
+            placeholder={placeholder}
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onClick={() => setIsOpen(true)}
+            $hasValue={inputValue.length > 0}
+            $isOpen={isOpen}
+        />
+
+        {isOpen && (
+            <DropdownMenu>
+              <div
+                  style={{
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                  }}
+              >
+                <style>{`
               div::-webkit-scrollbar {
-                display: none; /* Chrome, Safari */
+                display: none;
               }
             `}</style>
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map((option, index) => (
-                <DropdownItem 
-                  key={option}
-                  onClick={() => handleOptionClick(option)}
-                  $isSelected={selectedItems.includes(option)}
-                  $isHighlighted={index === highlightedIndex}
-                  style={{ 
-                    backgroundColor: index === highlightedIndex ? '#e8f5e9' : 'transparent'
-                  }}
-                >
-                  {option}
-                </DropdownItem>
-              ))
-            ) : (
-              <DropdownItem style={{ color: '#999', cursor: 'default' }}>
-                검색 결과가 없습니다
-              </DropdownItem>
-            )}
-          </div>
-        </DropdownMenu>
-      )}
-    </DropdownContainer>
+                {filteredOptions.length > 0 ? (
+                    filteredOptions.map((option, index) => (
+                        <DropdownItem
+                            key={option}
+                            onClick={() => handleOptionClick(option)}
+                            $isSelected={selectedItems.includes(option)}
+                            style={{
+                              backgroundColor:
+                                  index === highlightedIndex ? '#e8f5e9' : 'transparent',
+                            }}
+                        >
+                          {option}
+                        </DropdownItem>
+                    ))
+                ) : (
+                    <DropdownItem style={{ color: '#999', cursor: 'default' }}>
+                      검색 결과가 없습니다
+                    </DropdownItem>
+                )}
+              </div>
+            </DropdownMenu>
+        )}
+      </DropdownContainer>
   );
 }
 
-// 단일 선택용 드롭다운 컴포넌트 (기존 유지)
-function SingleSelectDropdown({ options, selectedItems, onSelectionChange, placeholder, nextFieldRef }) {
+function SingleSelectDropdown({
+                                options,
+                                selectedItems,
+                                onSelectionChange,
+                                placeholder,
+                                nextFieldRef
+                              }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -1002,14 +928,12 @@ function SingleSelectDropdown({ options, selectedItems, onSelectionChange, place
         setIsOpen(false);
       }
     };
-    
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  // 드롭다운 열림/닫힘 시 body overflow 조작 제거 - 화면 흔들림 방지
 
   const handleOptionClick = (option) => {
     onSelectionChange([option]);
@@ -1017,9 +941,9 @@ function SingleSelectDropdown({ options, selectedItems, onSelectionChange, place
     setTimeout(() => {
       if (nextFieldRef && nextFieldRef.current) {
         nextFieldRef.current.focus();
-        nextFieldRef.current.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
+        nextFieldRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
         });
       }
     }, 100);
@@ -1031,50 +955,56 @@ function SingleSelectDropdown({ options, selectedItems, onSelectionChange, place
   };
 
   return (
-    <DropdownContainer ref={dropdownRef}>
-      <DropdownButton 
-        onClick={toggleDropdown}
-        $hasValue={selectedItems.length > 0}
-        $isOpen={isOpen}
-        type="button"
-        tabIndex={0}
-      >
-        {selectedItems.length > 0 ? selectedItems[0] : placeholder}
-      </DropdownButton>
-      
-      {isOpen && (
-        <DropdownMenu>
-          <div style={{ 
-            maxHeight: '200px', 
-            overflowY: 'auto',
-            scrollbarWidth: 'none', /* Firefox */
-            msOverflowStyle: 'none', /* IE and Edge */
-          }}>
-            <style>{`
+      <DropdownContainer ref={dropdownRef}>
+        <DropdownButton
+            onClick={toggleDropdown}
+            $hasValue={selectedItems.length > 0}
+            $isOpen={isOpen}
+            type="button"
+            tabIndex={0}
+        >
+          {selectedItems.length > 0 ? selectedItems[0] : placeholder}
+        </DropdownButton>
+
+        {isOpen && (
+            <DropdownMenu>
+              <div
+                  style={{
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                  }}
+              >
+                <style>{`
               div::-webkit-scrollbar {
-                display: none; /* Chrome, Safari */
+                display: none;
               }
             `}</style>
-          {options.map(option => (
-            <DropdownItem 
-              key={option}
-              onClick={() => handleOptionClick(option)}
-              $isSelected={selectedItems.includes(option)}
-            >
-              {option}
-            </DropdownItem>
-          ))}
-          </div>
-        </DropdownMenu>
-      )}
-    </DropdownContainer>
+                {options.map(option => (
+                    <DropdownItem
+                        key={option}
+                        onClick={() => handleOptionClick(option)}
+                        $isSelected={selectedItems.includes(option)}
+                    >
+                      {option}
+                    </DropdownItem>
+                ))}
+              </div>
+            </DropdownMenu>
+        )}
+      </DropdownContainer>
   );
 }
 
-// 메인 컴포넌트
+/* ---------------------------
+   메인 SettingsPage 컴포넌트
+----------------------------*/
+
 function SettingsPage() {
   const navigate = useNavigate();
-  
+  const location = useLocation();
+
   const region1Ref = useRef(null);
   const region2Ref = useRef(null);
   const ageRef = useRef(null);
@@ -1084,64 +1014,37 @@ function SettingsPage() {
   const interestRef = useRef(null);
   const submitRef = useRef(null);
 
+  // 신규 유저(쿠키만 있고 localStorage는 아직 없음)는 그냥 통과
   useEffect(() => {
     const accessToken = localStorage.getItem('access_token');
     const userInfo = localStorage.getItem('user_info');
-    
-    if (!accessToken && !userInfo) {
-      navigate('/LoginPage');
-    }
-  }, [navigate]);
 
+    if (accessToken || userInfo) {
+      return;
+    }
+
+    if (location.state && location.state.from === 'oauth') {
+      return;
+    }
+
+    navigate('/LoginPage', { replace: true });
+  }, [navigate, location]);
+
+  // 지역 / 태그 등 상태
   const [selectedRegion1, setSelectedRegion1] = useState([]);
   const [selectedRegion2, setSelectedRegion2] = useState([]);
   const [region2Options, setRegion2Options] = useState([]);
+
   const [age, setAge] = useState('');
   const [selectedGender, setSelectedGender] = useState([]);
   const [selectedLifeCycle, setSelectedLifeCycle] = useState([]);
   const [selectedHousehold, setSelectedHousehold] = useState([]);
   const [selectedInterest, setSelectedInterest] = useState([]);
-  
-  // 백엔드에서 가져온 태그 데이터
-  const [lifeCycleOptions, setLifeCycleOptions] = useState([]);
-  const [householdOptions, setHouseholdOptions] = useState([]);
-  const [interestOptions, setInterestOptions] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [ageError, setAgeError] = useState(null);
 
-  // 자동 저장 기능
-  useEffect(() => {
-    const autoSaveData = {
-      selectedRegion1,
-      selectedRegion2,
-      age,
-      selectedGender,
-      selectedLifeCycle,
-      selectedHousehold,
-      selectedInterest
-    };
-    localStorage.setItem('onboardingDraft', JSON.stringify(autoSaveData));
-  }, [selectedRegion1, selectedRegion2, age, selectedGender, selectedLifeCycle, selectedHousehold, selectedInterest]);
-
-  // 페이지 로드 시 임시 저장된 데이터 복원
-  useEffect(() => {
-    const savedData = localStorage.getItem('onboardingDraft');
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        if (parsed.selectedRegion1) setSelectedRegion1(parsed.selectedRegion1);
-        if (parsed.selectedRegion2) setSelectedRegion2(parsed.selectedRegion2);
-        if (parsed.age) setAge(parsed.age);
-        if (parsed.selectedGender) setSelectedGender(parsed.selectedGender);
-        if (parsed.selectedLifeCycle) setSelectedLifeCycle(parsed.selectedLifeCycle);
-        if (parsed.selectedHousehold) setSelectedHousehold(parsed.selectedHousehold);
-        if (parsed.selectedInterest) setSelectedInterest(parsed.selectedInterest);
-      } catch (error) {
-        console.error('저장된 데이터 복원 실패:', error);
-      }
-    }
-  }, []);
-
+  // 지역1 바뀌면 지역2 옵션 갱신
   const region1Options = [
     '서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시', '대전광역시', '울산광역시', '세종특별자치시',
     '경기도', '강원도', '충청북도', '충청남도', '전라북도', '전라남도', '경상북도', '경상남도', '제주특별자치도'
@@ -1167,6 +1070,8 @@ function SettingsPage() {
     '제주특별자치도': ['제주시','서귀포시']
   };
 
+  const genderOptions = ['남성', '여성'];
+
   useEffect(() => {
     const province = selectedRegion1[0];
     if (!province) {
@@ -1179,34 +1084,110 @@ function SettingsPage() {
     setSelectedRegion2([]);
   }, [selectedRegion1]);
 
-  const genderOptions = ['남성', '여성'];
-  // 기본 태그 데이터 설정
+  // 태그 옵션 하드코딩
+  const [lifeCycleOptions, setLifeCycleOptions] = useState([]);
+  const [householdOptions, setHouseholdOptions] = useState([]);
+  const [interestOptions, setInterestOptions] = useState([]);
+
   useEffect(() => {
     setLoading(true);
-    
-    // 기본값 사용 (백엔드 API 호출 제거)
-    setLifeCycleOptions(['임신·출산', '영유아', '아동', '청소년', '청년', '중장년', '노년']);
-    setHouseholdOptions(['저소득', '장애인', '한부모·조손', '다자녀', '다문화·탈북민', '보호대상자', '해당사항 없음']);
-    setInterestOptions(['신체건강','정신건강','생활지원','주거','일자리','문화·여가','안전·위기','임신·출산','보육','교육','입양·위탁','보호·돌봄','서민금융','법률','에너지']);
-    
+
+    setLifeCycleOptions([
+      '임신·출산',
+      '영유아',
+      '아동',
+      '청소년',
+      '청년',
+      '중장년',
+      '노년'
+    ]);
+
+    setHouseholdOptions([
+      '저소득',
+      '장애인',
+      '한부모·조손',
+      '다자녀',
+      '다문화·탈북민',
+      '보호대상자',
+      '해당사항 없음'
+    ]);
+
+    setInterestOptions([
+      '신체건강',
+      '정신건강',
+      '생활지원',
+      '주거',
+      '일자리',
+      '문화·여가',
+      '안전·위기',
+      '임신·출산',
+      '보육',
+      '교육',
+      '입양·위탁',
+      '보호·돌봄',
+      '서민금융',
+      '법률',
+      '에너지'
+    ]);
+
     setLoading(false);
   }, []);
 
+  // draft 저장
+  useEffect(() => {
+    const autoSaveData = {
+      selectedRegion1,
+      selectedRegion2,
+      age,
+      selectedGender,
+      selectedLifeCycle,
+      selectedHousehold,
+      selectedInterest
+    };
+    localStorage.setItem('onboardingDraft', JSON.stringify(autoSaveData));
+  }, [
+    selectedRegion1,
+    selectedRegion2,
+    age,
+    selectedGender,
+    selectedLifeCycle,
+    selectedHousehold,
+    selectedInterest
+  ]);
+
+  // draft 복원
+  useEffect(() => {
+    const savedData = localStorage.getItem('onboardingDraft');
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        if (parsed.selectedRegion1) setSelectedRegion1(parsed.selectedRegion1);
+        if (parsed.selectedRegion2) setSelectedRegion2(parsed.selectedRegion2);
+        if (parsed.age) setAge(parsed.age);
+        if (parsed.selectedGender) setSelectedGender(parsed.selectedGender);
+        if (parsed.selectedLifeCycle) setSelectedLifeCycle(parsed.selectedLifeCycle);
+        if (parsed.selectedHousehold) setSelectedHousehold(parsed.selectedHousehold);
+        if (parsed.selectedInterest) setSelectedInterest(parsed.selectedInterest);
+      } catch (error) {
+        console.error('저장된 데이터 복원 실패:', error);
+      }
+    }
+  }, []);
+
+  // 나이 입력 컨트롤
   const handleAgeChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
     const numAge = parseInt(value);
-    
-    // 타이핑 중인 곳으로 자동 스크롤 보정
+
     setTimeout(() => {
       if (ageRef.current) {
-        ageRef.current.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
+        ageRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
         });
       }
     }, 50);
-    
-    // 입력 검증
+
     if (value === '') {
       setAge('');
       setAgeError(null);
@@ -1237,6 +1218,7 @@ function SettingsPage() {
     }
   };
 
+  // 진행률 계산
   const calculateProgress = () => {
     const requiredFields = [
       selectedRegion1.length > 0 && selectedRegion2.length > 0,
@@ -1245,28 +1227,24 @@ function SettingsPage() {
       selectedLifeCycle.length > 0,
       selectedHousehold.length > 0
     ];
-    
+
     const completedRequired = requiredFields.filter(Boolean).length;
     return Math.round((completedRequired / 5) * 100);
   };
 
   const progress = calculateProgress();
 
-  const isRegionCompleted = selectedRegion1.length > 0 && selectedRegion2.length > 0;
+  const isRegionCompleted =
+      selectedRegion1.length > 0 && selectedRegion2.length > 0;
   const isAgeCompleted = age !== '';
   const isGenderCompleted = selectedGender.length > 0;
   const isLifeCycleCompleted = selectedLifeCycle.length > 0;
   const isHouseholdCompleted = selectedHousehold.length > 0;
 
+  // 제출
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // 디버깅: 상태 확인
-    console.log('=== 온보딩 제출 시 상태 확인 ===');
-    console.log('selectedHousehold:', selectedHousehold);
-    console.log('selectedHousehold.length:', selectedHousehold.length);
-    console.log('isHouseholdCompleted:', isHouseholdCompleted);
-    
+
     if (!isRegionCompleted) {
       alert('지역을 선택해주세요.');
       if (region1Ref.current) region1Ref.current.focus();
@@ -1292,22 +1270,17 @@ function SettingsPage() {
       if (householdRef.current) householdRef.current.focus();
       return;
     }
-    
+
     try {
-      // 백엔드 API 형식에 맞게 데이터 변환
-      const currentYear = new Date().getFullYear();
-      const birthYear = currentYear - parseInt(age);
-      const birthDate = `${birthYear}-01-01`; // 정확한 생년월일이 없으므로 1월 1일로 설정
-      
+      // 서버에 보낼 형식 (birthDate 제거, age 추가)
       const onboardingData = {
         profile: {
           gender: selectedGender[0] === '남성' ? 'MALE' : 'FEMALE',
-          birthDate: birthDate,
+          age: parseInt(age, 10), // ✅ 이제 age로 보냄
           regionDo: selectedRegion1[0] || '',
           regionSi: selectedRegion2[0] || ''
         },
         lifecycleCodes: selectedLifeCycle.map(name => {
-          // 백엔드 태그 코드 매핑 (실제로는 백엔드에서 nameKo로 검색해야 함)
           const codeMap = {
             '임신·출산': 'PREGNANCY_BIRTH',
             '영유아': 'INFANT',
@@ -1320,52 +1293,47 @@ function SettingsPage() {
           return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
         }),
         householdCodes: selectedHousehold
-          .map(name => {
-            const codeMap = {
-              '저소득': 'LOW_INCOME',
-              '장애인': 'DISABLED',
-              '한부모·조손': 'SINGLE_PARENT',
-              '다자녀': 'MULTI_CHILDREN',
-              '다문화·탈북민': 'MULTICULTURAL_NK',
-              '보호대상자': 'PROTECTED',
-              '해당사항 없음': 'NONE'
-            };
-            const code = codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
-            console.log(`가구상황 태그 매핑: "${name}" -> "${code}"`);
-            return code;
-          }),
-        interestCodes: selectedInterest.map(name => {
-          const codeMap = {
-            '신체건강': 'PHYSICAL_HEALTH',
-            '정신건강': 'MENTAL_HEALTH',
-            '생활지원': 'LIVING_SUPPORT',
-            '주거': 'HOUSING',
-            '일자리': 'JOBS',
-            '문화·여가': 'CULTURE_LEISURE',
-            '안전·위기': 'SAFETY_CRISIS',
-            '임신·출산': 'PREGNANCY_BIRTH',
-            '보육': 'CHILDCARE',
-            '교육': 'EDUCATION',
-            '입양·위탁': 'ADOPTION_TRUST',
-            '보호·돌봄': 'CARE_PROTECT',
-            '서민금융': 'MICRO_FINANCE',
-            '법률': 'LAW',
-            '에너지': 'ENERGY',
-            '해당사항 없음': 'NONE'
-          };
-          return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
-        })
+            .map(name => {
+              const codeMap = {
+                '저소득': 'LOW_INCOME',
+                '장애인': 'DISABLED',
+                '한부모·조손': 'SINGLE_PARENT',
+                '다자녀': 'MULTI_CHILDREN',
+                '다문화·탈북민': 'MULTICULTURAL_NK',
+                '보호대상자': 'PROTECTED',
+                '해당사항 없음': 'NONE'
+              };
+              return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
+            }),
+        interestCodes: selectedInterest
+            .filter(name => name !== '해당사항 없음')
+            .map(name => {
+              const codeMap = {
+                '신체건강': 'PHYSICAL_HEALTH',
+                '정신건강': 'MENTAL_HEALTH',
+                '생활지원': 'LIVING_SUPPORT',
+                '주거': 'HOUSING',
+                '일자리': 'JOBS',
+                '문화·여가': 'CULTURE_LEISURE',
+                '안전·위기': 'SAFETY_CRISIS',
+                '임신·출산': 'PREGNANCY_BIRTH',
+                '보육': 'CHILDCARE',
+                '교육': 'EDUCATION',
+                '입양·위탁': 'ADOPTION_TRUST',
+                '보호·돌봄': 'CARE_PROTECT',
+                '서민금융': 'MICRO_FINANCE',
+                '법률': 'LAW',
+                '에너지': 'ENERGY'
+              };
+              return codeMap[name] || name.toUpperCase().replace(/\s+/g, '_');
+            })
       };
-      
-      // 디버깅: 전송할 데이터 로그
+
       console.log('전송할 온보딩 데이터:', onboardingData);
-      console.log('선택된 가구상황:', selectedHousehold);
-      console.log('가구상황 코드:', onboardingData.householdCodes);
-      
-      // 백엔드에 온보딩 데이터 저장
+
       await saveOnboarding(onboardingData);
-      
-      // 기존 localStorage 방식도 유지 (호환성)
+
+      // localStorage에도 저장 (기존 로직 유지)
       const userSettings = {
         region1: selectedRegion1[0] || '',
         region2: selectedRegion2[0] || '',
@@ -1375,21 +1343,19 @@ function SettingsPage() {
         household: selectedHousehold.join(', '),
         interest: selectedInterest.join(', ')
       };
-      
+
       localStorage.setItem('userSettings', JSON.stringify(userSettings));
-      
-      // 온보딩 완료 상태를 명시적으로 저장
       localStorage.setItem('onboardingCompleted', 'true');
-      
-      // 임시 저장된 데이터 삭제
+
+      // draft 제거
       localStorage.removeItem('onboardingDraft');
-      
+
       console.log('온보딩 완료! localStorage에 저장됨:', {
         onboardingCompleted: localStorage.getItem('onboardingCompleted'),
         userSettings: localStorage.getItem('userSettings')
       });
-      
-      // SignupComplete 페이지로 리다이렉트
+
+      // 완료 페이지로 이동
       window.location.href = '/signup-complete?loggedIn=true';
     } catch (error) {
       console.error('온보딩 저장 실패:', error);
@@ -1398,190 +1364,214 @@ function SettingsPage() {
   };
 
   return (
-    <SettingsContainer>
-      <PageTitleContainer>
-        <h2>개인 맞춤형 복지 혜택 서비스</h2>
-        <p>정확한 혜택 추천을 위해 기본 정보가 필요합니다.</p>
-        <p>입력하신 정보는 개인정보보호법에 따라 안전하게 관리됩니다.</p>
-      </PageTitleContainer>
+      <SettingsContainer>
+        <PageTitleContainer>
+          <h2>개인 맞춤형 복지 혜택 서비스</h2>
+          <p>정확한 혜택 추천을 위해 기본 정보가 필요합니다.</p>
+          <p>입력하신 정보는 개인정보보호법에 따라 안전하게 관리됩니다.</p>
+        </PageTitleContainer>
 
-      <SettingsMain>
-        <SettingsBox onSubmit={handleSubmit}>
+        <SettingsMain>
+          <SettingsBox onSubmit={handleSubmit}>
+            <ProgressContainer>
+              <ProgressTitle>
+                {loading
+                    ? '데이터 로딩 중...'
+                    : progress === 0
+                        ? '정보 입력 시작하기'
+                        : progress < 50
+                            ? '기본 정보 입력 중'
+                            : progress < 100
+                                ? '거의 완료되었습니다'
+                                : '모든 정보 입력 완료'}
+              </ProgressTitle>
 
-          <ProgressContainer>
-            <ProgressTitle>
-              {loading ? '데이터 로딩 중...' :
-               progress === 0 ? '정보 입력 시작하기' : 
-               progress < 50 ? '기본 정보 입력 중' :
-               progress < 100 ? '거의 완료되었습니다' : 
-               '모든 정보 입력 완료'}
-            </ProgressTitle>
-            <ProgressBar>
-              <ProgressFill style={{ width: `${progress}%` }} />
-            </ProgressBar>
-            <ProgressText>
-              {progress === 0 ? '정확한 혜택 추천을 위해 기본 정보를 입력해주세요' :
-               progress < 100 ? `진행률 ${progress}% - 필수 정보 입력 중` : 
-               '모든 필수 정보 입력이 완료되었습니다'}
-            </ProgressText>
-          </ProgressContainer>
+              <ProgressBar>
+                <ProgressFill style={{ width: `${progress}%` }} />
+              </ProgressBar>
 
-          {/* 거주 지역 */}
-          <RequiredFormGroup>
-            <Label>
-              거주 지역
-              <HelpTooltip $tooltip="현재 거주하고 계신 지역을 선택해주세요. 정확한 지역 정보를 통해 해당 지역의 복지 혜택을 추천해드립니다.">
-                ⓘ
-              </HelpTooltip>
-            </Label>
-            <FormRow>
-              <FormCol>
-                <SimpleDropdown 
-                  options={region1Options} 
-                  selectedItems={selectedRegion1} 
-                  onSelectionChange={setSelectedRegion1}
-                  placeholder="시/도 선택" 
-                  isSingleSelect={true}
-                  nextFieldRef={region2Ref}
-                />
-              </FormCol>
-              <FormCol>
-                <SimpleDropdown 
-                  options={region2Options} 
-                  selectedItems={selectedRegion2} 
-                  onSelectionChange={setSelectedRegion2} 
-                  placeholder="시/군/구 선택" 
-                  isSingleSelect={true}
-                  nextFieldRef={ageRef}
-                />
-              </FormCol>
-            </FormRow>
-          </RequiredFormGroup>
+              <ProgressText>
+                {loading
+                    ? ''
+                    : progress === 0
+                        ? '정확한 혜택 추천을 위해 기본 정보를 입력해주세요'
+                        : progress < 100
+                            ? `진행률 ${progress}% - 필수 정보 입력 중`
+                            : '모든 필수 정보 입력이 완료되었습니다'}
+              </ProgressText>
+            </ProgressContainer>
 
-          {/* 나이와 성별 */}
-          <RequiredFormGroup>
-            <FormRow>
-              <FormCol>
-                <Label>
-                  나이
-                  <HelpTooltip $tooltip="현재 나이를 입력해주세요. 나이에 따라 받을 수 있는 복지 혜택이 달라집니다.">
-                    ⓘ
-                  </HelpTooltip>
-                </Label>
-                <AgeInputContainer>
-                  <StyledInput 
-                    ref={ageRef}
-                    type="text" 
-                    placeholder="나이 입력" 
-                    value={age} 
-                    onChange={handleAgeChange}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === 'Tab') {
-                        e.preventDefault();
-                        if (genderRef.current) {
-                          genderRef.current.focus();
-                          genderRef.current.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'center' 
-                          });
-                        }
-                      }
-                    }}
-                    style={{ paddingRight: '40px' }}
-                    tabIndex={0}
+            {/* 거주 지역 */}
+            <RequiredFormGroup>
+              <Label>
+                거주 지역
+                <HelpTooltip $tooltip="현재 거주하고 계신 지역을 선택해주세요. 정확한 지역 정보를 통해 해당 지역의 복지 혜택을 추천해드립니다.">
+                  ⓘ
+                </HelpTooltip>
+              </Label>
+              <FormRow>
+                <FormCol>
+                  <SimpleDropdown
+                      options={region1Options}
+                      selectedItems={selectedRegion1}
+                      onSelectionChange={setSelectedRegion1}
+                      placeholder="시/도 선택"
+                      isSingleSelect={true}
+                      nextFieldRef={region2Ref}
                   />
-                  {ageError && (
-                    <ErrorMessage>
-                      ⚠️ {ageError}
-                    </ErrorMessage>
-                  )}
-                  <AgeSpinGroup>
-                    <AgeSpinButton type="button" onClick={incrementAge} tabIndex={-1}>▲</AgeSpinButton>
-                    <AgeSpinButton type="button" onClick={decrementAge} tabIndex={-1}>▼</AgeSpinButton>
-                  </AgeSpinGroup>
-                </AgeInputContainer>
-              </FormCol>
-              <FormCol>
-                <Label>
-                  성별
-                  <HelpTooltip $tooltip="성별에 따라 제공되는 복지 혜택이 다를 수 있습니다.">
-                    ⓘ
-                  </HelpTooltip>
-                </Label>
-                <SimpleDropdown 
-                  options={genderOptions} 
-                  selectedItems={selectedGender} 
-                  onSelectionChange={setSelectedGender} 
-                  placeholder="성별 선택" 
+                </FormCol>
+                <FormCol>
+                  <SimpleDropdown
+                      options={region2Options}
+                      selectedItems={selectedRegion2}
+                      onSelectionChange={setSelectedRegion2}
+                      placeholder="시/군/구 선택"
+                      isSingleSelect={true}
+                      nextFieldRef={ageRef}
+                  />
+                </FormCol>
+              </FormRow>
+            </RequiredFormGroup>
+
+            {/* 나이 / 성별 */}
+            <RequiredFormGroup>
+              <FormRow>
+                <FormCol>
+                  <Label>
+                    나이
+                    <HelpTooltip $tooltip="현재 나이를 입력해주세요. 나이에 따라 받을 수 있는 복지 혜택이 달라집니다.">
+                      ⓘ
+                    </HelpTooltip>
+                  </Label>
+                  <AgeInputContainer>
+                    <StyledInput
+                        ref={ageRef}
+                        type="text"
+                        placeholder="나이 입력"
+                        value={age}
+                        onChange={handleAgeChange}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === 'Tab') {
+                            e.preventDefault();
+                            if (genderRef.current) {
+                              genderRef.current.focus();
+                              genderRef.current.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                              });
+                            }
+                          }
+                        }}
+                        style={{ paddingRight: '40px' }}
+                        tabIndex={0}
+                    />
+                    {ageError && (
+                        <ErrorMessage>⚠️ {ageError}</ErrorMessage>
+                    )}
+                    <AgeSpinGroup>
+                      <AgeSpinButton
+                          type="button"
+                          onClick={incrementAge}
+                          tabIndex={-1}
+                      >
+                        ▲
+                      </AgeSpinButton>
+                      <AgeSpinButton
+                          type="button"
+                          onClick={decrementAge}
+                          tabIndex={-1}
+                      >
+                        ▼
+                      </AgeSpinButton>
+                    </AgeSpinGroup>
+                  </AgeInputContainer>
+                </FormCol>
+
+                <FormCol>
+                  <Label>
+                    성별
+                    <HelpTooltip $tooltip="성별에 따라 제공되는 복지 혜택이 다를 수 있습니다.">
+                      ⓘ
+                    </HelpTooltip>
+                  </Label>
+                  <SimpleDropdown
+                      options={genderOptions}
+                      selectedItems={selectedGender}
+                      onSelectionChange={setSelectedGender}
+                      placeholder="성별 선택"
+                      isSingleSelect={true}
+                      nextFieldRef={lifeCycleRef}
+                  />
+                </FormCol>
+              </FormRow>
+            </RequiredFormGroup>
+
+            {/* 생애주기 */}
+            <RequiredFormGroup>
+              <Label>
+                생애주기
+                <HelpTooltip $tooltip="현재 나이와 상황에 맞는 생애주기를 선택해주세요. 생애주기에 따라 받을 수 있는 복지 혜택이 달라집니다.">
+                  ⓘ
+                </HelpTooltip>
+              </Label>
+              <SimpleDropdown
+                  options={lifeCycleOptions}
+                  selectedItems={selectedLifeCycle}
+                  onSelectionChange={setSelectedLifeCycle}
+                  placeholder="생애주기 선택"
                   isSingleSelect={true}
-                  nextFieldRef={lifeCycleRef}
-                />
-              </FormCol>
-            </FormRow>
-          </RequiredFormGroup>
+                  nextFieldRef={householdRef}
+              />
+            </RequiredFormGroup>
 
-          {/* 생애주기 */}
-          <RequiredFormGroup>
-            <Label>
-              생애주기
-              <HelpTooltip $tooltip="현재 나이와 상황에 맞는 생애주기를 선택해주세요. 생애주기에 따라 받을 수 있는 복지 혜택이 달라집니다.">
-                ⓘ
-              </HelpTooltip>
-            </Label>
-            <SimpleDropdown 
-              options={lifeCycleOptions} 
-              selectedItems={selectedLifeCycle} 
-              onSelectionChange={setSelectedLifeCycle} 
-              placeholder="생애주기 선택"
-              isSingleSelect={true}
-              nextFieldRef={householdRef}
-            />
-          </RequiredFormGroup>
+            {/* 가구상황 */}
+            <RequiredFormGroup>
+              <Label>
+                가구상황 (복수 선택 가능)
+                <HelpTooltip $tooltip="가구의 특수한 상황을 선택해주세요. 여러 상황이 해당되는 경우 모두 선택하실 수 있습니다. 해당사항이 없는 경우 '해당사항 없음'을 선택해주세요.">
+                  ⓘ
+                </HelpTooltip>
+              </Label>
+              <SimpleDropdown
+                  options={householdOptions}
+                  selectedItems={selectedHousehold}
+                  onSelectionChange={setSelectedHousehold}
+                  placeholder="가구상황을 선택해주세요 (복수 선택 가능)"
+                  nextFieldRef={interestRef}
+                  fieldName="household"
+              />
+            </RequiredFormGroup>
 
-          {/* 가구상황 */}
-          <RequiredFormGroup>
-            <Label>
-              가구상황 (복수 선택 가능)
-              <HelpTooltip $tooltip="가구의 특수한 상황을 선택해주세요. 여러 상황이 해당되는 경우 모두 선택하실 수 있습니다. 해당사항이 없는 경우 '해당사항 없음'을 선택해주세요.">
-                ⓘ
-              </HelpTooltip>
-            </Label>
-            <SimpleDropdown 
-              options={householdOptions} 
-              selectedItems={selectedHousehold} 
-              onSelectionChange={setSelectedHousehold} 
-              placeholder="가구상황을 선택해주세요 (복수 선택 가능)"
-              nextFieldRef={interestRef}
-              fieldName="household"
-            />
-          </RequiredFormGroup>
+            {/* 관심주제 */}
+            <OptionalFormGroup>
+              <Label>
+                관심주제 (최대 3개까지 선택 가능, 선택사항)
+                <HelpTooltip $tooltip="관심 있는 복지 분야를 선택해주세요. 최대 3개까지 선택 가능하며, 선택하지 않으셔도 됩니다. 선택한 관심주제에 맞는 혜택을 우선적으로 추천해드립니다.">
+                  ⓘ
+                </HelpTooltip>
+              </Label>
+              <SimpleDropdown
+                  options={interestOptions}
+                  selectedItems={selectedInterest}
+                  onSelectionChange={setSelectedInterest}
+                  placeholder="관심주제를 선택해주세요 (최대 3개)"
+                  nextFieldRef={submitRef}
+                  fieldName="interest"
+              />
+            </OptionalFormGroup>
 
-          {/* 관심주제 */}
-          <OptionalFormGroup>
-            <Label>
-              관심주제 (최대 3개까지 선택 가능, 선택사항)
-              <HelpTooltip $tooltip="관심 있는 복지 분야를 선택해주세요. 최대 3개까지 선택 가능하며, 선택하지 않으셔도 됩니다. 선택한 관심주제에 맞는 혜택을 우선적으로 추천해드립니다.">
-                ⓘ
-              </HelpTooltip>
-            </Label>
-            <SimpleDropdown 
-              options={interestOptions} 
-              selectedItems={selectedInterest} 
-              onSelectionChange={setSelectedInterest} 
-              placeholder="관심주제를 선택해주세요 (최대 3개)"
-              nextFieldRef={submitRef}
-              fieldName="interest"
-            />
-          </OptionalFormGroup>
-
-          <ButtonContainer>
-            <SubmitButton ref={submitRef} type="submit" tabIndex={0}>
-              설정 완료하기
-            </SubmitButton>
-          </ButtonContainer>
-        </SettingsBox>
-      </SettingsMain>
-    </SettingsContainer>
+            <ButtonContainer>
+              <SubmitButton
+                  ref={submitRef}
+                  type="submit"
+                  tabIndex={0}
+              >
+                설정 완료하기
+              </SubmitButton>
+            </ButtonContainer>
+          </SettingsBox>
+        </SettingsMain>
+      </SettingsContainer>
   );
 }
 

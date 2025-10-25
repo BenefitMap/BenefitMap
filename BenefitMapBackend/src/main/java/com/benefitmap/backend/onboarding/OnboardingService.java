@@ -14,15 +14,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 /**
- * 온보딩 저장 서비스
- * - 프로필/태그 검증 후 저장
- * - 사용자 상태를 ACTIVE로, 역할을 USER로 전환(ADMIN 예외)
+ * 온보딩 저장 / 조회 서비스
+ * - 온보딩 시 프로필/태그를 저장하고, 유저 상태를 ACTIVE로 전환한다.
+ * - 온보딩 정보 조회도 제공한다.
+ *
+ * 변경 사항:
+ * - birthDate 대신 age 사용
  */
 @Service
 @RequiredArgsConstructor
@@ -38,15 +38,15 @@ public class OnboardingService {
     private final UserInterestTagRepository userInterestRepo;
 
     /**
-     * 온보딩 데이터 저장(프로필 + 태그 매핑)
+     * 온보딩 데이터 저장(프로필 + 태그 매핑 + 유저 상태 활성화)
      */
     @Transactional
     public void save(Long userId, OnboardingRequest req) {
-        // 사용자 확인
+        // 1. 사용자 확인
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // 태그 유효성 검사
+        // 2. 태그 유효성 검사
         var life = lifecycleRepo.findByCodeIn(req.lifecycleCodes());
         if (life.size() != req.lifecycleCodes().size()) {
             throw new IllegalArgumentException("유효하지 않은 생애주기 태그가 포함되어 있습니다.");
@@ -65,8 +65,9 @@ public class OnboardingService {
             throw new IllegalArgumentException("유효하지 않은 관심주제 태그가 포함되어 있습니다.");
         }
 
-        // 프로필 저장(@MapsId: userId == PK)
+        // 3. 프로필 저장 (@MapsId - userId = PK)
         var p = req.profile();
+
         UserProfile profile = profileRepo.findById(userId)
                 .orElseGet(() -> {
                     UserProfile np = new UserProfile();
@@ -77,13 +78,17 @@ public class OnboardingService {
         if (profile.getUser() == null) {
             profile.setUser(user);
         }
+
+        // 기존: birthDate -> 삭제
+        // 변경: age, gender, regionDo, regionSi
         profile.setGender(p.gender());
-        profile.setBirthDate(p.birthDate());
+        profile.setAge(p.age().shortValue()); // UserProfile.age = Short
         profile.setRegionDo(p.regionDo());
         profile.setRegionSi(p.regionSi());
         profileRepo.save(profile);
 
-        // 태그 매핑 교체(기존 삭제 → 신규 등록)
+        // 4. 태그 매핑 갈아끼우기
+        // 생애주기
         userLifecycleRepo.deleteByIdUserId(userId);
         life.forEach(t ->
                 userLifecycleRepo.save(
@@ -93,6 +98,7 @@ public class OnboardingService {
                 )
         );
 
+        // 가구상황
         userHouseholdRepo.deleteByIdUserId(userId);
         house.forEach(t ->
                 userHouseholdRepo.save(
@@ -102,6 +108,7 @@ public class OnboardingService {
                 )
         );
 
+        // 관심주제
         userInterestRepo.deleteByIdUserId(userId);
         interest.forEach(t ->
                 userInterestRepo.save(
@@ -111,7 +118,7 @@ public class OnboardingService {
                 )
         );
 
-        // 역할/상태 전환(ADMIN 유지)
+        // 5. 역할/상태 전환 (ADMIN이면 role은 그대로 유지)
         if (user.getRole() != Role.ROLE_ADMIN) {
             user.setRole(Role.ROLE_USER);
         }
@@ -123,38 +130,41 @@ public class OnboardingService {
     }
 
     /**
-     * 사용자 온보딩 정보 조회
+     * 현재 사용자 온보딩 정보 조회
+     * - 프로필(성별/나이/지역)
+     * - 선택되어 있는 태그들 상세 정보
      */
     public Map<String, Object> getOnboardingInfo(Long userId) {
-        // 사용자 확인
+        // 1. 사용자 확인
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // 프로필 정보 조회
-        Optional<UserProfile> profileOpt = profileRepo.findById(userId);
-        if (profileOpt.isEmpty()) {
-            throw new EntityNotFoundException("Onboarding information not found");
-        }
-        UserProfile profile = profileOpt.get();
+        // 2. 프로필 조회
+        UserProfile profile = profileRepo.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Onboarding information not found"));
 
-        // 태그 정보 조회 - 코드만 가져오기
+        // 3. 태그 코드 조회
         List<String> lifecycleCodes = userLifecycleRepo.findCodesByUserId(userId);
         List<String> householdCodes = userHouseholdRepo.findCodesByUserId(userId);
         List<String> interestCodes = userInterestRepo.findCodesByUserId(userId);
 
-        // 결과 구성
+        // 4. 코드로 태그 상세 조회 (nameKo 등)
+        List<LifecycleTag> lifecycleTagEntities = lifecycleRepo.findByCodeIn(lifecycleCodes);
+        List<HouseholdTag> householdTagEntities = householdRepo.findByCodeIn(householdCodes);
+        List<InterestTag> interestTagEntities = interestRepo.findByCodeIn(interestCodes);
+
+        // 5. 응답 구성
         Map<String, Object> result = new HashMap<>();
-        
-        // 프로필 정보
+
+        // 프로필 블록
         Map<String, Object> profileInfo = new HashMap<>();
-        profileInfo.put("gender", profile.getGender());
-        profileInfo.put("birthDate", profile.getBirthDate());
+        profileInfo.put("gender", profile.getGender() != null ? profile.getGender().name() : null);
+        profileInfo.put("age", profile.getAge()); // Short 그대로 내려줌 (프론트에서 int 필요하면 int로 변환해도 됨)
         profileInfo.put("regionDo", profile.getRegionDo());
         profileInfo.put("regionSi", profile.getRegionSi());
         result.put("profile", profileInfo);
 
-        // 생애주기 태그 - 코드로 태그 정보 조회
-        List<LifecycleTag> lifecycleTagEntities = lifecycleRepo.findByCodeIn(lifecycleCodes);
+        // 생애주기 태그 상세
         List<Map<String, Object>> lifecycleTags = lifecycleTagEntities.stream()
                 .map(tag -> {
                     Map<String, Object> tagInfo = new HashMap<>();
@@ -167,8 +177,7 @@ public class OnboardingService {
                 .toList();
         result.put("lifecycleTags", lifecycleTags);
 
-        // 가구상황 태그 - 코드로 태그 정보 조회
-        List<HouseholdTag> householdTagEntities = householdRepo.findByCodeIn(householdCodes);
+        // 가구상황 태그 상세
         List<Map<String, Object>> householdTags = householdTagEntities.stream()
                 .map(tag -> {
                     Map<String, Object> tagInfo = new HashMap<>();
@@ -181,8 +190,7 @@ public class OnboardingService {
                 .toList();
         result.put("householdTags", householdTags);
 
-        // 관심주제 태그 - 코드로 태그 정보 조회
-        List<InterestTag> interestTagEntities = interestRepo.findByCodeIn(interestCodes);
+        // 관심주제 태그 상세
         List<Map<String, Object>> interestTags = interestTagEntities.stream()
                 .map(tag -> {
                     Map<String, Object> tagInfo = new HashMap<>();

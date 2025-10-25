@@ -1,5 +1,5 @@
 -- ============================================================
--- BenefitMap Database Schema
+-- BenefitMap Database Schema (age 버전)
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS benefitmap
@@ -28,16 +28,19 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- ------------------------------------------------------------
 -- 2) USER_PROFILE (회원 상세정보)
+--    - birth_date 제거
+--    - age 추가
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS user_profile (
                                             user_id     BIGINT      NOT NULL PRIMARY KEY,
                                             gender      ENUM('MALE','FEMALE','OTHER') NOT NULL,
-    birth_date  DATE        NOT NULL,
-    region_do   VARCHAR(30) NOT NULL,
-    region_si   VARCHAR(30) NOT NULL,
+    age         SMALLINT    NOT NULL,             -- 나이 (ex: 12, 25, 67...)
+    region_do   VARCHAR(30) NOT NULL,             -- 시/도 (예: 서울특별시)
+    region_si   VARCHAR(30) NOT NULL,             -- 시/군/구 (예: 종로구)
     created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_profile_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT fk_profile_user
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
@@ -120,17 +123,36 @@ CREATE TABLE IF NOT EXISTS refresh_token (
 -- 6) TAG SEED DATA (초기 태그 삽입)
 -- ------------------------------------------------------------
 INSERT IGNORE INTO lifecycle_tag(code,name_ko,display_order) VALUES
-('PREGNANCY_BIRTH','임신·출산',1),('INFANT','영유아',2),('CHILD','아동',3),
-('TEEN','청소년',4),('YOUTH','청년',5),('MIDDLE_AGED','중장년',6),('SENIOR','노년',7);
+('PREGNANCY_BIRTH','임신·출산',1),
+('INFANT','영유아',2),
+('CHILD','아동',3),
+('TEEN','청소년',4),
+('YOUTH','청년',5),
+('MIDDLE_AGED','중장년',6),
+('SENIOR','노년',7);
 
 INSERT IGNORE INTO household_tag(code,name_ko,display_order) VALUES
-('LOW_INCOME','저소득',1),('DISABLED','장애인',2),('SINGLE_PARENT','한부모·조손',3),
-('MULTI_CHILDREN','다자녀',4),('MULTICULTURAL_NK','다문화·탈북민',5),
-('PROTECTED','보호대상자',6),('NONE','해당사항 없음',7);
+('LOW_INCOME','저소득',1),
+('DISABLED','장애인',2),
+('SINGLE_PARENT','한부모·조손',3),
+('MULTI_CHILDREN','다자녀',4),
+('MULTICULTURAL_NK','다문화·탈북민',5),
+('PROTECTED','보호대상자',6),
+('NONE','해당사항 없음',7);
 
 INSERT IGNORE INTO interest_tag(code,name_ko,display_order) VALUES
-('PHYSICAL_HEALTH','신체건강',1),('MENTAL_HEALTH','정신건강',2),('LIVING_SUPPORT','생활지원',3),
-('HOUSING','주거',4),('JOBS','일자리',5),('CULTURE_LEISURE','문화·여가',6),
-('SAFETY_CRISIS','안전·위기',7),('PREGNANCY_BIRTH','임신·출산',8),('CHILDCARE','보육',9),
-('EDUCATION','교육',10),('ADOPTION_TRUST','입양·위탁',11),('CARE_PROTECT','보호·돌봄',12),
-('MICRO_FINANCE','서민금융',13),('LAW','법률',14),('ENERGY','에너지',15);
+('PHYSICAL_HEALTH','신체건강',1),
+('MENTAL_HEALTH','정신건강',2),
+('LIVING_SUPPORT','생활지원',3),
+('HOUSING','주거',4),
+('JOBS','일자리',5),
+('CULTURE_LEISURE','문화·여가',6),
+('SAFETY_CRISIS','안전·위기',7),
+('PREGNANCY_BIRTH','임신·출산',8),
+('CHILDCARE','보육',9),
+('EDUCATION','교육',10),
+('ADOPTION_TRUST','입양·위탁',11),
+('CARE_PROTECT','보호·돌봄',12),
+('MICRO_FINANCE','서민금융',13),
+('LAW','법률',14),
+('ENERGY','에너지',15);

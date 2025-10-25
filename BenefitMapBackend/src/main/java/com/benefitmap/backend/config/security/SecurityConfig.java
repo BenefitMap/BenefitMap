@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository; // ✅ 추가
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.*;
@@ -35,6 +36,9 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oAuth2UserService;
     private final AppCorsProperties corsProps;
 
+    // ✅ 추가: ClientRegistrationRepository 주입 필요
+    private final ClientRegistrationRepository clientRegistrationRepository;
+
     /**
      * 필터 체인 구성
      * - CSRF/폼로그인/HTTP Basic 비활성화
@@ -45,6 +49,14 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        // ✅ 추가: 커스텀 AuthorizationRequestResolver 생성
+        CustomAuthorizationRequestResolver customResolver =
+                new CustomAuthorizationRequestResolver(
+                        clientRegistrationRepository,
+                        "/oauth2/authorization" // 스프링 기본 authorize 엔드포인트 prefix
+                );
+
         http
                 // 1) 기본 보안 정책
                 .csrf(csrf -> csrf.disable())
@@ -92,6 +104,10 @@ public class SecurityConfig {
 
                 // 3) OAuth2 로그인
                 .oauth2Login(oauth -> oauth
+                        // ✅ 여기서 authorizationEndpoint.resolver(...) 추가
+                        .authorizationEndpoint(authz -> authz
+                                .authorizationRequestResolver(customResolver)
+                        )
                         .userInfoEndpoint(ui -> ui.userService(oAuth2UserService))
                         .successHandler(successHandler)
                 );
