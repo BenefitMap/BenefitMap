@@ -124,6 +124,54 @@ const CheckboxInput = styled.input`
   accent-color: #4a9d5f;
 `;
 
+const TestSendWrapper = styled.div`
+  margin-bottom: 24px;
+  text-align: center;
+  background-color: #fffbea;
+  border: 1px solid #ffe58f;
+  border-radius: 8px;
+  padding: 16px;
+`;
+
+const TestSendTitle = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+`;
+
+const TestSendDesc = styled.div`
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.4;
+`;
+
+const TestSendButton = styled.button`
+  background-color: #4a9d5f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #3d8450;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(74, 157, 95, 0.3);
+  }
+
+  &:disabled {
+    background-color: #bbb;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+`;
+
 const ModalFooter = styled.div`
   padding: 0 24px 24px 24px;
   display: flex;
@@ -173,15 +221,17 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
   // 유저 이메일 표시용
   const [userEmail, setUserEmail] = useState('');
 
+  // 즉시발송 버튼 로딩 상태
+  const [isSendingTest, setIsSendingTest] = useState(false);
+
   // 선택 가능한 안내일
   const availableDays = [1, 3, 5, 7];
 
   // 사용자 이메일 세팅
   useEffect(() => {
-    // 1순위: util에서 가져온 이메일
+    // 1순위: localStorage 등에서 util로 가져온 이메일
     let emailFromLocal = getUserEmail?.() || '';
 
-    // 만약 util에서 못 가져오면 서버에서 받아와본다 (/user/me 같은 엔드포인트 가정)
     const fetchEmailFromServer = async () => {
       try {
         const res = await fetch('/user/me', {
@@ -191,13 +241,11 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
 
         if (res.ok) {
           const json = await res.json();
-          // 백엔드 응답 구조에 맞게 email 경로 수정
-          // 예시: json.data.basic.email
           const apiEmail =
-              json?.data?.basic?.email ||
-              json?.data?.email ||
-              json?.email ||
-              '';
+            json?.data?.basic?.email ||
+            json?.data?.email ||
+            json?.email ||
+            '';
 
           if (apiEmail) {
             setUserEmail(apiEmail);
@@ -205,7 +253,7 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
           }
         }
 
-        // 서버에서도 못 받았으면 local fallback
+        // 서버 실패 or 없으면 로컬 fallback
         setUserEmail(emailFromLocal || '');
       } catch (err) {
         console.error('이메일 정보 가져오기 실패:', err);
@@ -221,7 +269,7 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
     if (!service) return;
 
     const serviceSettings = JSON.parse(
-        localStorage.getItem(`serviceNotification_${service.id}`) || '{}'
+      localStorage.getItem(`serviceNotification_${service.id}`) || '{}'
     );
 
     setSettings({
@@ -243,8 +291,8 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
   // "X일 전에 알려주세요" 체크 토글
   const toggleReminderDay = day => {
     const newReminderDays = settings.reminderDays.includes(day)
-        ? settings.reminderDays.filter(d => d !== day)
-        : [...settings.reminderDays, day].sort();
+      ? settings.reminderDays.filter(d => d !== day)
+      : [...settings.reminderDays, day].sort();
 
     handleSettingChange('reminderDays', newReminderDays);
   };
@@ -255,110 +303,168 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
 
     // 서비스별 개별 설정 로컬스토리지에 저장
     localStorage.setItem(
-        `serviceNotification_${service.id}`,
-        JSON.stringify(settings)
+      `serviceNotification_${service.id}`,
+      JSON.stringify(settings)
     );
 
-    // 부모에게도 알려주기 (ex. 캘린더에서 console.log 하던 거)
+    // 부모 콜백
     onSave?.(service.id, settings);
 
     onClose();
   };
 
+  // ---- 테스트용 즉시 메일 전송 ----
+  const handleSendTestMail = async () => {
+    if (!service) {
+      alert('서비스 정보가 없습니다.');
+      return;
+    }
+    if (!userEmail) {
+      alert('이메일을 찾을 수 없습니다. (로그인 필요?)');
+      return;
+    }
+
+    // 단순 테스트용으로 daysLeft를 3일로 고정
+    const daysLeft = 3;
+
+    const subject = `[테스트] ${service.title} 신청 마감 임박 (D-${daysLeft})`;
+    const content = `
+테스트 메일입니다. 실제 마감 알림 메일은 설정된 날짜(D-1, D-3 등)에 자동으로 전송됩니다.
+
+📋 서비스명: ${service.title}
+📅 마감일: ${service.applicationPeriod?.endDate || 'N/A'}
+⏰ 남은 기간: ${daysLeft}일
+${service.department ? `🏢 담당부서: ${service.department}` : ''}
+${service.contact ? `📞 문의처: ${service.contact}` : ''}
+
+${service.description ? `📝 서비스 설명:\n${service.description}` : ''}
+
+- BenefitMap 테스트 발송 -
+`.trim();
+
+    try {
+      setIsSendingTest(true);
+
+      const res = await fetch('/api/mail/deadline-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // 백엔드 SendMailRequest DTO에 맞춘 필드들
+        body: JSON.stringify({
+          to: userEmail,
+          subject: subject,
+          body: content,
+          html: false, // 텍스트 버전. 필요하면 true로 바꾸고 HTML 문자열로 구성해도 됨
+        }),
+      });
+
+      if (res.ok) {
+        alert('✅ 테스트 메일이 전송되었습니다!');
+      } else {
+        console.error('메일 전송 실패 status=', res.status);
+        alert('❌ 전송 실패 (백엔드 로그 확인 필요)');
+      }
+    } catch (err) {
+      console.error('메일 전송 중 오류:', err);
+      alert('❌ 전송 중 오류 발생 (콘솔 확인)');
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
+
   if (!isOpen || !service) return null;
 
   return (
-      <ModalOverlay onClick={onClose}>
-        <ModalContent onClick={e => e.stopPropagation()}>
-          <ModalHeader>🔔 알림 설정</ModalHeader>
+    <ModalOverlay onClick={onClose}>
+      <ModalContent onClick={e => e.stopPropagation()}>
+        <ModalHeader>🔔 알림 설정</ModalHeader>
 
-          <ModalBody>
-            {/* 서비스 기본 정보 */}
-            <ServiceInfo>
-              <ServiceTitle>{service.title}</ServiceTitle>
-              <ServicePeriod>
-                신청기간:{' '}
-                {service.applicationPeriod?.startDate} ~{' '}
-                {service.applicationPeriod?.endDate}
-              </ServicePeriod>
-              <ServiceDepartment>
-                담당부서:{' '}
-                {service.department || '담당부서 정보 없음'}
-              </ServiceDepartment>
-            </ServiceInfo>
+        <ModalBody>
+          {/* 서비스 기본 정보 */}
+          <ServiceInfo>
+            <ServiceTitle>{service.title}</ServiceTitle>
+            <ServicePeriod>
+              신청기간:{' '}
+              {service.applicationPeriod?.startDate} ~{' '}
+              {service.applicationPeriod?.endDate}
+            </ServicePeriod>
+            <ServiceDepartment>
+              담당부서:{' '}
+              {service.department || '담당부서 정보 없음'}
+            </ServiceDepartment>
+          </ServiceInfo>
 
-            {/* 🔕 브라우저 알림(헤더 알림)은 임시 비표시 상태라 주석 유지 중
+          {/* 이메일 알림 설정 */}
           <SettingGroup>
             <SettingLabel>
               <Checkbox
                 type="checkbox"
-                checked={settings.headerNotifications}
-                onChange={(e) =>
-                  handleSettingChange('headerNotifications', e.target.checked)
+                checked={settings.emailNotifications}
+                onChange={e =>
+                  handleSettingChange(
+                    'emailNotifications',
+                    e.target.checked
+                  )
                 }
               />
-              <ToggleSwitch active={settings.headerNotifications} />
-              브라우저 알림 받기
+              <ToggleSwitch active={settings.emailNotifications} />
+              이메일로 알림 받기 (
+              {userEmail || '이메일 없음'}
+              )
             </SettingLabel>
           </SettingGroup>
-          */}
 
-            {/* 이메일 알림 설정 */}
-            <SettingGroup>
-              <SettingLabel>
-                <Checkbox
+          {/* 며칠 전에 알려줄지 */}
+          <SettingGroup>
+            <div
+              style={{
+                fontSize: '14px',
+                color: '#666',
+                marginBottom: '12px',
+              }}
+            >
+              언제 알림을 받을까요?
+            </div>
+            <CheckboxGroup>
+              {availableDays.map(day => (
+                <CheckboxItem key={day}>
+                  <CheckboxInput
                     type="checkbox"
-                    checked={settings.emailNotifications}
-                    onChange={e =>
-                        handleSettingChange(
-                            'emailNotifications',
-                            e.target.checked
-                        )
-                    }
-                />
-                <ToggleSwitch active={settings.emailNotifications} />
-                이메일로 알림 받기 (
-                {userEmail || '이메일 없음'}
-                )
-              </SettingLabel>
-            </SettingGroup>
+                    checked={settings.reminderDays.includes(day)}
+                    onChange={() => toggleReminderDay(day)}
+                  />
+                  {day}일 전에 알려주세요
+                </CheckboxItem>
+              ))}
+            </CheckboxGroup>
+          </SettingGroup>
 
-            {/* 며칠 전에 알려줄지 */}
-            <SettingGroup>
-              <div
-                  style={{
-                    fontSize: '14px',
-                    color: '#666',
-                    marginBottom: '12px',
-                  }}
-              >
-                언제 알림을 받을까요?
-              </div>
-              <CheckboxGroup>
-                {availableDays.map(day => (
-                    <CheckboxItem key={day}>
-                      <CheckboxInput
-                          type="checkbox"
-                          checked={settings.reminderDays.includes(day)}
-                          onChange={() => toggleReminderDay(day)}
-                      />
-                      {day}일 전에 알려주세요
-                    </CheckboxItem>
-                ))}
-              </CheckboxGroup>
-            </SettingGroup>
-          </ModalBody>
+          {/* 테스트 메일 즉시 보내기 */}
+          <TestSendWrapper>
+            <TestSendTitle>📤 지금 바로 테스트 메일 보내보기</TestSendTitle>
+            <TestSendDesc>
+              현재 이메일 주소로 “마감 임박 알림” 테스트 메일을 즉시 발송합니다.
+              (실제 D-Day랑 무관한 개발용 기능)
+            </TestSendDesc>
 
-          <ModalFooter>
-            <ModalButton className="cancel" onClick={onClose}>
-              취소
-            </ModalButton>
-            <ModalButton className="save" onClick={handleSave}>
-              저장
-            </ModalButton>
-          </ModalFooter>
-        </ModalContent>
-      </ModalOverlay>
+            <TestSendButton
+              onClick={handleSendTestMail}
+              disabled={isSendingTest}
+            >
+              {isSendingTest ? '전송 중…' : '지금 보내기'}
+            </TestSendButton>
+          </TestSendWrapper>
+        </ModalBody>
+
+        <ModalFooter>
+          <ModalButton className="cancel" onClick={onClose}>
+            취소
+          </ModalButton>
+          <ModalButton className="save" onClick={handleSave}>
+            저장
+          </ModalButton>
+        </ModalFooter>
+      </ModalContent>
+    </ModalOverlay>
   );
 };
 

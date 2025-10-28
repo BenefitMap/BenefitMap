@@ -69,6 +69,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 공개 엔드포인트
                         .requestMatchers("/", "/hello", "/error").permitAll()
+                        .requestMatchers("/api/mail/deadline-notification").permitAll()
+                        .requestMatchers("/api/mail/send").authenticated()
 
                         // Swagger/OpenAPI 문서
                         .requestMatchers(
