@@ -14,26 +14,40 @@ import {
 } from '../styles/CommonStyles';
 import { useAuth } from '../hooks/useAuth';
 import { useClickOutside } from '../hooks/useClickOutside';
-// import { useNotifications } from '../hooks/useNotifications'; // 🔕 알림 훅 비활성화
 
 /* =========================
-   아이콘 SVG 컴포넌트
+   ⚠ 서비스 공지 안내바 스타일
    ========================= */
-/* 🔕 알림 벨 아이콘 등 알림 관련 아이콘 전부 주석 처리
-const BellIconComponent = ({ hasNotification }) => (
-  ...
-);
-const DeleteNotificationIcon = () => (...);
-const HideNotificationIcon = () => (...);
-const RestoreIcon = () => (...);
-const CuteXIcon = () => (...);
-*/
+const AlertBar = styled.div`
+    width: 100%;
+    background-color: #fff8e1; /* 옅은 노랑 (경고 느낌) */
+    border-bottom: 1px solid #f0d98a;
+    color: #8a6d00;
+    font-size: 13px;
+    line-height: 1.4;
+    font-family: ${fonts.primary};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    text-align: center;
 
-// ❗ RestoreIcon / CuteXIcon 등은 알림 드롭다운 내부에서만 쓰이므로 전부 주석해도 영향 없음
-// 만약 나중에 다른 데서 쓸 거면 꺼내서 다시 쓰면 돼요.
+    /* 긴 문구가 모바일에서 두 줄로 자연스럽게 떨어지도록 */
+    @media (max-width: ${breakpoints.mobile}) {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+`;
+
+/* 아이콘 느낌의 강조 (작은 점/느낌표 등) */
+const AlertPrefix = styled.span`
+    font-weight: ${fonts.weights.bold};
+    margin-right: 6px;
+    color: #b25a00;
+`;
 
 /* =========================
-   스타일 컴포넌트
+   기존 헤더 스타일
    ========================= */
 const HeaderContainer = styled.header`
     width: 100%;
@@ -156,48 +170,16 @@ const StyledDropdownItem = styled(DropdownItem)`
     }
 `;
 
-/* 🔕 알림용 스타일 전부 주석 처리
-const NotificationIcon = styled.div` ... `;
-const NotificationDropdown = styled(Dropdown)` ... `;
-const NotificationHeader = styled.div` ... `;
-const NotificationHeaderTitle = styled.h3` ... `;
-const HeaderActions = styled.div` ... `;
-const TrashToggleButton = styled.button` ... `;
-const NotificationList = styled.div` ... `;
-const NotificationItemContainer = styled.div` ... `;
-const ItemContent = styled.div` ... `;
-const ItemTitle = styled.div` ... `;
-const ItemText = styled.div` ... `;
-const ItemTime = styled.div` ... `;
-const MenuContainer = styled.div` ... `;
-const MenuButton = styled.button` ... `;
-const ContextMenu = styled.div` ... `;
-const ContextMenuItem = styled.button` ... `;
-const EmptyMessage = styled.div` ... `;
-const TrashHeader = styled.div` ... `;
-const TrashTitle = styled.div` ... `;
-const BackToNotificationsButton = styled.button` ... `;
-const ClearAllButton = styled.button` ... `;
-const NotificationActions = styled.div` ... `;
-const ActionButton = styled.button` ... `;
-const RestoreButton = styled(ActionButton)` ... `;
-const PermanentlyDeleteButton = styled(ActionButton)` ... `;
-const ViewAllNotificationsButton = styled.button` ... `;
-*/
-
 /* =========================
-   컴포넌트 본체
+   컴포넌트
    ========================= */
 const Header = () => {
     const navigate = useNavigate();
 
-    // 전역 인증 여부 (토큰/서버 기준)
-    const { isAuthenticated } = useAuth() || {
-        isAuthenticated: false,
-    };
+    // 전역 인증 여부
+    const { isAuthenticated } = useAuth() || { isAuthenticated: false };
 
-    // 👇 헤더에서 실제로 렌더에 사용할 로그인 여부
-    // (logout 직후 바로 LOGIN으로 바꾸려고 따로 둔 로컬 상태)
+    // 헤더에서 즉시 반영할 로그인 여부
     const [authView, setAuthView] = useState(isAuthenticated);
 
     // 프로필 드롭다운 열림 여부
@@ -209,15 +191,12 @@ const Header = () => {
     // 드롭다운 밖 클릭 시 닫기
     const profileRef = useClickOutside(() => setIsProfileDropdownOpen(false));
 
-    /* 🔄 전역 isAuthenticated 값이 바뀌면 authView도 맞춰준다
-       (예: 로그인 완료 후 헤더도 로그인 상태가 되어야 하니까) */
+    // 전역 로그인 상태 변화 → 로컬 authView 반영
     useEffect(() => {
         setAuthView(isAuthenticated);
     }, [isAuthenticated]);
 
-    /* 🖼 프로필 이미지 가져오기
-       authView === true 일 때만 /user/me 호출
-       authView === false 면 즉시 이미지 비움 */
+    // 로그인 상태일 때만 /user/me 호출해서 이미지 세팅
     useEffect(() => {
         if (!authView) {
             setProfileImageUrl(null);
@@ -243,71 +222,10 @@ const Header = () => {
         })();
     }, [authView]);
 
-    // 🔕 알림 훅 전부 주석
-    /*
-    const {
-      notifications,
-      deletedNotifications,
-      unreadCount,
-      markAsRead,
-      deleteNotification,
-      restoreNotification,
-      permanentlyDeleteNotification,
-      clearDeletedNotifications,
-      checkDeadlineNotifications,
-    } = useNotifications();
-    */
-
-    // 🔕 알림 드롭다운 ref, 외부클릭 처리 주석
-    /*
-    const notificationRef = useClickOutside(() => {
-      setIsNotificationDropdownOpen(false);
-      setVisibleMenu(null);
-    });
-    */
-
-    // 🔕 알림 데드라인 체크 인터벌 주석
-    /*
-    useEffect(() => {
-      if (authView) {
-        checkDeadlineNotifications();
-        const interval = setInterval(checkDeadlineNotifications, 5 * 60 * 1000); // 5분
-        return () => clearInterval(interval);
-      }
-    }, [authView, checkDeadlineNotifications]);
-    */
-
-    // 🔕 알림 아이템 클릭 핸들러 주석
-    /*
-    const handleNotificationClick = useCallback(
-      (notification) => {
-        markAsRead(notification.id);
-
-        if (notification.type === 'deadline') {
-          navigate('/calendar');
-        } else {
-          navigate('/mypage');
-        }
-
-        setIsNotificationDropdownOpen(false);
-      },
-      [markAsRead, navigate]
-    );
-    */
-
     // 프로필 드롭다운 토글
     const toggleProfileDropdown = useCallback(() => {
         setIsProfileDropdownOpen((prev) => !prev);
-        // setIsNotificationDropdownOpen(false); // 🔕 알림 드롭다운 없으므로 필요 X
     }, []);
-
-    // 🔕 알림 드롭다운 토글 주석
-    /*
-    const toggleNotificationDropdown = useCallback(() => {
-      setIsNotificationDropdownOpen((prev) => !prev);
-      setIsProfileDropdownOpen(false);
-    }, []);
-    */
 
     // 마이페이지 이동
     const handleMyPageClick = useCallback(() => {
@@ -317,93 +235,47 @@ const Header = () => {
 
     // 로그아웃
     const handleLogoutClick = useCallback(() => {
-        // 1) 서버/스토리지 로그아웃 처리 및 페이지 이동
         logout(navigate);
-
-        // 2) 헤더 UI를 즉시 '비로그인' 상태로 전환
-        setAuthView(false);          // 바로 LOGIN 보이게
-        setProfileImageUrl(null);    // 프로필 이미지 즉시 제거
+        setAuthView(false);
+        setProfileImageUrl(null);
         setIsProfileDropdownOpen(false);
     }, [navigate]);
 
-    // 🔕 알림 삭제 / 숨기기 / 복구 등 이벤트 전부 주석
-    /*
-    const handleDeleteNotification = useCallback(
-      (e, id) => {
-        e.stopPropagation();
-        deleteNotification(id);
-        setVisibleMenu(null);
-      },
-      [deleteNotification]
-    );
-
-    const handleHideNotification = useCallback((e, id) => {
-      e.stopPropagation();
-      console.log(`알림 숨기기: ID ${id}`);
-      setVisibleMenu(null);
-    }, []);
-
-    const handleRestoreNotification = useCallback(
-      (e, id) => {
-        e.stopPropagation();
-        restoreNotification(id);
-      },
-      [restoreNotification]
-    );
-
-    const handlePermanentlyDelete = useCallback(
-      (e, id) => {
-        e.stopPropagation();
-        permanentlyDeleteNotification(id);
-      },
-      [permanentlyDeleteNotification]
-    );
-
-    const handleViewAllClick = useCallback(() => {
-      navigate('/calendar');
-      setIsNotificationDropdownOpen(false);
-    }, [navigate]);
-    */
-
     return (
-        <HeaderContainer>
-            {/* 왼쪽: 로고 + GNB */}
-            <LeftSection>
-                <Logo
-                    src={BenefitMapLogo}
-                    alt="Benefit Map"
-                    onClick={() => navigate('/')}
-                />
-                <Nav>
-                    <NavItem onClick={() => navigate('/ServicePage')}>
-                        복지 서비스
-                    </NavItem>
-                    <NavItem onClick={() => navigate('/calendar')}>
-                        알림 캘린더
-                    </NavItem>
-                </Nav>
-            </LeftSection>
+        <>
+            {/* ⬆ 최상단 경고/공지 바 */}
+            <AlertBar>
+                <AlertPrefix>※ 안내</AlertPrefix>
+                최근 국가정보자원관리원 화재 사고로 인하여 API 장애가 발생하여
+                임시 데이터로 시연 중입니다.
+            </AlertBar>
 
-            {/* 오른쪽: (알림은 제거) 프로필 or 로그인 */}
-            <RightSection>
-                {authView ? (
-                    <>
-                        {/* 🔕 알림 아이콘/드롭다운 전체 블록 통째로 주석
-            <div ref={notificationRef} style={{ position: 'relative' }}>
-              <NotificationIcon onClick={toggleNotificationDropdown}>
-                <BellIconComponent hasNotification={unreadCount > 0} />
-              </NotificationIcon>
+            {/* ⬇ 기존 헤더 */}
+            <HeaderContainer>
+                {/* 왼쪽: 로고 + 메뉴 */}
+                <LeftSection>
+                    <Logo
+                        src={BenefitMapLogo}
+                        alt="Benefit Map"
+                        onClick={() => navigate('/')}
+                    />
+                    <Nav>
+                        <NavItem onClick={() => navigate('/ServicePage')}>
+                            복지 서비스
+                        </NavItem>
+                        <NavItem onClick={() => navigate('/calendar')}>
+                            알림 캘린더
+                        </NavItem>
+                    </Nav>
+                </LeftSection>
 
-              {isNotificationDropdownOpen && (
-                <NotificationDropdown>
-                  ...알림 전체 UI...
-                </NotificationDropdown>
-              )}
-            </div>
-            */}
-
-                        {/* 프로필 아이콘 / 드롭다운 */}
-                        <div ref={profileRef} style={{ position: 'relative' }}>
+                {/* 오른쪽: 로그인 / 프로필 */}
+                <RightSection>
+                    {authView ? (
+                        <div
+                            ref={profileRef}
+                            style={{ position: 'relative' }}
+                        >
                             <ProfileImage
                                 src={profileImageUrl || mypageIcon}
                                 alt="Profile"
@@ -423,15 +295,16 @@ const Header = () => {
                                 </ProfileDropdown>
                             )}
                         </div>
-                    </>
-                ) : (
-                    // 비로그인 상태 - LOGIN 버튼
-                    <LoginText onClick={() => navigate('/LoginPage')}>
-                        LOGIN
-                    </LoginText>
-                )}
-            </RightSection>
-        </HeaderContainer>
+                    ) : (
+                        <LoginText
+                            onClick={() => navigate('/LoginPage')}
+                        >
+                            LOGIN
+                        </LoginText>
+                    )}
+                </RightSection>
+            </HeaderContainer>
+        </>
     );
 };
 

@@ -395,29 +395,35 @@ const Calendar = () => {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-        <Container>
-          <div style={{ textAlign: 'center', marginTop: '40vh' }}>
-            <h2>로그인이 필요합니다</h2>
-            <button
-                onClick={() => navigate('/LoginPage')}
+    if (!isAuthenticated) {
+        return (
+            <Container
                 style={{
-                  marginTop: '20px',
-                  backgroundColor: '#4a9d5f',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    minHeight: 'calc(100vh - 130px - 317px)',
                 }}
             >
-              로그인하러 가기
-            </button>
-          </div>
-        </Container>
-    );
-  }
+                <h2>로그인이 필요합니다</h2>
+                <button
+                    onClick={() => navigate('/LoginPage')}
+                    style={{
+                        marginTop: '20px',
+                        backgroundColor: '#4a9d5f',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '12px 24px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    로그인하러 가기
+                </button>
+            </Container>
+        );
+    }
 
   /* 6. 렌더링 */
   return (
