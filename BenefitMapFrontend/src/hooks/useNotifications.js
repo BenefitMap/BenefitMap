@@ -71,7 +71,7 @@ export const useNotifications = () => {
       // 실제로는 API 호출
       // const response = await fetch('/api/notifications');
       // const data = await response.json();
-      
+
       // 샘플 데이터 사용
       setTimeout(() => {
         setNotifications(sampleNotifications);
@@ -86,9 +86,9 @@ export const useNotifications = () => {
 
   // 알림 읽음 처리
   const markAsRead = useCallback((notificationId) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === notificationId 
+    setNotifications(prev =>
+      prev.map(notif =>
+        notif.id === notificationId
           ? { ...notif, isRead: true }
           : notif
       )
@@ -97,7 +97,7 @@ export const useNotifications = () => {
 
   // 모든 알림 읽음 처리
   const markAllAsRead = useCallback(() => {
-    setNotifications(prev => 
+    setNotifications(prev =>
       prev.map(notif => ({ ...notif, isRead: true }))
     );
   }, []);
@@ -111,11 +111,11 @@ export const useNotifications = () => {
         ...notificationToDelete,
         deletedAt: new Date().toISOString()
       };
-      
-      setNotifications(prev => 
+
+      setNotifications(prev =>
         prev.filter(notif => notif.id !== notificationId)
       );
-      setDeletedNotifications(prev => 
+      setDeletedNotifications(prev =>
         [...prev, deletedNotification]
       );
     }
@@ -127,11 +127,11 @@ export const useNotifications = () => {
     if (notificationToRestore) {
       // deletedAt 제거하고 다시 활성 알림으로 이동
       const { deletedAt, ...restoredNotification } = notificationToRestore;
-      
-      setDeletedNotifications(prev => 
+
+      setDeletedNotifications(prev =>
         prev.filter(notif => notif.id !== notificationId)
       );
-      setNotifications(prev => 
+      setNotifications(prev =>
         [...prev, restoredNotification]
       );
     }
@@ -139,7 +139,7 @@ export const useNotifications = () => {
 
   // 영구 삭제
   const permanentlyDeleteNotification = useCallback((notificationId) => {
-    setDeletedNotifications(prev => 
+    setDeletedNotifications(prev =>
       prev.filter(notif => notif.id !== notificationId)
     );
   }, []);
@@ -166,9 +166,9 @@ export const useNotifications = () => {
       time: '방금 전',
       isRead: false
     };
-    
+
     setNotifications(prev => [newNotification, ...prev]);
-    
+
     // 이메일 알림 발송
     if (isEmailNotificationEnabled() && notificationData.type === 'deadline') {
       try {
@@ -180,7 +180,7 @@ export const useNotifications = () => {
         console.error('❌ 이메일 알림 생성 중 오류:', error);
       }
     }
-    
+
     return newNotification;
   }, [notifications]);
 

@@ -48,7 +48,7 @@ const TAG_LABELS = {
   EDUCATION: '교육',
 };
 
-/* ==== styled-components (네 코드 그대로) ==== */
+/* ==== styled-components ==== */
 
 const Container = styled.div`
   min-height: 100vh;
@@ -217,7 +217,7 @@ const ButtonContainer = styled.div`
 `;
 
 const AddToCalendarButton = styled.button`
-  background-color: ${colors.primary};
+  background-color: #4a9d5f;
   color: white;
   border: none;
   padding: ${spacing.lg} ${spacing.xl};
@@ -377,11 +377,23 @@ const ServiceDetailPage = () => {
           })
           : false;
 
-      if (already) {
-        alert('이미 캘린더에 추가된 일정입니다.');
-        setIsAddingToCalendar(false);
-        return;
-      }
+        if (already) {
+            const move = window.confirm(
+                '이미 캘린더에 등록된 복지입니다.\n\n캘린더 페이지로 이동하시겠습니까?'
+            );
+            if (move) {
+                // 중복일 때도 targetDate 넘겨주면 UX 더 좋아짐
+                navigate('/calendar', {
+                    state: {
+                        targetDate: new Date(
+                            service.applicationPeriod?.startDate ||
+                            new Date().toISOString().split('T')[0]
+                        ),
+                    },
+                });
+            }
+            return;
+        }
 
       // 2) 서버에 신규 등록
       const postBody = {

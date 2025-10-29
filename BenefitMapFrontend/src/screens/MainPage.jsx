@@ -60,8 +60,7 @@ const SearchButton = styled.button`
 `;
 
 /* =========================
-   캘린더 스타일 (Calendar.jsx 스타일 차용)
-   - 단: 메인 페이지 카드 느낌 유지
+   캘린더 카드 스타일
    ========================= */
 
 const CalendarCard = styled.div`
@@ -69,7 +68,7 @@ const CalendarCard = styled.div`
     background: #ffffff;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     border: 1px solid #e0e0e0;
 `;
 
@@ -79,6 +78,7 @@ const CalendarHeader = styled.div`
     align-items: center;
     padding: 1.2rem 0;
     border-bottom: 1px solid #e0e0e0;
+    background-color: #fff;
 `;
 
 const NavigationButton = styled.button`
@@ -123,6 +123,7 @@ const DayHeader = styled.div`
 const CalendarBody = styled.div`
     display: flex;
     flex-direction: column;
+    background-color: #fff;
 `;
 
 /* 한 주(7일)를 감싸는 행 */
@@ -170,36 +171,59 @@ const DateNumber = styled.div`
     margin-bottom: 6px;
 `;
 
-/* 주 단위로 깔리는 일정 막대 */
+/* =========================
+   Modern Contrast Theme 막대
+   ========================= */
 const SpanningEventBar = styled.div`
     position: absolute;
     height: 18px;
-    background-color: ${({ $rowIndex }) => {
-        const baseColor = 144;
-        const intensity = Math.max(0, baseColor - $rowIndex * 20);
-        return `rgb(${intensity}, ${intensity + 50}, ${intensity})`;
+
+    /* 줄마다(겹침 순서마다) 색상을 달리해서 시각적으로 구분 */
+    background-color: ${props => {
+        const palette = [
+            '#4a9d5f', // 짙은 녹 - 기본
+            '#5eb06e', // 조금 더 밝은 녹
+            '#6fbe80', // 중간 톤
+            '#7ecc96', // 연한 민트톤
+            '#9dd9b2', // 파스텔 민트
+            '#bce7c9', // 매우 연한 파스텔
+        ];
+        return palette[props.$rowIndex % palette.length];
     }};
-    color: #2d5016;
+
+    color: #fff;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
     font-size: 11px;
-    font-weight: 400;
+    font-weight: 500;
     padding: 4px 8px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    border-radius: ${({ $isFirst, $isLast }) =>
-            $isFirst && $isLast
+
+    border-radius: ${props =>
+            props.$isFirst && props.$isLast
                     ? '8px'
-                    : $isFirst
+                    : props.$isFirst
                             ? '8px 0 0 8px'
-                            : $isLast
+                            : props.$isLast
                                     ? '0 8px 8px 0'
                                     : '0'};
-    border: none;
-    top: ${({ $rowIndex }) => 30 + $rowIndex * 20}px;
-    transition: all 0.2s ease;
+
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    top: ${props => 30 + props.$rowIndex * 20}px;
+
+    transition: filter 0.15s ease;
+    cursor: pointer;
+
+    &:hover {
+        filter: brightness(1.07);
+    }
 `;
 
-/* 로그인 / 추천 영역 */
+/* =========================
+   로그인 / 추천 영역
+   ========================= */
 const RecommendationSection = styled.div`
     width: 100%;
     display: flex;
@@ -312,11 +336,11 @@ const MainPage = () => {
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
     const [displayName, setDisplayName] = useState('');
 
-    // 서버에서 가져올 전체 일정들 (로그인한 유저만)
-    // [{ id,welfareId,title,description,department, applicationPeriod:{startDate,endDate} }, ...]
+    // 서버에서 받아오는 전체 일정
+    // [{ id,welfareId,title, applicationPeriod:{startDate,endDate}, ... }, ...]
     const [calendarServices, setCalendarServices] = useState([]);
 
-    // 추천 복지 리스트
+    // 추천 복지
     const [recommendList, setRecommendList] = useState([]);
 
     /* 로그인 상태 + 유저 정보 동기화 */
@@ -324,13 +348,13 @@ const MainPage = () => {
         const loggedIn = isLoggedIn();
         setIsUserLoggedIn(loggedIn);
 
-        // 1차: localStorage 기반
+        // localStorage 우선
         const localUser = getUserInfo();
         if (localUser?.name) {
             setDisplayName(localUser.name);
         }
 
-        // 2차: 서버 정보로 갱신
+        // 서버에서 최신 정보
         if (loggedIn) {
             try {
                 const res = await fetch('/user/me', {
@@ -353,6 +377,7 @@ const MainPage = () => {
             setRecommendList([]);
             return;
         }
+
         try {
             const res = await fetch('/api/catalog/recommend', {
                 method: 'GET',
@@ -396,7 +421,7 @@ const MainPage = () => {
         }
     }, []);
 
-    /* 로그인돼 있으면 캘린더 일정도 불러오기 */
+    /* 캘린더 일정 불러오기 */
     const fetchCalendar = useCallback(async () => {
         if (!isLoggedIn()) {
             setCalendarServices([]);
@@ -422,7 +447,7 @@ const MainPage = () => {
         }
     }, []);
 
-    /* 초기 로드 & 주기 동기화 */
+    /* 초기 로드 & 주기적 동기화 */
     useEffect(() => {
         syncLoginInfo();
         fetchRecommendations();
@@ -448,7 +473,7 @@ const MainPage = () => {
         });
     }, []);
 
-    /* month grid 만들기 (지난달 끝 ~ 이번달 ~ 다음달 시작까지) */
+    /* month grid 만들기 */
     const monthMatrix = useMemo(() => {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth(); // 0-index
@@ -473,11 +498,7 @@ const MainPage = () => {
         while (allDates.length % 7 !== 0 || allDates.length < 35) {
             const last = allDates[allDates.length - 1];
             allDates.push(
-                new Date(
-                    last.getFullYear(),
-                    last.getMonth(),
-                    last.getDate() + 1
-                )
+                new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1)
             );
             if (allDates.length >= 42) break;
         }
@@ -491,9 +512,9 @@ const MainPage = () => {
         return weeks;
     }, [currentDate]);
 
-    /* 이번 달력에 깔릴 bar들 계산 (주 단위) */
+    /* 한 주 안에서 보여줄 bar들 계산 */
     const computeBarsForWeek = useCallback(
-        (weekDates) => {
+        (weekDates, viewYear, viewMonth) => {
             if (!isUserLoggedIn) return [];
 
             const weekStart = weekDates[0];
@@ -505,41 +526,53 @@ const MainPage = () => {
                 const endStr = svc?.applicationPeriod?.endDate;
                 if (!startStr || !endStr) return;
 
-                // 타임존 안전하게 변환
                 const start = parseYyyyMmDdLocal(startStr);
                 const end = parseYyyyMmDdLocal(endStr);
 
                 // 이 주와 전혀 안 겹치면 패스
                 if (end < weekStart || start > weekEnd) return;
 
-                // 이 주에서 시작하는 셀 index
+                // 이 주에서의 시작 / 끝 index
                 let firstIdx = 0;
                 if (start > weekStart) {
-                    const matchIdx = weekDates.findIndex(
+                    const found = weekDates.findIndex(
                         (d) => ymdKey(d) === ymdKey(start)
                     );
-                    firstIdx = matchIdx === -1 ? 0 : matchIdx;
+                    firstIdx = found === -1 ? 0 : found;
                 }
 
-                // 이 주에서 끝나는 셀 index
                 let lastIdx = 6;
                 if (end < weekEnd) {
-                    const matchIdx = weekDates.findIndex(
+                    const found = weekDates.findIndex(
                         (d) => ymdKey(d) === ymdKey(end)
                     );
-                    lastIdx = matchIdx === -1 ? 6 : matchIdx;
+                    lastIdx = found === -1 ? 6 : found;
                 }
+
+                // 이 막대가 "이번 달 안에서" 이미 이어지고 있는 상태인지 체크
+                // -> 이번 달의 첫날
+                const monthHead = new Date(viewYear, viewMonth, 1, 0, 0, 0);
+                // 화면상 이 주의 첫날이 이번 달의 첫날인가?
+                const isMonthFirstWeekHead =
+                    weekStart.toDateString() === monthHead.toDateString();
+
+                // start가 이번달 첫날보다 이전이면 (즉, 이전달부터 이어진 복지면)
+                // 이번 달 첫 주 첫 구간에서도 이름을 찍도록 도와줄 flag
+                const startedBeforeMonth = start < monthHead;
 
                 rawBars.push({
                     svc,
                     firstIdx,
                     lastIdx,
-                    isFirst: start >= weekStart,
-                    isLast: end <= weekEnd,
+                    isFirst: start >= weekStart, // 이 주에서의 실제 시작?
+                    isLast: end <= weekEnd,      // 이 주에서의 실제 끝?
+                    // 이 달 기준으로 이어지는 막대라면 달 첫 주의 첫 셀에서도 label 찍을거야
+                    showLabelAtWeekHead:
+                        isMonthFirstWeekHead && startedBeforeMonth,
                 });
             });
 
-            // 겹치는 bar들끼리 안 겹치도록 rowIndex 할당
+            // 겹치는 bar들끼리 rowIndex 할당 (lane 비슷하게)
             const placed = [];
             rawBars.forEach((bar) => {
                 let rowIndex = 0;
@@ -617,27 +650,29 @@ const MainPage = () => {
 
                 {/* 요일 헤더 */}
                 <CalendarHeaderGrid>
-                    {['일', '월', '화', '수', '목', '금', '토'].map(
-                        (day, idx) => (
-                            <DayHeader
-                                key={idx}
-                                $isSunday={idx === 0}
-                                $isSaturday={idx === 6}
-                            >
-                                {day}
-                            </DayHeader>
-                        )
-                    )}
+                    {['일', '월', '화', '수', '목', '금', '토'].map((day, idx) => (
+                        <DayHeader
+                            key={idx}
+                            $isSunday={idx === 0}
+                            $isSaturday={idx === 6}
+                        >
+                            {day}
+                        </DayHeader>
+                    ))}
                 </CalendarHeaderGrid>
 
-                {/* 한 주씩 렌더 */}
+                {/* 주 단위 렌더 */}
                 <CalendarBody>
                     {monthMatrix.map((weekDates, wIdx) => {
-                        const bars = computeBarsForWeek(weekDates);
+                        const bars = computeBarsForWeek(
+                            weekDates,
+                            viewYear,
+                            viewMonth
+                        );
 
                         return (
                             <WeekRow key={wIdx}>
-                                {/* 날짜 칸들 */}
+                                {/* 요일 칸들 */}
                                 {weekDates.map((dateObj, dIdx) => {
                                     const isOtherMonth =
                                         dateObj.getMonth() !== viewMonth;
@@ -646,8 +681,7 @@ const MainPage = () => {
                                         today.getFullYear() &&
                                         dateObj.getMonth() ===
                                         today.getMonth() &&
-                                        dateObj.getDate() ===
-                                        today.getDate();
+                                        dateObj.getDate() === today.getDate();
 
                                     return (
                                         <DayCellWrapper
@@ -666,11 +700,17 @@ const MainPage = () => {
                                     );
                                 })}
 
-                                {/* 이 주에 걸리는 일정 바들 */}
+                                {/* 이 주에 걸친 막대들 */}
                                 {bars.map((bar, idx) => {
                                     const svc = bar.svc;
                                     const startCell = bar.firstIdx;
                                     const endCell = bar.lastIdx;
+
+                                    // 타이틀 노출 규칙:
+                                    // - 이 주 안에서 실제 시작하는 경우(isFirst)
+                                    // - OR 이 달이 이미 진행 중인 복지인데 달의 첫 주라서 showLabelAtWeekHead=true
+                                    const showLabel =
+                                        bar.isFirst || bar.showLabelAtWeekHead;
 
                                     return (
                                         <SpanningEventBar
@@ -680,22 +720,18 @@ const MainPage = () => {
                                             $isLast={bar.isLast}
                                             style={{
                                                 left: `calc(${(startCell / 7) * 100}% + ${
-                                                    bar.isFirst
-                                                        ? '6px'
-                                                        : '0px'
+                                                    bar.isFirst ? '6px' : '0px'
                                                 })`,
                                                 right: `calc(${(
                                                     (6 - endCell) /
                                                     7
                                                 ) * 100}% + ${
-                                                    bar.isLast
-                                                        ? '6px'
-                                                        : '0px'
+                                                    bar.isLast ? '6px' : '0px'
                                                 })`,
                                             }}
                                             onClick={() => {
                                                 if (!isUserLoggedIn) return;
-                                                // 홈에서 일정 클릭하면 /calendar 로 이동
+                                                // 홈 캘린더에서 클릭 시 상세 캘린더로 이동
                                                 const jumpDate =
                                                     parseYyyyMmDdLocal(
                                                         svc.applicationPeriod
@@ -708,7 +744,7 @@ const MainPage = () => {
                                                 });
                                             }}
                                         >
-                                            {bar.isFirst ? svc.title : ''}
+                                            {showLabel ? svc.title : ''}
                                         </SpanningEventBar>
                                     );
                                 })}
@@ -718,17 +754,7 @@ const MainPage = () => {
                 </CalendarBody>
             </CalendarCard>
 
-            {/* ====== 이달의 복지 키워드 (주석처리 요청) ====== */}
-            {/*
-            <KeywordSection>
-                <SectionTitle>이달의 복지 키워드</SectionTitle>
-                <KeywordsContainer>
-                    ...
-                </KeywordsContainer>
-            </KeywordSection>
-            */}
-
-            {/* 맞춤 추천 복지 */}
+            {/* 맞춤 추천 복지 영역 */}
             <RecommendationSection>
                 {!isUserLoggedIn ? (
                     <LoginPromptBox>
@@ -787,10 +813,7 @@ const MainPage = () => {
                                         });
                                     }}
                                 >
-                                    <h4>
-                                        {item.welfareName ||
-                                            '복지 서비스'}
-                                    </h4>
+                                    <h4>{item.welfareName || '복지 서비스'}</h4>
                                     <p>
                                         {item.description ||
                                             '설명이 준비중입니다.'}

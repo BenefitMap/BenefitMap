@@ -22,6 +22,9 @@ public interface CalendarRepository extends JpaRepository<CalendarEntity, Long> 
     // 중복 추가 방지용으로 특정 복지(welfareId) 이미 있는지 확인
     Optional<CalendarEntity> findByUserIdAndWelfareId(Long userId, Long welfareId);
 
-    // 삭제 시 쓸 수도 있음
+    // 존재 여부만 빠르게 확인하고 싶을 때 사용 (성능상 Optional 전체 꺼내지 않고 boolean만)
+    boolean existsByUserIdAndWelfareId(Long userId, Long welfareId);
+
+    // 삭제
     void deleteByUserIdAndWelfareId(Long userId, Long welfareId);
 }

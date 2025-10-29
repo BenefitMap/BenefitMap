@@ -13,13 +13,13 @@ export const sendGoogleEmailNotification = async (userEmail, subject, content, s
   try {
     // 실제 구현에서는 백엔드 API를 통해 이메일을 전송
     // 현재는 시뮬레이션을 위한 로그만 출력
-    
+
     console.log('📧 구글 이메일 알림 전송 시뮬레이션:');
     console.log('받는 사람:', userEmail);
     console.log('제목:', subject);
     console.log('내용:', content);
     console.log('서비스 정보:', serviceInfo);
-    
+
     // 백엔드 API 호출 (실제 구현)
     const response = await fetch('/api/mail/deadline-notification', {
       method: 'POST',
@@ -33,7 +33,7 @@ export const sendGoogleEmailNotification = async (userEmail, subject, content, s
         html: true
       })
     });
-    
+
     if (response.ok) {
       console.log('✅ 이메일 알림이 성공적으로 전송되었습니다.');
       return { success: true, message: '이메일 알림이 전송되었습니다.' };
@@ -41,7 +41,7 @@ export const sendGoogleEmailNotification = async (userEmail, subject, content, s
       console.error('❌ 이메일 알림 전송 실패:', response.statusText);
       return { success: false, message: '이메일 알림 전송에 실패했습니다.' };
     }
-    
+
   } catch (error) {
     console.error('이메일 알림 전송 중 오류:', error);
     return { success: false, message: '이메일 알림 전송 중 오류가 발생했습니다.' };
@@ -56,14 +56,14 @@ export const sendGoogleEmailNotification = async (userEmail, subject, content, s
 export const createDeadlineNotificationEmail = async (notification) => {
   const { service, daysLeft } = notification;
   const userEmail = getUserEmail();
-  
+
   if (!userEmail) {
     console.warn('사용자 이메일이 없어 이메일 알림을 전송할 수 없습니다.');
     return { success: false, message: '사용자 이메일이 없습니다.' };
   }
 
   const subject = `[BenefitMap] ${service.title} 신청 마감 임박 알림 (D-${daysLeft})`;
-  
+
   const content = `
 안녕하세요, BenefitMap입니다.
 
@@ -94,7 +94,7 @@ BenefitMap 팀
  */
 export const createNewServiceNotificationEmail = async (service, userEmail) => {
   const subject = `[BenefitMap] 새로운 복지 서비스: ${service.title}`;
-  
+
   const content = `
 안녕하세요, BenefitMap입니다.
 

@@ -23,8 +23,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 1,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-18"
+    "startDate": "2025-10-02",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름2",
@@ -50,8 +50,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 2,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-19"
+    "startDate": "2025-10-20",
+    "endDate": "2025-11-19"
   },
   {
     "welfareName": "복지이름3",
@@ -77,8 +77,8 @@
       "CHILDCARE"
     ],
     "id": 3,
-    "startDate": "2025-10-11",
-    "endDate": "2025-10-21"
+    "startDate": "2025-10-19",
+    "endDate": "2025-11-22"
   },
   {
     "welfareName": "복지이름4",
@@ -104,8 +104,8 @@
       "CARE_PROTECT"
     ],
     "id": 4,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-26"
+    "startDate": "2025-10-04",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름5",
@@ -131,8 +131,8 @@
       "ENERGY"
     ],
     "id": 5,
-    "startDate": "2025-10-11",
-    "endDate": "2025-10-22"
+    "startDate": "2025-10-01",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름6",
@@ -158,8 +158,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 6,
-    "startDate": "2025-10-03",
-    "endDate": "2025-10-22"
+    "startDate": "2025-10-07",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름7",
@@ -185,8 +185,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 7,
-    "startDate": "2025-10-10",
-    "endDate": "2025-10-29"
+    "startDate": "2025-10-08",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름8",
@@ -212,8 +212,8 @@
       "CHILDCARE"
     ],
     "id": 8,
-    "startDate": "2025-10-04",
-    "endDate": "2025-10-15"
+    "startDate": "2025-10-22",
+    "endDate": "2025-11-22"
   },
   {
     "welfareName": "복지이름9",
@@ -239,8 +239,8 @@
       "CARE_PROTECT"
     ],
     "id": 9,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-09"
+    "startDate": "2025-10-28",
+    "endDate": "2025-11-30"
   },
   {
     "welfareName": "복지이름10",
@@ -266,8 +266,8 @@
       "ENERGY"
     ],
     "id": 10,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-14"
+    "startDate": "2025-10-10",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름11",
@@ -293,8 +293,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 11,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-27"
+    "startDate": "2025-10-02",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름12",
@@ -320,8 +320,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 12,
-    "startDate": "2025-10-02",
-    "endDate": "2025-10-13"
+    "startDate": "2025-10-10",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름13",
@@ -347,8 +347,8 @@
       "CHILDCARE"
     ],
     "id": 13,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-21"
+    "startDate": "2025-10-23",
+    "endDate": "2025-11-26"
   },
   {
     "welfareName": "복지이름14",
@@ -374,8 +374,8 @@
       "CARE_PROTECT"
     ],
     "id": 14,
-    "startDate": "2025-10-11",
-    "endDate": "2025-10-20"
+    "startDate": "2025-10-04",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름15",
@@ -401,8 +401,8 @@
       "ENERGY"
     ],
     "id": 15,
-    "startDate": "2025-10-12",
-    "endDate": "2025-10-19"
+    "startDate": "2025-10-13",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름16",
@@ -428,8 +428,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 16,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-25"
+    "startDate": "2025-10-26",
+    "endDate": "2025-11-17"
   },
   {
     "welfareName": "복지이름17",
@@ -455,8 +455,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 17,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-17"
+    "startDate": "2025-10-24",
+    "endDate": "2025-11-23"
   },
   {
     "welfareName": "복지이름18",
@@ -482,8 +482,8 @@
       "CHILDCARE"
     ],
     "id": 18,
-    "startDate": "2025-10-05",
-    "endDate": "2025-10-17"
+    "startDate": "2025-10-12",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름19",
@@ -509,8 +509,8 @@
       "CARE_PROTECT"
     ],
     "id": 19,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-23"
+    "startDate": "2025-10-01",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름20",
@@ -536,8 +536,8 @@
       "ENERGY"
     ],
     "id": 20,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-17"
+    "startDate": "2025-10-06",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름21",
@@ -563,8 +563,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 21,
-    "startDate": "2025-10-10",
-    "endDate": "2025-10-24"
+    "startDate": "2025-10-20",
+    "endDate": "2025-11-21"
   },
   {
     "welfareName": "복지이름22",
@@ -590,8 +590,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 22,
-    "startDate": "2025-10-08",
-    "endDate": "2025-10-27"
+    "startDate": "2025-10-12",
+    "endDate": "2025-11-15"
   },
   {
     "welfareName": "복지이름23",
@@ -617,8 +617,8 @@
       "CHILDCARE"
     ],
     "id": 23,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-24"
+    "startDate": "2025-10-13",
+    "endDate": "2025-11-14"
   },
   {
     "welfareName": "복지이름24",
@@ -644,8 +644,8 @@
       "CARE_PROTECT"
     ],
     "id": 24,
-    "startDate": "2025-10-08",
-    "endDate": "2025-10-15"
+    "startDate": "2025-10-10",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름25",
@@ -671,8 +671,8 @@
       "ENERGY"
     ],
     "id": 25,
-    "startDate": "2025-10-08",
-    "endDate": "2025-10-16"
+    "startDate": "2025-10-17",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름26",
@@ -698,8 +698,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 26,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-23"
+    "startDate": "2025-10-09",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름27",
@@ -725,8 +725,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 27,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-22"
+    "startDate": "2025-10-04",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름28",
@@ -752,8 +752,8 @@
       "CHILDCARE"
     ],
     "id": 28,
-    "startDate": "2025-10-10",
-    "endDate": "2025-10-22"
+    "startDate": "2025-10-12",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름29",
@@ -779,8 +779,8 @@
       "CARE_PROTECT"
     ],
     "id": 29,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-18"
+    "startDate": "2025-10-02",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름30",
@@ -806,8 +806,8 @@
       "ENERGY"
     ],
     "id": 30,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-20"
+    "startDate": "2025-10-23",
+    "endDate": "2025-11-24"
   },
   {
     "welfareName": "복지이름31",
@@ -833,8 +833,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 31,
-    "startDate": "2025-10-12",
-    "endDate": "2025-10-25"
+    "startDate": "2025-10-07",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름32",
@@ -860,8 +860,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 32,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-17"
+    "startDate": "2025-10-10",
+    "endDate": "2025-11-11"
   },
   {
     "welfareName": "복지이름33",
@@ -887,8 +887,8 @@
       "CHILDCARE"
     ],
     "id": 33,
-    "startDate": "2025-10-03",
-    "endDate": "2025-10-19"
+    "startDate": "2025-10-14",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름34",
@@ -914,8 +914,8 @@
       "CARE_PROTECT"
     ],
     "id": 34,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-24"
+    "startDate": "2025-10-24",
+    "endDate": "2025-11-24"
   },
   {
     "welfareName": "복지이름35",
@@ -941,8 +941,8 @@
       "ENERGY"
     ],
     "id": 35,
-    "startDate": "2025-10-05",
-    "endDate": "2025-10-14"
+    "startDate": "2025-10-27",
+    "endDate": "2025-11-17"
   },
   {
     "welfareName": "복지이름36",
@@ -968,8 +968,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 36,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-12"
+    "startDate": "2025-10-27",
+    "endDate": "2025-11-30"
   },
   {
     "welfareName": "복지이름37",
@@ -995,8 +995,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 37,
-    "startDate": "2025-10-02",
-    "endDate": "2025-10-18"
+    "startDate": "2025-10-09",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름38",
@@ -1022,8 +1022,8 @@
       "CHILDCARE"
     ],
     "id": 38,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-09"
+    "startDate": "2025-10-27",
+    "endDate": "2025-11-30"
   },
   {
     "welfareName": "복지이름39",
@@ -1049,8 +1049,8 @@
       "CARE_PROTECT"
     ],
     "id": 39,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-19"
+    "startDate": "2025-10-26",
+    "endDate": "2025-11-25"
   },
   {
     "welfareName": "복지이름40",
@@ -1076,8 +1076,8 @@
       "ENERGY"
     ],
     "id": 40,
-    "startDate": "2025-10-10",
-    "endDate": "2025-10-23"
+    "startDate": "2025-10-28",
+    "endDate": "2025-11-29"
   },
   {
     "welfareName": "복지이름41",
@@ -1103,8 +1103,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 41,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-23"
+    "startDate": "2025-10-21",
+    "endDate": "2025-11-20"
   },
   {
     "welfareName": "복지이름42",
@@ -1130,8 +1130,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 42,
-    "startDate": "2025-10-12",
-    "endDate": "2025-10-30"
+    "startDate": "2025-10-08",
+    "endDate": "2025-11-12"
   },
   {
     "welfareName": "복지이름43",
@@ -1158,7 +1158,7 @@
     ],
     "id": 43,
     "startDate": "2025-10-08",
-    "endDate": "2025-10-25"
+    "endDate": "2025-11-12"
   },
   {
     "welfareName": "복지이름44",
@@ -1184,8 +1184,8 @@
       "CARE_PROTECT"
     ],
     "id": 44,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-20"
+    "startDate": "2025-10-26",
+    "endDate": "2025-11-23"
   },
   {
     "welfareName": "복지이름45",
@@ -1211,8 +1211,8 @@
       "ENERGY"
     ],
     "id": 45,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-19"
+    "startDate": "2025-10-07",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름46",
@@ -1238,8 +1238,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 46,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-15"
+    "startDate": "2025-10-27",
+    "endDate": "2025-11-29"
   },
   {
     "welfareName": "복지이름47",
@@ -1265,8 +1265,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 47,
-    "startDate": "2025-10-03",
-    "endDate": "2025-10-16"
+    "startDate": "2025-10-24",
+    "endDate": "2025-11-25"
   },
   {
     "welfareName": "복지이름48",
@@ -1292,8 +1292,8 @@
       "CHILDCARE"
     ],
     "id": 48,
-    "startDate": "2025-10-12",
-    "endDate": "2025-10-29"
+    "startDate": "2025-10-05",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름49",
@@ -1319,8 +1319,8 @@
       "CARE_PROTECT"
     ],
     "id": 49,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-25"
+    "startDate": "2025-10-03",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름50",
@@ -1346,8 +1346,8 @@
       "ENERGY"
     ],
     "id": 50,
-    "startDate": "2025-10-08",
-    "endDate": "2025-10-17"
+    "startDate": "2025-10-28",
+    "endDate": "2025-11-26"
   },
   {
     "welfareName": "복지이름51",
@@ -1373,8 +1373,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 51,
-    "startDate": "2025-10-10",
-    "endDate": "2025-10-26"
+    "startDate": "2025-10-08",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름52",
@@ -1400,8 +1400,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 52,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-24"
+    "startDate": "2025-10-10",
+    "endDate": "2025-11-11"
   },
   {
     "welfareName": "복지이름53",
@@ -1427,8 +1427,8 @@
       "CHILDCARE"
     ],
     "id": 53,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-18"
+    "startDate": "2025-10-19",
+    "endDate": "2025-11-21"
   },
   {
     "welfareName": "복지이름54",
@@ -1454,8 +1454,8 @@
       "CARE_PROTECT"
     ],
     "id": 54,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-16"
+    "startDate": "2025-10-22",
+    "endDate": "2025-11-15"
   },
   {
     "welfareName": "복지이름55",
@@ -1481,8 +1481,8 @@
       "ENERGY"
     ],
     "id": 55,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-10"
+    "startDate": "2025-10-14",
+    "endDate": "2025-11-13"
   },
   {
     "welfareName": "복지이름56",
@@ -1508,8 +1508,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 56,
-    "startDate": "2025-10-10",
-    "endDate": "2025-10-21"
+    "startDate": "2025-10-14",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름57",
@@ -1535,8 +1535,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 57,
-    "startDate": "2025-10-12",
-    "endDate": "2025-10-29"
+    "startDate": "2025-10-19",
+    "endDate": "2025-11-21"
   },
   {
     "welfareName": "복지이름58",
@@ -1562,8 +1562,8 @@
       "CHILDCARE"
     ],
     "id": 58,
-    "startDate": "2025-10-08",
-    "endDate": "2025-10-27"
+    "startDate": "2025-10-18",
+    "endDate": "2025-11-17"
   },
   {
     "welfareName": "복지이름59",
@@ -1589,8 +1589,8 @@
       "CARE_PROTECT"
     ],
     "id": 59,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-12"
+    "startDate": "2025-10-23",
+    "endDate": "2025-11-19"
   },
   {
     "welfareName": "복지이름60",
@@ -1616,8 +1616,8 @@
       "ENERGY"
     ],
     "id": 60,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-24"
+    "startDate": "2025-10-01",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름61",
@@ -1643,8 +1643,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 61,
-    "startDate": "2025-10-10",
-    "endDate": "2025-10-26"
+    "startDate": "2025-10-04",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름62",
@@ -1670,8 +1670,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 62,
-    "startDate": "2025-10-03",
-    "endDate": "2025-10-12"
+    "startDate": "2025-10-08",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름63",
@@ -1697,8 +1697,8 @@
       "CHILDCARE"
     ],
     "id": 63,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-24"
+    "startDate": "2025-10-18",
+    "endDate": "2025-11-14"
   },
   {
     "welfareName": "복지이름64",
@@ -1724,8 +1724,8 @@
       "CARE_PROTECT"
     ],
     "id": 64,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-21"
+    "startDate": "2025-10-10",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름65",
@@ -1751,8 +1751,8 @@
       "ENERGY"
     ],
     "id": 65,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-13"
+    "startDate": "2025-10-07",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름66",
@@ -1778,8 +1778,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 66,
-    "startDate": "2025-10-10",
-    "endDate": "2025-10-23"
+    "startDate": "2025-10-28",
+    "endDate": "2025-11-24"
   },
   {
     "welfareName": "복지이름67",
@@ -1806,7 +1806,7 @@
     ],
     "id": 67,
     "startDate": "2025-10-05",
-    "endDate": "2025-10-13"
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름68",
@@ -1832,8 +1832,8 @@
       "CHILDCARE"
     ],
     "id": 68,
-    "startDate": "2025-10-03",
-    "endDate": "2025-10-20"
+    "startDate": "2025-10-28",
+    "endDate": "2025-11-30"
   },
   {
     "welfareName": "복지이름69",
@@ -1859,8 +1859,8 @@
       "CARE_PROTECT"
     ],
     "id": 69,
-    "startDate": "2025-10-12",
-    "endDate": "2025-10-29"
+    "startDate": "2025-10-20",
+    "endDate": "2025-11-20"
   },
   {
     "welfareName": "복지이름70",
@@ -1886,8 +1886,8 @@
       "ENERGY"
     ],
     "id": 70,
-    "startDate": "2025-10-10",
-    "endDate": "2025-10-29"
+    "startDate": "2025-10-20",
+    "endDate": "2025-11-24"
   },
   {
     "welfareName": "복지이름71",
@@ -1913,8 +1913,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 71,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-22"
+    "startDate": "2025-10-20",
+    "endDate": "2025-11-12"
   },
   {
     "welfareName": "복지이름72",
@@ -1940,8 +1940,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 72,
-    "startDate": "2025-10-11",
-    "endDate": "2025-10-26"
+    "startDate": "2025-10-28",
+    "endDate": "2025-11-29"
   },
   {
     "welfareName": "복지이름73",
@@ -1967,8 +1967,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 73,
-    "startDate": "2025-10-04",
-    "endDate": "2025-10-20"
+    "startDate": "2025-10-26",
+    "endDate": "2025-11-28"
   },
   {
     "welfareName": "복지이름74",
@@ -1994,8 +1994,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 74,
-    "startDate": "2025-10-11",
-    "endDate": "2025-10-27"
+    "startDate": "2025-10-10",
+    "endDate": "2025-11-14"
   },
   {
     "welfareName": "복지이름75",
@@ -2021,8 +2021,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 75,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-25"
+    "startDate": "2025-10-13",
+    "endDate": "2025-11-12"
   },
   {
     "welfareName": "복지이름76",
@@ -2048,8 +2048,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 76,
-    "startDate": "2025-10-11",
-    "endDate": "2025-10-19"
+    "startDate": "2025-10-10",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름77",
@@ -2075,8 +2075,8 @@
       "CHILDCARE"
     ],
     "id": 77,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-09"
+    "startDate": "2025-10-10",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름78",
@@ -2102,8 +2102,8 @@
       "CHILDCARE"
     ],
     "id": 78,
-    "startDate": "2025-10-03",
-    "endDate": "2025-10-16"
+    "startDate": "2025-10-13",
+    "endDate": "2025-11-11"
   },
   {
     "welfareName": "복지이름79",
@@ -2129,8 +2129,8 @@
       "CHILDCARE"
     ],
     "id": 79,
-    "startDate": "2025-10-02",
-    "endDate": "2025-10-16"
+    "startDate": "2025-10-15",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름80",
@@ -2156,8 +2156,8 @@
       "CARE_PROTECT"
     ],
     "id": 80,
-    "startDate": "2025-10-04",
-    "endDate": "2025-10-20"
+    "startDate": "2025-10-05",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름81",
@@ -2183,8 +2183,8 @@
       "CARE_PROTECT"
     ],
     "id": 81,
-    "startDate": "2025-10-08",
-    "endDate": "2025-10-27"
+    "startDate": "2025-10-17",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름82",
@@ -2210,8 +2210,8 @@
       "CARE_PROTECT"
     ],
     "id": 82,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-16"
+    "startDate": "2025-10-08",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름83",
@@ -2235,8 +2235,8 @@
       "LAW"
     ],
     "id": 83,
-    "startDate": "2025-10-04",
-    "endDate": "2025-10-19"
+    "startDate": "2025-10-02",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름84",
@@ -2260,8 +2260,8 @@
       "EDUCATION"
     ],
     "id": 84,
-    "startDate": "2025-10-01",
-    "endDate": "2025-10-15"
+    "startDate": "2025-10-06",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름85",
@@ -2285,8 +2285,8 @@
       "CHILDCARE"
     ],
     "id": 85,
-    "startDate": "2025-10-03",
-    "endDate": "2025-10-18"
+    "startDate": "2025-10-11",
+    "endDate": "2025-11-14"
   },
   {
     "welfareName": "복지이름86",
@@ -2311,7 +2311,7 @@
     ],
     "id": 86,
     "startDate": "2025-10-08",
-    "endDate": "2025-10-17"
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름87",
@@ -2335,8 +2335,8 @@
       "ENERGY"
     ],
     "id": 87,
-    "startDate": "2025-10-08",
-    "endDate": "2025-10-26"
+    "startDate": "2025-10-02",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름88",
@@ -2360,8 +2360,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 88,
-    "startDate": "2025-10-02",
-    "endDate": "2025-10-14"
+    "startDate": "2025-10-26",
+    "endDate": "2025-11-21"
   },
   {
     "welfareName": "복지이름89",
@@ -2385,8 +2385,8 @@
       "MICRO_FINANCE"
     ],
     "id": 89,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-18"
+    "startDate": "2025-10-09",
+    "endDate": "2025-11-13"
   },
   {
     "welfareName": "복지이름90",
@@ -2410,8 +2410,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 90,
-    "startDate": "2025-10-02",
-    "endDate": "2025-10-20"
+    "startDate": "2025-10-23",
+    "endDate": "2025-11-17"
   },
   {
     "welfareName": "복지이름91",
@@ -2435,8 +2435,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 91,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-26"
+    "startDate": "2025-10-01",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름92",
@@ -2460,8 +2460,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 92,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-13"
+    "startDate": "2025-10-18",
+    "endDate": "2025-11-21"
   },
   {
     "welfareName": "복지이름93",
@@ -2485,8 +2485,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 93,
-    "startDate": "2025-10-02",
-    "endDate": "2025-10-17"
+    "startDate": "2025-10-07",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름94",
@@ -2510,8 +2510,8 @@
       "MENTAL_HEALTH"
     ],
     "id": 94,
-    "startDate": "2025-10-08",
-    "endDate": "2025-10-15"
+    "startDate": "2025-10-03",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름95",
@@ -2535,8 +2535,8 @@
       "CARE_PROTECT"
     ],
     "id": 95,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-19"
+    "startDate": "2025-10-19",
+    "endDate": "2025-11-15"
   },
   {
     "welfareName": "복지이름96",
@@ -2560,8 +2560,8 @@
       "MENTAL_HEALTH"
     ],
     "id": 96,
-    "startDate": "2025-10-08",
-    "endDate": "2025-10-23"
+    "startDate": "2025-10-09",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름97",
@@ -2585,8 +2585,8 @@
       "CARE_PROTECT"
     ],
     "id": 97,
-    "startDate": "2025-10-04",
-    "endDate": "2025-10-21"
+    "startDate": "2025-10-16",
+    "endDate": "2025-11-19"
   },
   {
     "welfareName": "복지이름98",
@@ -2610,8 +2610,8 @@
       "JOBS"
     ],
     "id": 98,
-    "startDate": "2025-10-04",
-    "endDate": "2025-10-20"
+    "startDate": "2025-10-11",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름99",
@@ -2635,8 +2635,8 @@
       "LAW"
     ],
     "id": 99,
-    "startDate": "2025-10-03",
-    "endDate": "2025-10-22"
+    "startDate": "2025-10-15",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름100",
@@ -2660,8 +2660,8 @@
       "PREGNANCY_BIRTH"
     ],
     "id": 100,
-    "startDate": "2025-10-04",
-    "endDate": "2025-10-20"
+    "startDate": "2025-10-09",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름101",
@@ -2685,8 +2685,8 @@
       "CULTURE_LEISURE"
     ],
     "id": 101,
-    "startDate": "2025-10-02",
-    "endDate": "2025-10-10"
+    "startDate": "2025-10-15",
+    "endDate": "2025-11-13"
   },
   {
     "welfareName": "복지이름102",
@@ -2710,8 +2710,8 @@
       "ENERGY"
     ],
     "id": 102,
-    "startDate": "2025-10-05",
-    "endDate": "2025-10-13"
+    "startDate": "2025-10-26",
+    "endDate": "2025-11-30"
   },
   {
     "welfareName": "복지이름103",
@@ -2735,8 +2735,8 @@
       "CARE_PROTECT"
     ],
     "id": 103,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-22"
+    "startDate": "2025-10-15",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름104",
@@ -2760,8 +2760,8 @@
       "PHYSICAL_HEALTH"
     ],
     "id": 104,
-    "startDate": "2025-10-02",
-    "endDate": "2025-10-14"
+    "startDate": "2025-10-08",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름105",
@@ -2786,7 +2786,7 @@
     ],
     "id": 105,
     "startDate": "2025-10-06",
-    "endDate": "2025-10-22"
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름106",
@@ -2810,8 +2810,8 @@
       "CARE_PROTECT"
     ],
     "id": 106,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-23"
+    "startDate": "2025-10-25",
+    "endDate": "2025-11-28"
   },
   {
     "welfareName": "복지이름107",
@@ -2835,8 +2835,8 @@
       "JOBS"
     ],
     "id": 107,
-    "startDate": "2025-10-03",
-    "endDate": "2025-10-18"
+    "startDate": "2025-10-17",
+    "endDate": "2025-11-14"
   },
   {
     "welfareName": "복지이름108",
@@ -2860,8 +2860,8 @@
       "PREGNANCY_BIRTH"
     ],
     "id": 108,
-    "startDate": "2025-10-11",
-    "endDate": "2025-10-20"
+    "startDate": "2025-10-04",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름109",
@@ -2885,8 +2885,8 @@
       "ENERGY"
     ],
     "id": 109,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-21"
+    "startDate": "2025-10-24",
+    "endDate": "2025-11-24"
   },
   {
     "welfareName": "복지이름110",
@@ -2910,8 +2910,8 @@
       "EDUCATION"
     ],
     "id": 110,
-    "startDate": "2025-10-12",
-    "endDate": "2025-10-20"
+    "startDate": "2025-10-23",
+    "endDate": "2025-11-18"
   },
   {
     "welfareName": "복지이름111",
@@ -2935,8 +2935,8 @@
       "EDUCATION"
     ],
     "id": 111,
-    "startDate": "2025-10-08",
-    "endDate": "2025-10-26"
+    "startDate": "2025-10-18",
+    "endDate": "2025-11-11"
   },
   {
     "welfareName": "복지이름112",
@@ -2960,8 +2960,8 @@
       "EDUCATION"
     ],
     "id": 112,
-    "startDate": "2025-10-12",
-    "endDate": "2025-10-23"
+    "startDate": "2025-10-09",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름113",
@@ -2985,8 +2985,8 @@
       "ADOPTION_TRUST"
     ],
     "id": 113,
-    "startDate": "2025-10-03",
-    "endDate": "2025-10-11"
+    "startDate": "2025-10-14",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름114",
@@ -3010,8 +3010,8 @@
       "CHILDCARE"
     ],
     "id": 114,
-    "startDate": "2025-10-05",
-    "endDate": "2025-10-22"
+    "startDate": "2025-10-07",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름115",
@@ -3035,8 +3035,8 @@
       "PREGNANCY_BIRTH"
     ],
     "id": 115,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-28"
+    "startDate": "2025-10-07",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름116",
@@ -3060,8 +3060,8 @@
       "MICRO_FINANCE"
     ],
     "id": 116,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-23"
+    "startDate": "2025-10-05",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름117",
@@ -3085,8 +3085,8 @@
       "CHILDCARE"
     ],
     "id": 117,
-    "startDate": "2025-10-02",
-    "endDate": "2025-10-15"
+    "startDate": "2025-10-14",
+    "endDate": "2025-11-17"
   },
   {
     "welfareName": "복지이름118",
@@ -3110,8 +3110,8 @@
       "ADOPTION_TRUST"
     ],
     "id": 118,
-    "startDate": "2025-10-09",
-    "endDate": "2025-10-21"
+    "startDate": "2025-10-26",
+    "endDate": "2025-11-18"
   },
   {
     "welfareName": "복지이름119",
@@ -3135,8 +3135,8 @@
       "HOUSING"
     ],
     "id": 119,
-    "startDate": "2025-10-04",
-    "endDate": "2025-10-17"
+    "startDate": "2025-10-24",
+    "endDate": "2025-11-24"
   },
   {
     "welfareName": "복지이름120",
@@ -3160,8 +3160,8 @@
       "EDUCATION"
     ],
     "id": 120,
-    "startDate": "2025-10-02",
-    "endDate": "2025-10-14"
+    "startDate": "2025-10-21",
+    "endDate": "2025-11-11"
   },
   {
     "welfareName": "복지이름121",
@@ -3185,8 +3185,8 @@
       "PHYSICAL_HEALTH"
     ],
     "id": 121,
-    "startDate": "2025-10-10",
-    "endDate": "2025-10-21"
+    "startDate": "2025-10-20",
+    "endDate": "2025-11-15"
   },
   {
     "welfareName": "복지이름122",
@@ -3210,8 +3210,8 @@
       "PREGNANCY_BIRTH"
     ],
     "id": 122,
-    "startDate": "2025-10-07",
-    "endDate": "2025-10-19"
+    "startDate": "2025-10-23",
+    "endDate": "2025-11-19"
   },
   {
     "welfareName": "복지이름123",
@@ -3235,8 +3235,8 @@
       "JOBS"
     ],
     "id": 123,
-    "startDate": "2025-10-04",
-    "endDate": "2025-10-16"
+    "startDate": "2025-10-24",
+    "endDate": "2025-11-17"
   },
   {
     "welfareName": "복지이름124",
@@ -3260,8 +3260,8 @@
       "LIVING_SUPPORT"
     ],
     "id": 124,
-    "startDate": "2025-10-06",
-    "endDate": "2025-10-18"
+    "startDate": "2025-10-15",
+    "endDate": "2025-11-13"
   },
   {
     "welfareName": "복지이름125",
@@ -3285,8 +3285,8 @@
       "SAFETY_CRISIS"
     ],
     "id": 125,
-    "startDate": "2025-10-02",
-    "endDate": "2025-10-19"
+    "startDate": "2025-10-05",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름126",
@@ -3310,8 +3310,8 @@
       "PREGNANCY_BIRTH"
     ],
     "id": 126,
-    "startDate": "2025-10-12",
-    "endDate": "2025-10-23"
+    "startDate": "2025-10-02",
+    "endDate": "2025-11-10"
   },
   {
     "welfareName": "복지이름127",
@@ -3335,7 +3335,7 @@
       "MICRO_FINANCE"
     ],
     "id": 127,
-    "startDate": "2025-10-05",
-    "endDate": "2025-10-21"
+    "startDate": "2025-10-19",
+    "endDate": "2025-11-22"
   }
 ]

@@ -5,7 +5,7 @@ import BenefitMapLogo from '../assets/BenefitMapLogo.png';
 const FooterContainer = styled.footer`
   width: 100%;
   max-width: 1920px;
-  height: 317px;
+  height: 200px;
   background-color: #ECECEC;
   margin: 0 auto;
   
