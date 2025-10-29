@@ -1,5 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+
+// ✅ 추가: 전역 auth 상태 비우려고 useAuth 가져옴
+import { useAuth } from "../hooks/useAuth";
 
 /* =========================
  * 1) 태그 옵션 목록
@@ -45,6 +49,8 @@ const INTEREST_OPTIONS = [
 /* =========================
  * 2) API 유틸
  * ========================= */
+
+// 마이페이지 조회
 async function apiGetMyPage() {
     const res = await fetch("/user/me", {
         method: "GET",
@@ -55,6 +61,7 @@ async function apiGetMyPage() {
     return json.data;
 }
 
+// 마이페이지 수정
 async function apiPatchMyPage(patchBody) {
     const res = await fetch("/user/me", {
         method: "PATCH",
@@ -67,354 +74,393 @@ async function apiPatchMyPage(patchBody) {
     return json.data;
 }
 
+// 회원탈퇴
+async function apiDeleteAccount() {
+    // ⚠ 실제 UserController에서 쓰는 URL/메서드에 맞춰 바꿔
+    // 예: DELETE /user/me,  /user/delete  등
+    const res = await fetch("/user/me", {
+        method: "DELETE",
+        credentials: "include",
+    });
+    if (!res.ok) {
+        throw new Error("회원탈퇴 실패");
+    }
+}
+
+// 로그아웃
+async function apiLogout() {
+    // ⚠ AuthController에서 쓰는 URL/메서드에 맞춰 바꿔
+    // 예: POST /auth/logout  or  GET /auth/logout
+    const res = await fetch("/auth/logout", {
+        method: "POST",
+        credentials: "include",
+    });
+    if (!res.ok) {
+        console.warn("로그아웃 요청 실패 상태코드:", res.status);
+    }
+}
+
 /* =========================
- * 3) 스타일: modern 리디자인
+ * 3) 스타일
  * ========================= */
 
-/* 전체 페이지 배경: 은은한 회색 (#f5f6f8 같은 느낌) */
 const PageBg = styled.div`
-  min-height: calc(100vh - 130px - 317px);
-  background-color: #f5f6f8;
-  display: flex;
-  justify-content: center;
-  padding: 24px;
-  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    min-height: calc(100vh - 130px - 317px);
+    background-color: #f5f6f8;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: #111;
+    color: #111;
 `;
 
-/* 메인 카드: 라운드 + 얇은 테두리 + 부드러운 그림자 */
 const Card = styled.div`
-  width: 100%;
-  max-width: 960px;
-  background-color: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.04);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+    width: 100%;
+    max-width: 960px;
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 `;
 
-/* 상단 프로필 영역: 살짝 다른 배경으로 블럭 느낌 */
 const ProfileSection = styled.section`
-  background: linear-gradient(
-    to right,
-    rgba(74, 157, 95, 0.08),
-    rgba(255, 255, 255, 0)
-  );
-  padding: 24px 24px 20px 24px;
-  display: flex;
-  flex-wrap: wrap;
-  row-gap: 16px;
-  column-gap: 20px;
-  align-items: center;
-  position: relative;
+    background: linear-gradient(
+            to right,
+            rgba(74, 157, 95, 0.08),
+            rgba(255, 255, 255, 0)
+    );
+    padding: 24px 24px 20px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 16px;
+    column-gap: 20px;
+    align-items: center;
+    position: relative;
 `;
 
-/* 아바타 이미지 */
 const Avatar = styled.img`
-  width: 72px;
-  height: 72px;
-  border-radius: 999px;
-  object-fit: cover;
-  background-color: #d1d5db;
-  border: 2px solid #fff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    width: 72px;
+    height: 72px;
+    border-radius: 999px;
+    object-fit: cover;
+    background-color: #d1d5db;
+    border: 2px solid #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 `;
 
-/* 프로필 텍스트 묶음 */
 const ProfileTextCol = styled.div`
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 `;
 
 const ProfileName = styled.div`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #111;
-  line-height: 1.3;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111;
+    line-height: 1.3;
 `;
 
 const ProfileEmail = styled.div`
-  font-size: 0.9rem;
-  color: #6b7280;
-  line-height: 1.4;
-  word-break: break-all;
+    font-size: 0.9rem;
+    color: #6b7280;
+    line-height: 1.4;
+    word-break: break-all;
 `;
 
-/* 우상단 수정/저장 버튼 (primary action) */
-const EditButton = styled.button`
-  position: absolute;
-  top: 24px;
-  right: 24px;
+/* 우상단 수정/저장 버튼 */
+const FloatingEditButton = styled.button`
+    position: absolute;
+    top: 24px;
+    right: 24px;
 
-  background-color: #4a9d5f;
-  color: #fff;
-  border: 0;
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  line-height: 1.2;
+    background-color: #4a9d5f;
+    color: #fff;
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.2;
 
-  box-shadow: 0 8px 16px rgba(74, 157, 95, 0.3);
-  cursor: pointer;
-  transition: all 0.15s ease;
+    box-shadow: 0 8px 16px rgba(74, 157, 95, 0.3);
+    cursor: pointer;
+    transition: all 0.15s ease;
 
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 
-  &:hover {
-    filter: brightness(0.95);
-    box-shadow: 0 10px 20px rgba(74, 157, 95, 0.4);
-  }
+    &:hover {
+        filter: brightness(0.95);
+        box-shadow: 0 10px 20px rgba(74, 157, 95, 0.4);
+    }
 `;
 
-/* 섹션 컨테이너: 카드 안의 각 정보 블럭 (개인정보 / 맞춤설정) */
 const Section = styled.section`
-  padding: 24px;
-  border-top: 1px solid #f0f0f0;
-  display: flex;
-  flex-direction: column;
-  row-gap: 20px;
+    padding: 24px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
 
-  @media (min-width: 768px) {
-    padding: 28px 32px;
-  }
+    @media (min-width: 768px) {
+        padding: 28px 32px;
+    }
 `;
 
-/* 섹션 헤더: 제목 + 서브텍스트 라인 */
 const SectionHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 4px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
 `;
 
 const SectionTitle = styled.div`
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111;
 `;
 
 const SectionSub = styled.div`
-  font-size: 0.8rem;
-  font-weight: 400;
-  color: #6b7280;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #6b7280;
 `;
 
-/* 2컬럼 레이아웃 (데스크탑에서 좌우로 정렬) */
 const TwoColGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
 
-  @media (min-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-    column-gap: 32px;
-  }
+    @media (min-width: 768px) {
+        grid-template-columns: 1fr 1fr;
+        column-gap: 32px;
+    }
 `;
 
-/* 필드 한 줄 */
 const FieldBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 8px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
 `;
 
 const FieldLabelRow = styled.div`
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
 `;
 
 const FieldLabel = styled.label`
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #374151;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #374151;
 `;
 
 const FieldReadonlyMark = styled.span`
-  font-size: 0.7rem;
-  color: #9ca3af;
+    font-size: 0.7rem;
+    color: #9ca3af;
 `;
 
-/* 인풋류 공통 스타일 */
 const InputBase = styled.input`
-  width: 100%;
-  min-width: 0;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  background-color: ${({ $readonly }) => ($readonly ? "#f9fafb" : "#fff")};
-  font-size: 0.9rem;
-  line-height: 1.4;
-  color: #111;
-  padding: 10px 12px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-
-  &:focus {
-    outline: 2px solid rgba(74, 157, 95, 0.4);
-    outline-offset: 0;
-    border-color: #4a9d5f;
-  }
-
-  &:disabled {
+    width: 100%;
+    min-width: 0;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background-color: ${({ $readonly }) => ($readonly ? "#f9fafb" : "#fff")};
+    font-size: 0.9rem;
+    line-height: 1.4;
     color: #111;
-    opacity: 1;
-    cursor: default;
-  }
+    padding: 10px 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+    &:focus {
+        outline: 2px solid rgba(74, 157, 95, 0.4);
+        outline-offset: 0;
+        border-color: #4a9d5f;
+    }
+
+    &:disabled {
+        color: #111;
+        opacity: 1;
+        cursor: default;
+    }
 `;
 
-/* 나이 input 옆에 spinner 버튼 묶는 래퍼 */
 const AgeWrapper = styled.div`
-  position: relative;
+    position: relative;
 `;
-const AgeSpinner = styled.div`
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-`;
-const AgeSpinBtn = styled.button`
-  width: 20px;
-  height: 14px;
-  border-radius: 4px;
-  background: #e5e7eb;
-  border: 1px solid #cbd5e1;
-  font-size: 10px;
-  line-height: 1;
-  color: #374151;
-  cursor: pointer;
 
-  &:hover {
-    background: #d1d5db;
-  }
+const AgeSpinner = styled.div`
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+`;
+
+const AgeSpinBtn = styled.button`
+    width: 20px;
+    height: 14px;
+    border-radius: 4px;
+    background: #e5e7eb;
+    border: 1px solid #cbd5e1;
+    font-size: 10px;
+    line-height: 1;
+    color: #374151;
+    cursor: pointer;
+
+    &:hover {
+        background: #d1d5db;
+    }
 `;
 
 const SelectBase = styled.select`
-  width: 100%;
-  min-width: 0;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  background-color: ${({ disabled }) => (disabled ? "#f9fafb" : "#fff")};
-  font-size: 0.9rem;
-  line-height: 1.4;
-  color: #111;
-  padding: 10px 12px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
+    width: 100%;
+    min-width: 0;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background-color: ${({ disabled }) => (disabled ? "#f9fafb" : "#fff")};
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #111;
+    padding: 10px 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 
-  &:focus {
-    outline: 2px solid rgba(74, 157, 95, 0.4);
-    outline-offset: 0;
-    border-color: #4a9d5f;
-  }
+    &:focus {
+        outline: 2px solid rgba(74, 157, 95, 0.4);
+        outline-offset: 0;
+        border-color: #4a9d5f;
+    }
 `;
 
-/* 태그 여러 개 선택 영역 */
 const TagGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 8px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
 `;
+
 const TagGroupTitle = styled.div`
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #374151;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #374151;
 `;
 
 const TagChipsRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 `;
+
 const TagChip = styled.span`
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  background-color: rgba(74, 157, 95, 0.08);
-  border: 1px solid rgba(74, 157, 95, 0.28);
-  color: #2e463a;
-  font-size: 0.75rem;
-  font-weight: 500;
-  line-height: 1.2;
-  padding: 6px 10px;
-  box-shadow: 0 2px 4px rgba(74, 157, 95, 0.15);
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background-color: rgba(74, 157, 95, 0.08);
+    border: 1px solid rgba(74, 157, 95, 0.28);
+    color: #2e463a;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.2;
+    padding: 6px 10px;
+    box-shadow: 0 2px 4px rgba(74, 157, 95, 0.15);
 `;
 
 const CheckWrap = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-
-  label {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    background: #fff;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    padding: 8px 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #fff;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        line-height: 1.2;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    input[type="checkbox"] {
+        cursor: pointer;
+    }
+`;
+
+/* 하단 버튼 행: 왼쪽(탈퇴) ↔ 오른쪽(수정/저장) */
+const BottomRow = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+`;
+
+/* 왼쪽 하단 회원탈퇴 버튼 */
+const DeleteAccountButton = styled.button`
+    background-color: #fff;
+    color: #dc2626;
+    border: 1px solid #dc2626;
+    border-radius: 10px;
     font-size: 0.8rem;
+    font-weight: 500;
+    padding: 10px 16px;
+    cursor: pointer;
+    box-shadow: 0 8px 16px rgba(220, 38, 38, 0.15);
     line-height: 1.2;
-    cursor: pointer;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  }
 
-  input[type="checkbox"] {
-    cursor: pointer;
-  }
+    &:hover {
+        background-color: #dc2626;
+        color: #fff;
+        box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+    }
 `;
 
-const SaveRow = styled.div`
-  text-align: right;
-`;
+/* 오른쪽 하단 수정/저장 버튼 */
 const SaveButton = styled.button`
-  background-color: #4a9d5f;
-  color: #fff;
-  border: 0;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 10px 16px;
-  cursor: pointer;
-  box-shadow: 0 8px 16px rgba(74, 157, 95, 0.3);
+    background-color: #4a9d5f;
+    color: #fff;
+    border: 0;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 10px 16px;
+    cursor: pointer;
+    box-shadow: 0 8px 16px rgba(74, 157, 95, 0.3);
 
-  &:hover {
-    filter: brightness(0.95);
-    box-shadow: 0 10px 20px rgba(74, 157, 95, 0.4);
-  }
+    &:hover {
+        filter: brightness(0.95);
+        box-shadow: 0 10px 20px rgba(74, 157, 95, 0.4);
+    }
 `;
 
 const LoadingText = styled.div`
-  padding: 60px 0;
-  text-align: center;
-  color: #6b7280;
-  font-size: 0.9rem;
-  font-style: italic;
+    padding: 60px 0;
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-style: italic;
 `;
 
 /* =========================
- * 4) 헬퍼: 한글 ㄱㄴㄷ 정렬용
- *    (문자열 localeCompare('ko')로 정렬)
+ * 4) 정렬 관련 헬퍼
  * ========================= */
 function sortKorean(arr) {
     return [...arr].sort((a, b) => a.localeCompare(b, "ko"));
 }
 
 function sortRegionMap(mapObj) {
-    // 1) 시/도 키들 정렬
     const sortedDoList = Object.keys(mapObj).sort((a, b) =>
         a.localeCompare(b, "ko")
     );
-
-    // 2) 각 시/군/구 리스트도 정렬
     const newMap = {};
     for (const regionDo of sortedDoList) {
         newMap[regionDo] = sortKorean(mapObj[regionDo] || []);
@@ -423,7 +469,7 @@ function sortRegionMap(mapObj) {
 }
 
 /* =========================
- * 5) 태그 선택 섹션 컴포넌트
+ * 5) 태그 멀티선택 섹션
  * ========================= */
 function TagMultiSelectSection({
                                    title,
@@ -476,9 +522,14 @@ function TagMultiSelectSection({
 }
 
 /* =========================
- * 6) 본체
+ * 6) 본체 컴포넌트
  * ========================= */
 function MyPage() {
+    const navigate = useNavigate();
+
+    // ✅ useAuth에서 clearAuthState 받아온다
+    const { clearAuthState } = useAuth();
+
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [serverData, setServerData] = useState(null);
@@ -496,9 +547,7 @@ function MyPage() {
         interestTagCodes: [],
     });
 
-    /* -------------------------
-     * 지역 데이터 원본
-     * ------------------------- */
+    // 지역 데이터
     const regionMapRaw = {
         서울특별시: [
             "종로구",
@@ -743,9 +792,6 @@ function MyPage() {
         제주특별자치도: ["제주시", "서귀포시"],
     };
 
-    /* -------------------------
-     * ㄱㄴㄷ 정렬된 지역 데이터
-     * ------------------------- */
     const { newMap: regionMapSorted, sortedDoList } = useMemo(() => {
         return sortRegionMap(regionMapRaw);
     }, []);
@@ -755,9 +801,7 @@ function MyPage() {
         ? regionMapSorted[formData.regionDo] || []
         : [];
 
-    /* -------------------------
-     * state 업데이트 헬퍼
-     * ------------------------- */
+    // 공통 state 업데이트
     const handleInputChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
@@ -774,7 +818,7 @@ function MyPage() {
         });
     };
 
-    /* household: NONE 단독 규칙 */
+    // household: "NONE" 단독 선택 규칙
     const toggleHousehold = (code) => {
         setFormData((prev) => {
             const exists = prev.householdTagCodes.includes(code);
@@ -823,7 +867,7 @@ function MyPage() {
         });
     };
 
-    /* 수정/저장 */
+    // 수정/저장 버튼 클릭
     const handleEditClick = async () => {
         if (!isEditing) {
             setIsEditing(true);
@@ -832,9 +876,8 @@ function MyPage() {
         await handleSave();
     };
 
-    /* 저장 PATCH */
+    // PATCH 저장 로직
     const handleSave = async () => {
-        // 필수 검증
         if (formData.lifecycleTagCodes.length === 0) {
             alert("생애주기는 최소 1개 이상 선택해 주세요.");
             return;
@@ -908,7 +951,35 @@ function MyPage() {
         }
     };
 
-    /* 최초 로드 */
+    // 회원탈퇴 버튼 핸들러
+    const handleDeleteAccount = async () => {
+        const ok = window.confirm(
+            "정말 탈퇴하시겠습니까?\n저장된 캘린더 일정, 관심태그 등 모든 정보가 삭제되고 복구할 수 없습니다."
+        );
+        if (!ok) return;
+
+        try {
+            // 1) 서버에서 실제 계정 삭제
+            await apiDeleteAccount();
+
+            // 2) 서버 쪽 세션 / 쿠키 만료 (로그아웃)
+            await apiLogout();
+
+            // 3) ✅ 프론트 전역 인증상태/스토리지 강제 초기화
+            clearAuthState();
+
+            alert("회원탈퇴가 완료되었습니다.");
+
+            // 4) ✅ 전체 리로드하면서 홈으로 이동
+            //    navigate("/") 만 쓰면 SPA 상태가 남을 수 있어서 새로고침이 더 안전
+            window.location.href = "/";
+        } catch (err) {
+            console.error("회원탈퇴 실패:", err);
+            alert("회원탈퇴 중 오류가 발생했습니다.");
+        }
+    };
+
+    // 처음 로딩
     useEffect(() => {
         (async () => {
             try {
@@ -958,8 +1029,13 @@ function MyPage() {
     return (
         <PageBg>
             <Card>
-                {/* 프로필 헤더 */}
+                {/* 상단 프로필 영역 */}
                 <ProfileSection>
+                    {/* 우상단 수정/저장 버튼 (floating) */}
+                    <FloatingEditButton onClick={handleEditClick}>
+                        {isEditing ? "저장" : "수정"}
+                    </FloatingEditButton>
+
                     <Avatar
                         src={formData.imageUrl || "/src/assets/mypage.png"}
                         alt="프로필 이미지"
@@ -973,8 +1049,6 @@ function MyPage() {
                         <ProfileEmail>{formData.email || "이메일 없음"}</ProfileEmail>
                     </ProfileTextCol>
                 </ProfileSection>
-
-
 
                 {/* 개인정보 섹션 */}
                 <Section>
@@ -990,11 +1064,7 @@ function MyPage() {
                                 <FieldLabel>이름</FieldLabel>
                                 <FieldReadonlyMark>수정 불가</FieldReadonlyMark>
                             </FieldLabelRow>
-                            <InputBase
-                                value={formData.name}
-                                disabled={true}
-                                $readonly={true}
-                            />
+                            <InputBase value={formData.name} disabled={true} $readonly={true} />
                         </FieldBlock>
 
                         {/* 이메일 */}
@@ -1086,11 +1156,13 @@ function MyPage() {
                 <Section>
                     <SectionHeader>
                         <SectionTitle>맞춤 설정</SectionTitle>
-                        <SectionSub>지역 / 가구상황 / 관심주제 등을 선택해 주세요</SectionSub>
+                        <SectionSub>
+                            지역 / 가구상황 / 관심주제 등을 선택해 주세요
+                        </SectionSub>
                     </SectionHeader>
 
                     <TwoColGrid>
-                        {/* 지역 */}
+                        {/* 지역 (시/도) */}
                         <FieldBlock>
                             <FieldLabelRow>
                                 <FieldLabel>지역 (시/도)</FieldLabel>
@@ -1113,6 +1185,7 @@ function MyPage() {
                             </SelectBase>
                         </FieldBlock>
 
+                        {/* 지역 (시/군/구) */}
                         <FieldBlock>
                             <FieldLabelRow>
                                 <FieldLabel>지역 (시/군/구)</FieldLabel>
@@ -1134,7 +1207,7 @@ function MyPage() {
                             </SelectBase>
                         </FieldBlock>
 
-                        {/* 생애주기 / 가구상황 / 관심주제 */}
+                        {/* 생애주기 */}
                         <FieldBlock style={{ gridColumn: "1 / -1" }}>
                             <TagMultiSelectSection
                                 title="생애주기 (필수 선택)"
@@ -1147,6 +1220,7 @@ function MyPage() {
                             />
                         </FieldBlock>
 
+                        {/* 가구상황 */}
                         <FieldBlock style={{ gridColumn: "1 / -1" }}>
                             <TagMultiSelectSection
                                 title="가구상황 (필수 선택)"
@@ -1159,6 +1233,7 @@ function MyPage() {
                             />
                         </FieldBlock>
 
+                        {/* 관심주제 */}
                         <FieldBlock style={{ gridColumn: "1 / -1" }}>
                             <TagMultiSelectSection
                                 title="관심주제 (선택 사항)"
@@ -1171,11 +1246,19 @@ function MyPage() {
                             />
                         </FieldBlock>
                     </TwoColGrid>
-                    <SaveRow>
+
+                    {/* 하단 좌우 버튼 영역 */}
+                    <BottomRow>
+                        {/* ⬅ 왼쪽 하단: 회원탈퇴 */}
+                        <DeleteAccountButton onClick={handleDeleteAccount}>
+                            회원탈퇴
+                        </DeleteAccountButton>
+
+                        {/* ➡ 오른쪽 하단: 수정 / 저장 */}
                         <SaveButton onClick={handleEditClick}>
                             {isEditing ? "저장" : "수정"}
                         </SaveButton>
-                    </SaveRow>
+                    </BottomRow>
                 </Section>
             </Card>
         </PageBg>
