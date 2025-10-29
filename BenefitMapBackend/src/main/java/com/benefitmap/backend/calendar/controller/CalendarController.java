@@ -2,6 +2,11 @@ package com.benefitmap.backend.calendar.controller;
 
 import com.benefitmap.backend.calendar.entity.CalendarEntity;
 import com.benefitmap.backend.calendar.service.CalendarService;
+import com.benefitmap.backend.user.entity.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -17,53 +22,76 @@ public class CalendarController {
         this.calendarService = calendarService;
     }
 
-    // TODO: 실제 로그인 유저 ID 추출 방식으로 바꿔야 함 (JWT 등)
-    private Long getCurrentUserId() {
-        return 1L;
+    /* 현재 로그인한 유저 ID 추출 (UserController와 동일한 로직) */
+    private Long currentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return null;
+
+        Object principal = auth.getPrincipal();
+        if (principal instanceof User u) return u.getId();
+
+        try {
+            var m = principal.getClass().getMethod("getId");
+            Object v = m.invoke(principal);
+            if (v instanceof Number n) return n.longValue();
+            if (v instanceof String s) return Long.parseLong(s);
+        } catch (Exception ignored) {}
+
+        return null;
     }
 
     /* 전체 일정 조회 */
     @GetMapping
     public List<CalendarItemResponse> getAllMyCalendarItems() {
-        Long userId = getCurrentUserId();
+        Long userId = currentUserId();
         List<CalendarEntity> items = calendarService.getAllForUser(userId);
         return items.stream().map(CalendarItemResponse::fromEntity).toList();
     }
 
-    /* 특정 월만 조회 (옵션) */
+    /* 특정 월 조회 */
     @GetMapping("/month")
     public List<CalendarItemResponse> getMyCalendarItemsForMonth(
             @RequestParam int year,
             @RequestParam int month
     ) {
-        Long userId = getCurrentUserId();
+        Long userId = currentUserId();
         List<CalendarEntity> items = calendarService.getForUserByMonth(userId, year, month);
         return items.stream().map(CalendarItemResponse::fromEntity).toList();
     }
 
     /* 일정 추가 */
     @PostMapping
-    public CalendarItemResponse addItem(@RequestBody AddCalendarItemRequest req) {
-        Long userId = getCurrentUserId();
+    public ResponseEntity<?> addItem(@RequestBody AddCalendarItemRequest req) {
+        Long userId = currentUserId();
 
-        CalendarEntity saved = calendarService.addCalendarItem(
-                userId,
-                req.welfareId(),
-                req.title(),
-                req.description(),
-                req.department(),
-                LocalDate.parse(req.applicationPeriod().startDate()),
-                LocalDate.parse(req.applicationPeriod().endDate())
-        );
+        try {
+            CalendarEntity saved = calendarService.addCalendarItem(
+                    userId,
+                    req.welfareId(),
+                    req.title(),
+                    req.description(),
+                    req.department(),
+                    LocalDate.parse(req.applicationPeriod().startDate()),
+                    LocalDate.parse(req.applicationPeriod().endDate())
+            );
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(CalendarItemResponse.fromEntity(saved));
 
-        return CalendarItemResponse.fromEntity(saved);
+        } catch (CalendarService.AlreadyExistsException e) {
+            // 이미 있는 경우 → 409 CONFLICT + 간단 메세지
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        }
     }
 
-    /* 일정 삭제 (welfareId 기준) */
+    /* 일정 삭제 */
     @DeleteMapping("/{welfareId}")
-    public void deleteItem(@PathVariable Long welfareId) {
-        Long userId = getCurrentUserId();
+    public ResponseEntity<Void> deleteItem(@PathVariable Long welfareId) {
+        Long userId = currentUserId();
         calendarService.removeCalendarItem(userId, welfareId);
+        return ResponseEntity.noContent().build();
     }
 
     /* ==========================
@@ -79,8 +107,8 @@ public class CalendarController {
     ) {}
 
     public record ApplicationPeriod(
-            String startDate, // "2025-05-01"
-            String endDate    // "2025-05-31"
+            String startDate,
+            String endDate
     ) {}
 
     public record CalendarItemResponse(

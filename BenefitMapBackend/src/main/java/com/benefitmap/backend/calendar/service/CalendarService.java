@@ -34,8 +34,8 @@ public class CalendarService {
     @Transactional(readOnly = true)
     public List<CalendarEntity> getForUserByMonth(Long userId, int year, int month) {
         YearMonth ym = YearMonth.of(year, month);
-        LocalDate monthStart = ym.atDay(1);                     // 2025-05-01
-        LocalDate monthEnd = ym.atEndOfMonth();                 // 2025-05-31
+        LocalDate monthStart = ym.atDay(1);       // 2025-05-01
+        LocalDate monthEnd = ym.atEndOfMonth();   // 2025-05-31
 
         return calendarRepository
                 .findByUserIdAndStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByStartDateAsc(
@@ -47,7 +47,7 @@ public class CalendarService {
 
     /**
      * 일정 추가 (프론트에서 "캘린더에 추가" 눌렀을 때)
-     * 이미 같은 welfareId가 있으면 그냥 그걸 그대로 리턴(중복 방지)
+     * -> 같은 유저(userId)가 같은 복지(welfareId)를 이미 추가했다면 예외 던져서 컨트롤러에서 409로 내려보낸다.
      */
     public CalendarEntity addCalendarItem(
             Long userId,
@@ -58,19 +58,22 @@ public class CalendarService {
             LocalDate startDate,
             LocalDate endDate
     ) {
-        // 중복 방지: 같은 유저가 같은 복지를 이미 추가했는지 확인
-        return calendarRepository.findByUserIdAndWelfareId(userId, welfareId)
-                .orElseGet(() -> {
-                    CalendarEntity entity = new CalendarEntity();
-                    entity.setUserId(userId);
-                    entity.setWelfareId(welfareId);
-                    entity.setTitle(title);
-                    entity.setDescription(description);
-                    entity.setDepartment(department);
-                    entity.setStartDate(startDate);
-                    entity.setEndDate(endDate);
-                    return calendarRepository.save(entity);
-                });
+        // 1) 이미 등록되어 있다면 예외 던짐 → 컨트롤러에서 409로 변환
+        boolean alreadyExists = calendarRepository.existsByUserIdAndWelfareId(userId, welfareId);
+        if (alreadyExists) {
+            throw new AlreadyExistsException("이미 캘린더에 등록된 복지입니다.");
+        }
+
+        // 2) 없으면 새로 생성해서 저장
+        CalendarEntity entity = new CalendarEntity();
+        entity.setUserId(userId);
+        entity.setWelfareId(welfareId);
+        entity.setTitle(title);
+        entity.setDescription(description);
+        entity.setDepartment(department);
+        entity.setStartDate(startDate);
+        entity.setEndDate(endDate);
+        return calendarRepository.save(entity);
     }
 
     /**
@@ -78,5 +81,14 @@ public class CalendarService {
      */
     public void removeCalendarItem(Long userId, Long welfareId) {
         calendarRepository.deleteByUserIdAndWelfareId(userId, welfareId);
+    }
+
+    /**
+     * 중복 예외용 커스텀 런타임 예외
+     */
+    public static class AlreadyExistsException extends RuntimeException {
+        public AlreadyExistsException(String message) {
+            super(message);
+        }
     }
 }
