@@ -48,7 +48,7 @@ const TAG_LABELS = {
   EDUCATION: '교육',
 };
 
-/* ==== styled-components (네 코드 그대로) ==== */
+/* ==== styled-components ==== */
 
 const Container = styled.div`
   min-height: 100vh;
@@ -217,7 +217,7 @@ const ButtonContainer = styled.div`
 `;
 
 const AddToCalendarButton = styled.button`
-  background-color: ${colors.primary};
+  background-color: #4a9d5f;
   color: white;
   border: none;
   padding: ${spacing.lg} ${spacing.xl};
