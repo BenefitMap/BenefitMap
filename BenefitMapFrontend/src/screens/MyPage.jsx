@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 // ✅ 추가: 전역 auth 상태 비우려고 useAuth 가져옴
@@ -171,35 +170,6 @@ const ProfileEmail = styled.div`
     color: #6b7280;
     line-height: 1.4;
     word-break: break-all;
-`;
-
-/* 우상단 수정/저장 버튼 */
-const FloatingEditButton = styled.button`
-    position: absolute;
-    top: 24px;
-    right: 24px;
-
-    background-color: #4a9d5f;
-    color: #fff;
-    border: 0;
-    border-radius: 999px;
-    padding: 8px 14px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    line-height: 1.2;
-
-    box-shadow: 0 8px 16px rgba(74, 157, 95, 0.3);
-    cursor: pointer;
-    transition: all 0.15s ease;
-
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-
-    &:hover {
-        filter: brightness(0.95);
-        box-shadow: 0 10px 20px rgba(74, 157, 95, 0.4);
-    }
 `;
 
 const Section = styled.section`
@@ -525,7 +495,6 @@ function TagMultiSelectSection({
  * 6) 본체 컴포넌트
  * ========================= */
 function MyPage() {
-    const navigate = useNavigate();
 
     // ✅ useAuth에서 clearAuthState 받아온다
     const { clearAuthState } = useAuth();
@@ -1030,12 +999,8 @@ function MyPage() {
         <PageBg>
             <Card>
                 {/* 상단 프로필 영역 */}
+                {/* 상단 프로필 영역 */}
                 <ProfileSection>
-                    {/* 우상단 수정/저장 버튼 (floating) */}
-                    <FloatingEditButton onClick={handleEditClick}>
-                        {isEditing ? "저장" : "수정"}
-                    </FloatingEditButton>
-
                     <Avatar
                         src={formData.imageUrl || "/src/assets/mypage.png"}
                         alt="프로필 이미지"
@@ -1049,6 +1014,7 @@ function MyPage() {
                         <ProfileEmail>{formData.email || "이메일 없음"}</ProfileEmail>
                     </ProfileTextCol>
                 </ProfileSection>
+
 
                 {/* 개인정보 섹션 */}
                 <Section>
