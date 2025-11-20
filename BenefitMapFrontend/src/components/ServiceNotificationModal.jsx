@@ -327,9 +327,11 @@ const ServiceNotificationModal = ({ isOpen, onClose, service, onSave }) => {
     // 단순 테스트용으로 daysLeft를 3일로 고정
     const daysLeft = 3;
 
-    const subject = `[테스트] ${service.title} 신청 마감 임박 (D-${daysLeft})`;
+    const subject = `[BenefitMap] ${service.title} 신청 마감 임박 알림 (D-${daysLeft})`;
     const content = `
-테스트 메일입니다. 실제 마감 알림 메일은 설정된 날짜(D-1, D-3 등)에 자동으로 전송됩니다.
+안녕하세요, BenefitMap입니다.
+
+설정하신 복지 서비스의 신청 마감일이 ${daysLeft}일 남았습니다.
 
 📋 서비스명: ${service.title}
 📅 마감일: ${service.applicationPeriod?.endDate || 'N/A'}
@@ -339,7 +341,10 @@ ${service.contact ? `📞 문의처: ${service.contact}` : ''}
 
 ${service.description ? `📝 서비스 설명:\n${service.description}` : ''}
 
-- BenefitMap 테스트 발송 -
+이 메일은 BenefitMap 알림 서비스 테스트 메일입니다.
+실제 알림은 설정하신 날짜(D-1, D-3, D-5, D-7)에 자동으로 발송됩니다.
+
+- BenefitMap
 `.trim();
 
     try {
@@ -440,17 +445,16 @@ ${service.description ? `📝 서비스 설명:\n${service.description}` : ''}
 
           {/* 테스트 메일 즉시 보내기 */}
           <TestSendWrapper>
-            <TestSendTitle>📤 지금 바로 테스트 메일 보내보기</TestSendTitle>
+            <TestSendTitle>테스트 메일 발송</TestSendTitle>
             <TestSendDesc>
-              현재 이메일 주소로 “마감 임박 알림” 테스트 메일을 즉시 발송합니다.
-              (실제 D-Day랑 무관한 개발용 기능)
+              현재 등록된 이메일 주소로 알림 메일 테스트를 진행합니다.
             </TestSendDesc>
 
             <TestSendButton
               onClick={handleSendTestMail}
               disabled={isSendingTest}
             >
-              {isSendingTest ? '전송 중…' : '지금 보내기'}
+              {isSendingTest ? '전송 중…' : '테스트 메일 발송'}
             </TestSendButton>
           </TestSendWrapper>
         </ModalBody>

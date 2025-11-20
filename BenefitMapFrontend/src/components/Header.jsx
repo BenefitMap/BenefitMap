@@ -243,13 +243,6 @@ const Header = () => {
 
     return (
         <>
-            {/* ⬆ 최상단 경고/공지 바 */}
-            <AlertBar>
-                <AlertPrefix>※ 안내</AlertPrefix>
-                최근 국가정보자원관리원 화재 사고로 인하여 API 장애가 발생하여
-                임시 데이터로 시연 중입니다.
-            </AlertBar>
-
             {/* ⬇ 기존 헤더 */}
             <HeaderContainer>
                 {/* 왼쪽: 로고 + 메뉴 */}
