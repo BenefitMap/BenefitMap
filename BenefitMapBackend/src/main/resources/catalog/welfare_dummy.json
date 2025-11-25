@@ -1,874 +1,747 @@
 [
   {
-    "welfareName": "복지이름1",
-    "description": "복지내용1",
-    "department": "담당부처A",
+    "id": 1,
+    "welfareName": "출산지원금",
+    "description": "출산한 가정에 지급되는 현금 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service1",
     "lifecycles": [
       "PREGNANCY_BIRTH",
-      "INFANT",
-      "CHILD"
+      "INFANT"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "NONE"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
+      "PREGNANCY_BIRTH",
+      "CHILDCARE"
     ],
-    "id": 1,
-    "startDate": "2025-10-02",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-26",
+    "endDate": "2025-12-24"
   },
   {
-    "welfareName": "복지이름2",
-    "description": "복지내용2",
-    "department": "담당부처B",
-    "supportCycle": "수시",
+    "id": 2,
+    "welfareName": "아동수당",
+    "description": "만 8세 이하 아동에게 지급되는 월정액 수당",
+    "department": "보건복지부",
+    "supportCycle": "월별",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service2",
     "lifecycles": [
-      "PREGNANCY_BIRTH",
       "INFANT",
       "CHILD"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "NONE"
     ],
     "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
+      "CHILDCARE",
+      "LIVING_SUPPORT"
     ],
-    "id": 2,
-    "startDate": "2025-10-20",
-    "endDate": "2025-11-19"
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-12"
   },
   {
-    "welfareName": "복지이름3",
-    "description": "복지내용3",
-    "department": "담당부처C",
+    "id": 3,
+    "welfareName": "임신·출산 진료비 지원",
+    "description": "임신부와 신생아의 의료비 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service3",
     "lifecycles": [
       "PREGNANCY_BIRTH",
-      "INFANT",
-      "CHILD"
+      "INFANT"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "LOW_INCOME"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "PHYSICAL_HEALTH",
+      "PREGNANCY_BIRTH"
     ],
-    "id": 3,
-    "startDate": "2025-10-19",
-    "endDate": "2025-11-22"
+    "startDate": "2025-11-26",
+    "endDate": "2025-12-17"
   },
   {
-    "welfareName": "복지이름4",
-    "description": "복지내용4",
-    "department": "담당부처D",
+    "id": 4,
+    "welfareName": "다자녀 가정 지원금",
+    "description": "3자녀 이상 가정에 대한 추가 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service4",
     "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "INFANT",
-      "CHILD"
+      "CHILD",
+      "TEEN"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "MULTI_CHILDREN"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "CHILDCARE",
+      "LIVING_SUPPORT"
     ],
-    "id": 4,
-    "startDate": "2025-10-04",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-05"
   },
   {
-    "welfareName": "복지이름5",
-    "description": "복지내용5",
-    "department": "담당부처E",
+    "id": 5,
+    "welfareName": "영유아 보육료 지원",
+    "description": "0~5세 영유아 보육료 전액 또는 일부 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service5",
     "lifecycles": [
-      "PREGNANCY_BIRTH",
       "INFANT",
       "CHILD"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "NONE"
     ],
     "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
+      "CHILDCARE",
+      "EDUCATION"
     ],
-    "id": 5,
-    "startDate": "2025-10-01",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-19",
+    "endDate": "2025-12-11"
   },
   {
-    "welfareName": "복지이름6",
-    "description": "복지내용6",
-    "department": "담당부처A",
+    "id": 6,
+    "welfareName": "기초생활수급자 생계급여",
+    "description": "최저생계비 이하 가구에 지급되는 생계비",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service6",
     "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "INFANT",
-      "CHILD"
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
+      "LIVING_SUPPORT",
+      "MICRO_FINANCE"
     ],
-    "id": 6,
-    "startDate": "2025-10-07",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-13"
   },
   {
-    "welfareName": "복지이름7",
-    "description": "복지내용7",
-    "department": "담당부처B",
+    "id": 7,
+    "welfareName": "기초생활수급자 주거급여",
+    "description": "기초생활수급자 가구의 주거비 지원",
+    "department": "국토교통부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service7",
     "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "INFANT",
-      "CHILD"
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
       "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
+      "LIVING_SUPPORT"
     ],
-    "id": 7,
-    "startDate": "2025-10-08",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-15",
+    "endDate": "2025-12-07"
   },
   {
-    "welfareName": "복지이름8",
-    "description": "복지내용8",
-    "department": "담당부처C",
+    "id": 8,
+    "welfareName": "기초생활수급자 의료급여",
+    "description": "기초생활수급자의 의료비 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service8",
     "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "INFANT",
-      "CHILD"
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
     ],
-    "id": 8,
-    "startDate": "2025-10-22",
-    "endDate": "2025-11-22"
+    "startDate": "2025-11-23",
+    "endDate": "2025-12-18"
   },
   {
-    "welfareName": "복지이름9",
-    "description": "복지내용9",
-    "department": "담당부처D",
+    "id": 9,
+    "welfareName": "한시적 생계지원",
+    "description": "일시적 경제적 어려움을 겪는 가구에 대한 긴급 생계지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service9",
     "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "INFANT",
-      "CHILD"
+      "YOUTH",
+      "MIDDLE_AGED"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "SAFETY_CRISIS",
+      "LIVING_SUPPORT"
     ],
-    "id": 9,
-    "startDate": "2025-10-28",
-    "endDate": "2025-11-30"
+    "startDate": "2025-11-19",
+    "endDate": "2025-12-13"
   },
   {
-    "welfareName": "복지이름10",
-    "description": "복지내용10",
-    "department": "담당부처E",
-    "supportCycle": "수시",
+    "id": 10,
+    "welfareName": "장애인 연금",
+    "description": "중증장애인에게 지급되는 월정액 연금",
+    "department": "보건복지부",
+    "supportCycle": "월별",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service10",
     "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "INFANT",
-      "CHILD"
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "DISABLED"
     ],
     "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
+      "LIVING_SUPPORT",
+      "PHYSICAL_HEALTH"
     ],
-    "id": 10,
-    "startDate": "2025-10-10",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-10"
   },
   {
-    "welfareName": "복지이름11",
-    "description": "복지내용11",
-    "department": "담당부처A",
+    "id": 11,
+    "welfareName": "장애인 활동지원",
+    "description": "장애인의 일상생활 및 사회활동 지원 서비스",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service11",
     "lifecycles": [
-      "INFANT",
-      "CHILD",
-      "TEEN"
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "DISABLED"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
+      "LIVING_SUPPORT",
+      "PHYSICAL_HEALTH"
     ],
-    "id": 11,
-    "startDate": "2025-10-02",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-21"
   },
   {
-    "welfareName": "복지이름12",
-    "description": "복지내용12",
-    "department": "담당부처B",
+    "id": 12,
+    "welfareName": "장애인 의료비 지원",
+    "description": "장애인의 의료비 및 재활치료비 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service12",
     "lifecycles": [
-      "INFANT",
       "CHILD",
-      "TEEN"
+      "TEEN",
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "DISABLED"
     ],
     "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
     ],
-    "id": 12,
-    "startDate": "2025-10-10",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-13"
   },
   {
-    "welfareName": "복지이름13",
-    "description": "복지내용13",
-    "department": "담당부처C",
+    "id": 13,
+    "welfareName": "장애인 자립생활 지원",
+    "description": "장애인의 자립생활을 위한 주거 및 생활 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service13",
     "lifecycles": [
-      "INFANT",
-      "CHILD",
-      "TEEN"
+      "YOUTH",
+      "MIDDLE_AGED"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "DISABLED"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "HOUSING",
+      "LIVING_SUPPORT"
     ],
-    "id": 13,
-    "startDate": "2025-10-23",
-    "endDate": "2025-11-26"
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-13"
   },
   {
-    "welfareName": "복지이름14",
-    "description": "복지내용14",
-    "department": "담당부처D",
+    "id": 14,
+    "welfareName": "한부모 가족 아동양육비",
+    "description": "한부모 가족의 아동 양육비 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service14",
     "lifecycles": [
-      "INFANT",
       "CHILD",
       "TEEN"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
       "SINGLE_PARENT"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "CHILDCARE",
+      "LIVING_SUPPORT"
     ],
-    "id": 14,
-    "startDate": "2025-10-04",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-09"
   },
   {
-    "welfareName": "복지이름15",
-    "description": "복지내용15",
-    "department": "담당부처E",
+    "id": 15,
+    "welfareName": "한부모 가족 주거지원",
+    "description": "한부모 가족의 주거 안정 지원",
+    "department": "국토교통부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "서비스제공",
     "contact": "123-123",
     "url": "https://www.example.gov/service15",
     "lifecycles": [
-      "INFANT",
-      "CHILD",
-      "TEEN"
+      "YOUTH",
+      "MIDDLE_AGED"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
       "SINGLE_PARENT"
     ],
     "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
+      "HOUSING",
+      "LIVING_SUPPORT"
     ],
-    "id": 15,
-    "startDate": "2025-10-13",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-15",
+    "endDate": "2025-12-13"
   },
   {
-    "welfareName": "복지이름16",
-    "description": "복지내용16",
-    "department": "담당부처A",
+    "id": 16,
+    "welfareName": "한부모 가족 자립지원",
+    "description": "한부모 가족의 경제적 자립을 위한 취업 및 교육 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service16",
     "lifecycles": [
-      "INFANT",
-      "CHILD",
-      "TEEN"
+      "YOUTH",
+      "MIDDLE_AGED"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "SINGLE_PARENT"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
+      "JOBS",
+      "EDUCATION"
     ],
-    "id": 16,
-    "startDate": "2025-10-26",
-    "endDate": "2025-11-17"
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-18"
   },
   {
-    "welfareName": "복지이름17",
-    "description": "복지내용17",
-    "department": "담당부처B",
+    "id": 17,
+    "welfareName": "청년 주거 급여",
+    "description": "청년층의 주거비 부담 완화를 위한 지원",
+    "department": "국토교통부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service17",
     "lifecycles": [
-      "INFANT",
-      "CHILD",
-      "TEEN"
+      "YOUTH"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
       "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
+      "LIVING_SUPPORT"
     ],
-    "id": 17,
-    "startDate": "2025-10-24",
-    "endDate": "2025-11-23"
+    "startDate": "2025-11-19",
+    "endDate": "2025-12-14"
   },
   {
-    "welfareName": "복지이름18",
-    "description": "복지내용18",
-    "department": "담당부처C",
+    "id": 18,
+    "welfareName": "청년 구직활동지원금",
+    "description": "구직활동 중인 청년에게 지급되는 지원금",
+    "department": "고용노동부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service18",
     "lifecycles": [
-      "INFANT",
-      "CHILD",
-      "TEEN"
+      "YOUTH"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "JOBS",
+      "LIVING_SUPPORT"
     ],
-    "id": 18,
-    "startDate": "2025-10-12",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-20",
+    "endDate": "2025-12-06"
   },
   {
-    "welfareName": "복지이름19",
-    "description": "복지내용19",
-    "department": "담당부처D",
+    "id": 19,
+    "welfareName": "청년 내일채움공제",
+    "description": "청년 근로자의 자산형성을 위한 적립 지원",
+    "department": "고용노동부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service19",
     "lifecycles": [
-      "INFANT",
-      "CHILD",
-      "TEEN"
+      "YOUTH"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "JOBS",
+      "MICRO_FINANCE"
     ],
-    "id": 19,
-    "startDate": "2025-10-01",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-18"
   },
   {
-    "welfareName": "복지이름20",
-    "description": "복지내용20",
-    "department": "담당부처E",
+    "id": 20,
+    "welfareName": "청년 취업지원 프로그램",
+    "description": "청년의 취업을 위한 교육 및 훈련 지원",
+    "department": "고용노동부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service20",
     "lifecycles": [
-      "INFANT",
-      "CHILD",
-      "TEEN"
+      "YOUTH"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
+      "JOBS",
+      "EDUCATION"
     ],
-    "id": 20,
-    "startDate": "2025-10-06",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-23",
+    "endDate": "2025-12-09"
   },
   {
-    "welfareName": "복지이름21",
-    "description": "복지내용21",
-    "department": "담당부처A",
-    "supportCycle": "수시",
+    "id": 21,
+    "welfareName": "기초연금",
+    "description": "65세 이상 저소득 노인에게 지급되는 연금",
+    "department": "보건복지부",
+    "supportCycle": "월별",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service21",
     "lifecycles": [
-      "CHILD",
-      "TEEN",
-      "YOUTH"
+      "SENIOR"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "LOW_INCOME"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
+      "LIVING_SUPPORT",
+      "PHYSICAL_HEALTH"
     ],
-    "id": 21,
-    "startDate": "2025-10-20",
-    "endDate": "2025-11-21"
+    "startDate": "2025-11-18",
+    "endDate": "2025-12-09"
   },
   {
-    "welfareName": "복지이름22",
-    "description": "복지내용22",
-    "department": "담당부처B",
+    "id": 22,
+    "welfareName": "노인 돌봄 서비스",
+    "description": "독거노인 및 거동불편 노인을 위한 돌봄 서비스",
+    "department": "보건복지부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "서비스제공",
     "contact": "123-123",
     "url": "https://www.example.gov/service22",
     "lifecycles": [
-      "CHILD",
-      "TEEN",
-      "YOUTH"
+      "SENIOR"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "NONE"
     ],
     "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
+      "CARE_PROTECT",
+      "PHYSICAL_HEALTH"
     ],
-    "id": 22,
-    "startDate": "2025-10-12",
-    "endDate": "2025-11-15"
+    "startDate": "2025-11-19",
+    "endDate": "2025-12-10"
   },
   {
-    "welfareName": "복지이름23",
-    "description": "복지내용23",
-    "department": "담당부처C",
+    "id": 23,
+    "welfareName": "노인 일자리 사업",
+    "description": "노인의 사회참여를 위한 일자리 제공",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service23",
     "lifecycles": [
-      "CHILD",
-      "TEEN",
-      "YOUTH"
+      "SENIOR"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "NONE"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "JOBS",
+      "CULTURE_LEISURE"
     ],
-    "id": 23,
-    "startDate": "2025-10-13",
-    "endDate": "2025-11-14"
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-04"
   },
   {
-    "welfareName": "복지이름24",
-    "description": "복지내용24",
-    "department": "담당부처D",
+    "id": 24,
+    "welfareName": "노인 의료비 지원",
+    "description": "저소득 노인의 의료비 부담 완화 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service24",
     "lifecycles": [
-      "CHILD",
-      "TEEN",
-      "YOUTH"
+      "SENIOR"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "LOW_INCOME"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
     ],
-    "id": 24,
-    "startDate": "2025-10-10",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-12"
   },
   {
-    "welfareName": "복지이름25",
-    "description": "복지내용25",
-    "department": "담당부처E",
+    "id": 25,
+    "welfareName": "초중고 교육비 지원",
+    "description": "저소득 가구 자녀의 초중고 교육비 지원",
+    "department": "교육부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "교육지원",
     "contact": "123-123",
     "url": "https://www.example.gov/service25",
     "lifecycles": [
       "CHILD",
-      "TEEN",
-      "YOUTH"
+      "TEEN"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "LOW_INCOME"
     ],
     "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
+      "EDUCATION",
+      "LIVING_SUPPORT"
     ],
-    "id": 25,
-    "startDate": "2025-10-17",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-14"
   },
   {
-    "welfareName": "복지이름26",
-    "description": "복지내용26",
-    "department": "담당부처A",
+    "id": 26,
+    "welfareName": "대학생 장학금",
+    "description": "저소득 가구 대학생의 등록금 및 생활비 지원",
+    "department": "교육부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service26",
     "lifecycles": [
-      "CHILD",
-      "TEEN",
       "YOUTH"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
+      "EDUCATION",
       "LIVING_SUPPORT"
     ],
-    "id": 26,
-    "startDate": "2025-10-09",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-22",
+    "endDate": "2025-12-12"
   },
   {
-    "welfareName": "복지이름27",
-    "description": "복지내용27",
-    "department": "담당부처B",
+    "id": 27,
+    "welfareName": "방과후 돌봄 서비스",
+    "description": "초등학생의 방과후 돌봄 서비스 제공",
+    "department": "보건복지부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "서비스제공",
     "contact": "123-123",
     "url": "https://www.example.gov/service27",
     "lifecycles": [
-      "CHILD",
-      "TEEN",
-      "YOUTH"
+      "CHILD"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
+      "CHILDCARE",
+      "EDUCATION"
     ],
-    "id": 27,
-    "startDate": "2025-10-04",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-15"
   },
   {
-    "welfareName": "복지이름28",
-    "description": "복지내용28",
-    "department": "담당부처C",
+    "id": 28,
+    "welfareName": "청소년 문화예술 지원",
+    "description": "청소년의 문화예술 활동 지원",
+    "department": "문화체육관광부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service28",
     "lifecycles": [
-      "CHILD",
       "TEEN",
       "YOUTH"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "CULTURE_LEISURE",
+      "EDUCATION"
     ],
-    "id": 28,
-    "startDate": "2025-10-12",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-15",
+    "endDate": "2025-12-04"
   },
   {
-    "welfareName": "복지이름29",
-    "description": "복지내용29",
-    "department": "담당부처D",
+    "id": 29,
+    "welfareName": "전세자금 대출 지원",
+    "description": "저소득층의 전세자금 대출 이자 지원",
+    "department": "국토교통부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service29",
     "lifecycles": [
-      "CHILD",
-      "TEEN",
-      "YOUTH"
+      "YOUTH",
+      "MIDDLE_AGED"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "HOUSING",
+      "MICRO_FINANCE"
     ],
-    "id": 29,
-    "startDate": "2025-10-02",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-18"
   },
   {
-    "welfareName": "복지이름30",
-    "description": "복지내용30",
-    "department": "담당부처E",
+    "id": 30,
+    "welfareName": "공공임대주택 입주",
+    "description": "저소득층을 위한 공공임대주택 입주 지원",
+    "department": "국토교통부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "서비스제공",
     "contact": "123-123",
     "url": "https://www.example.gov/service30",
     "lifecycles": [
-      "CHILD",
-      "TEEN",
-      "YOUTH"
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
+      "HOUSING",
+      "LIVING_SUPPORT"
     ],
-    "id": 30,
-    "startDate": "2025-10-23",
-    "endDate": "2025-11-24"
+    "startDate": "2025-11-20",
+    "endDate": "2025-12-15"
   },
   {
-    "welfareName": "복지이름31",
-    "description": "복지내용31",
-    "department": "담당부처A",
+    "id": 31,
+    "welfareName": "주거급여",
+    "description": "주거비 부담이 큰 가구에 대한 주거비 지원",
+    "department": "국토교통부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service31",
     "lifecycles": [
-      "TEEN",
       "YOUTH",
-      "MIDDLE_AGED"
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "LOW_INCOME"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
+      "HOUSING",
       "LIVING_SUPPORT"
     ],
-    "id": 31,
-    "startDate": "2025-10-07",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-19",
+    "endDate": "2025-12-05"
   },
   {
-    "welfareName": "복지이름32",
-    "description": "복지내용32",
-    "department": "담당부처B",
+    "id": 32,
+    "welfareName": "건강검진 지원",
+    "description": "저소득층의 정기 건강검진 비용 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service32",
     "lifecycles": [
-      "TEEN",
-      "YOUTH",
-      "MIDDLE_AGED"
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "LOW_INCOME"
     ],
     "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
     ],
-    "id": 32,
-    "startDate": "2025-10-10",
-    "endDate": "2025-11-11"
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-11"
   },
   {
-    "welfareName": "복지이름33",
-    "description": "복지내용33",
-    "department": "담당부처C",
+    "id": 33,
+    "welfareName": "정신건강 상담 지원",
+    "description": "정신건강 문제를 겪는 이들의 상담 서비스 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "서비스제공",
     "contact": "123-123",
     "url": "https://www.example.gov/service33",
     "lifecycles": [
@@ -877,1294 +750,1110 @@
       "MIDDLE_AGED"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "NONE"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "MENTAL_HEALTH",
+      "LIVING_SUPPORT"
     ],
-    "id": 33,
-    "startDate": "2025-10-14",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-21",
+    "endDate": "2025-12-17"
   },
   {
-    "welfareName": "복지이름34",
-    "description": "복지내용34",
-    "department": "담당부처D",
+    "id": 34,
+    "welfareName": "만성질환 관리 지원",
+    "description": "만성질환자의 치료 및 관리비 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service34",
     "lifecycles": [
-      "TEEN",
-      "YOUTH",
-      "MIDDLE_AGED"
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "LOW_INCOME"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
     ],
-    "id": 34,
-    "startDate": "2025-10-24",
-    "endDate": "2025-11-24"
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-13"
   },
   {
-    "welfareName": "복지이름35",
-    "description": "복지내용35",
-    "department": "담당부처E",
+    "id": 35,
+    "welfareName": "문화누리카드",
+    "description": "저소득층의 문화생활 지원을 위한 카드",
+    "department": "문화체육관광부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "바우처",
     "contact": "123-123",
     "url": "https://www.example.gov/service35",
     "lifecycles": [
-      "TEEN",
       "YOUTH",
-      "MIDDLE_AGED"
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "LOW_INCOME"
     ],
     "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
+      "CULTURE_LEISURE",
+      "LIVING_SUPPORT"
     ],
-    "id": 35,
-    "startDate": "2025-10-27",
-    "endDate": "2025-11-17"
+    "startDate": "2025-11-20",
+    "endDate": "2025-12-10"
   },
   {
-    "welfareName": "복지이름36",
-    "description": "복지내용36",
-    "department": "담당부처A",
+    "id": 36,
+    "welfareName": "청소년 체험활동 지원",
+    "description": "청소년의 다양한 체험활동 지원",
+    "department": "여성가족부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service36",
     "lifecycles": [
       "TEEN",
-      "YOUTH",
-      "MIDDLE_AGED"
+      "YOUTH"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
+      "CULTURE_LEISURE",
+      "EDUCATION"
     ],
-    "id": 36,
-    "startDate": "2025-10-27",
-    "endDate": "2025-11-30"
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-15"
   },
   {
-    "welfareName": "복지이름37",
-    "description": "복지내용37",
-    "department": "담당부처B",
+    "id": 37,
+    "welfareName": "법률구조 지원",
+    "description": "저소득층의 법률 문제 해결을 위한 무료 법률상담",
+    "department": "법무부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service37",
     "lifecycles": [
-      "TEEN",
       "YOUTH",
-      "MIDDLE_AGED"
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
+      "LAW",
+      "LIVING_SUPPORT"
     ],
-    "id": 37,
-    "startDate": "2025-10-09",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-15"
   },
   {
-    "welfareName": "복지이름38",
-    "description": "복지내용38",
-    "department": "담당부처C",
+    "id": 38,
+    "welfareName": "가정폭력 피해자 지원",
+    "description": "가정폭력 피해자를 위한 보호 및 자립 지원",
+    "department": "여성가족부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service38",
     "lifecycles": [
-      "TEEN",
       "YOUTH",
       "MIDDLE_AGED"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
       "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "LIVING_SUPPORT"
     ],
-    "id": 38,
-    "startDate": "2025-10-27",
-    "endDate": "2025-11-30"
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-22"
   },
   {
-    "welfareName": "복지이름39",
-    "description": "복지내용39",
-    "department": "담당부처D",
+    "id": 39,
+    "welfareName": "에너지 바우처",
+    "description": "저소득층의 전기료 및 가스료 지원",
+    "department": "산업통상자원부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "바우처",
     "contact": "123-123",
     "url": "https://www.example.gov/service39",
     "lifecycles": [
-      "TEEN",
       "YOUTH",
-      "MIDDLE_AGED"
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "ENERGY",
+      "LIVING_SUPPORT"
     ],
-    "id": 39,
-    "startDate": "2025-10-26",
-    "endDate": "2025-11-25"
+    "startDate": "2025-11-26",
+    "endDate": "2025-12-23"
   },
   {
-    "welfareName": "복지이름40",
-    "description": "복지내용40",
-    "department": "담당부처E",
+    "id": 40,
+    "welfareName": "에너지 효율 개선 지원",
+    "description": "저소득층 주택의 에너지 효율 개선 지원",
+    "department": "산업통상자원부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service40",
     "lifecycles": [
-      "TEEN",
-      "YOUTH",
-      "MIDDLE_AGED"
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
+      "ENERGY",
+      "HOUSING"
     ],
-    "id": 40,
-    "startDate": "2025-10-28",
-    "endDate": "2025-11-29"
+    "startDate": "2025-11-18",
+    "endDate": "2025-12-07"
   },
   {
-    "welfareName": "복지이름41",
-    "description": "복지내용41",
-    "department": "담당부처A",
+    "id": 41,
+    "welfareName": "소상공인 경영안정자금",
+    "description": "소상공인의 경영 안정을 위한 자금 지원",
+    "department": "중소벤처기업부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service41",
     "lifecycles": [
-      "YOUTH",
-      "MIDDLE_AGED",
-      "SENIOR"
+      "MIDDLE_AGED"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "NONE"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
+      "MICRO_FINANCE",
+      "JOBS"
     ],
-    "id": 41,
-    "startDate": "2025-10-21",
-    "endDate": "2025-11-20"
+    "startDate": "2025-11-22",
+    "endDate": "2025-12-10"
   },
   {
-    "welfareName": "복지이름42",
-    "description": "복지내용42",
-    "department": "담당부처B",
+    "id": 42,
+    "welfareName": "청년 창업 지원",
+    "description": "청년 창업을 위한 자금 및 교육 지원",
+    "department": "중소벤처기업부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service42",
     "lifecycles": [
-      "YOUTH",
-      "MIDDLE_AGED",
-      "SENIOR"
+      "YOUTH"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "NONE"
     ],
     "interests": [
-      "HOUSING",
       "JOBS",
-      "CULTURE_LEISURE"
+      "MICRO_FINANCE",
+      "EDUCATION"
     ],
-    "id": 42,
-    "startDate": "2025-10-08",
-    "endDate": "2025-11-12"
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-17"
   },
   {
-    "welfareName": "복지이름43",
-    "description": "복지내용43",
-    "department": "담당부처C",
+    "id": 43,
+    "welfareName": "다문화 가족 지원",
+    "description": "다문화 가족의 정착 및 생활 지원",
+    "department": "여성가족부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service43",
     "lifecycles": [
-      "YOUTH",
-      "MIDDLE_AGED",
-      "SENIOR"
+      "CHILD",
+      "TEEN",
+      "YOUTH"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "MULTICULTURAL_NK"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "EDUCATION",
+      "LIVING_SUPPORT",
+      "CULTURE_LEISURE"
     ],
-    "id": 43,
-    "startDate": "2025-10-08",
-    "endDate": "2025-11-12"
+    "startDate": "2025-11-22",
+    "endDate": "2025-12-20"
   },
   {
-    "welfareName": "복지이름44",
-    "description": "복지내용44",
-    "department": "담당부처D",
+    "id": 44,
+    "welfareName": "다문화 가족 언어교육",
+    "description": "다문화 가족을 위한 한국어 교육 지원",
+    "department": "여성가족부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "교육지원",
     "contact": "123-123",
     "url": "https://www.example.gov/service44",
     "lifecycles": [
       "YOUTH",
-      "MIDDLE_AGED",
-      "SENIOR"
+      "MIDDLE_AGED"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "MULTICULTURAL_NK"
     ],
     "interests": [
       "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "LIVING_SUPPORT"
     ],
-    "id": 44,
-    "startDate": "2025-10-26",
-    "endDate": "2025-11-23"
+    "startDate": "2025-11-18",
+    "endDate": "2025-12-04"
   },
   {
-    "welfareName": "복지이름45",
-    "description": "복지내용45",
-    "department": "담당부처E",
+    "id": 45,
+    "welfareName": "아동보호시설 지원",
+    "description": "보호가 필요한 아동을 위한 시설 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "대여",
     "contact": "123-123",
     "url": "https://www.example.gov/service45",
     "lifecycles": [
-      "YOUTH",
-      "MIDDLE_AGED",
-      "SENIOR"
+      "CHILD",
+      "TEEN"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
-    ],
-    "id": 45,
-    "startDate": "2025-10-07",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름46",
-    "description": "복지내용46",
-    "department": "담당부처A",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service46",
-    "lifecycles": [
-      "YOUTH",
-      "MIDDLE_AGED",
-      "SENIOR"
-    ],
-    "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
       "PROTECTED"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
+      "CARE_PROTECT",
+      "EDUCATION",
       "LIVING_SUPPORT"
     ],
-    "id": 46,
-    "startDate": "2025-10-27",
-    "endDate": "2025-11-29"
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-09"
   },
   {
-    "welfareName": "복지이름47",
-    "description": "복지내용47",
-    "department": "담당부처B",
+    "id": 46,
+    "welfareName": "노인보호시설 지원",
+    "description": "보호가 필요한 노인을 위한 시설 지원",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "대여",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service46",
+    "lifecycles": [
+      "SENIOR"
+    ],
+    "households": [
+      "PROTECTED"
+    ],
+    "interests": [
+      "CARE_PROTECT",
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-23",
+    "endDate": "2025-12-19"
+  },
+  {
+    "id": 47,
+    "welfareName": "입양 가정 지원",
+    "description": "입양 가정에 대한 양육비 및 지원 서비스",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service47",
     "lifecycles": [
-      "YOUTH",
-      "MIDDLE_AGED",
-      "SENIOR"
+      "INFANT",
+      "CHILD"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
+      "ADOPTION_TRUST",
+      "CHILDCARE",
+      "LIVING_SUPPORT"
     ],
-    "id": 47,
-    "startDate": "2025-10-24",
-    "endDate": "2025-11-25"
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-01"
   },
   {
-    "welfareName": "복지이름48",
-    "description": "복지내용48",
-    "department": "담당부처C",
+    "id": 48,
+    "welfareName": "위탁가정 지원",
+    "description": "위탁가정에 대한 양육비 및 지원 서비스",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service48",
     "lifecycles": [
-      "YOUTH",
-      "MIDDLE_AGED",
-      "SENIOR"
+      "CHILD",
+      "TEEN"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "ADOPTION_TRUST",
+      "CHILDCARE",
+      "LIVING_SUPPORT"
     ],
-    "id": 48,
-    "startDate": "2025-10-05",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-21",
+    "endDate": "2025-12-05"
   },
   {
-    "welfareName": "복지이름49",
-    "description": "복지내용49",
-    "department": "담당부처D",
+    "id": 49,
+    "welfareName": "출산지원금",
+    "description": "출산한 가정에 지급되는 현금 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service49",
     "lifecycles": [
-      "YOUTH",
-      "MIDDLE_AGED",
-      "SENIOR"
+      "PREGNANCY_BIRTH",
+      "INFANT"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "PREGNANCY_BIRTH",
+      "CHILDCARE"
     ],
-    "id": 49,
-    "startDate": "2025-10-03",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-09"
   },
   {
-    "welfareName": "복지이름50",
-    "description": "복지내용50",
-    "department": "담당부처E",
-    "supportCycle": "수시",
+    "id": 50,
+    "welfareName": "아동수당",
+    "description": "만 8세 이하 아동에게 지급되는 월정액 수당",
+    "department": "보건복지부",
+    "supportCycle": "월별",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service50",
     "lifecycles": [
-      "YOUTH",
-      "MIDDLE_AGED",
-      "SENIOR"
+      "INFANT",
+      "CHILD"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
+      "CHILDCARE",
+      "LIVING_SUPPORT"
     ],
-    "id": 50,
-    "startDate": "2025-10-28",
-    "endDate": "2025-11-26"
+    "startDate": "2025-11-26",
+    "endDate": "2025-12-19"
   },
   {
-    "welfareName": "복지이름51",
-    "description": "복지내용51",
-    "department": "담당부처A",
+    "id": 51,
+    "welfareName": "임신·출산 진료비 지원",
+    "description": "임신부와 신생아의 의료비 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service51",
     "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
-      "PREGNANCY_BIRTH"
+      "PREGNANCY_BIRTH",
+      "INFANT"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "LOW_INCOME"
     ],
     "interests": [
       "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
+      "PREGNANCY_BIRTH"
     ],
-    "id": 51,
-    "startDate": "2025-10-08",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-04"
   },
   {
-    "welfareName": "복지이름52",
-    "description": "복지내용52",
-    "department": "담당부처B",
+    "id": 52,
+    "welfareName": "다자녀 가정 지원금",
+    "description": "3자녀 이상 가정에 대한 추가 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service52",
     "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
-      "PREGNANCY_BIRTH"
+      "CHILD",
+      "TEEN"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "MULTI_CHILDREN"
     ],
     "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
+      "CHILDCARE",
+      "LIVING_SUPPORT"
     ],
-    "id": 52,
-    "startDate": "2025-10-10",
-    "endDate": "2025-11-11"
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-17"
   },
   {
-    "welfareName": "복지이름53",
-    "description": "복지내용53",
-    "department": "담당부처C",
+    "id": 53,
+    "welfareName": "영유아 보육료 지원",
+    "description": "0~5세 영유아 보육료 전액 또는 일부 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service53",
     "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
-    ],
-    "id": 53,
-    "startDate": "2025-10-19",
-    "endDate": "2025-11-21"
-  },
-  {
-    "welfareName": "복지이름54",
-    "description": "복지내용54",
-    "department": "담당부처D",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service54",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
-    ],
-    "id": 54,
-    "startDate": "2025-10-22",
-    "endDate": "2025-11-15"
-  },
-  {
-    "welfareName": "복지이름55",
-    "description": "복지내용55",
-    "department": "담당부처E",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service55",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
-    ],
-    "id": 55,
-    "startDate": "2025-10-14",
-    "endDate": "2025-11-13"
-  },
-  {
-    "welfareName": "복지이름56",
-    "description": "복지내용56",
-    "department": "담당부처A",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service56",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
-    ],
-    "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
-    ],
-    "id": 56,
-    "startDate": "2025-10-14",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름57",
-    "description": "복지내용57",
-    "department": "담당부처B",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service57",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
-    ],
-    "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
-    ],
-    "id": 57,
-    "startDate": "2025-10-19",
-    "endDate": "2025-11-21"
-  },
-  {
-    "welfareName": "복지이름58",
-    "description": "복지내용58",
-    "department": "담당부처C",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service58",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
-    ],
-    "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
-    ],
-    "id": 58,
-    "startDate": "2025-10-18",
-    "endDate": "2025-11-17"
-  },
-  {
-    "welfareName": "복지이름59",
-    "description": "복지내용59",
-    "department": "담당부처D",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service59",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
-    ],
-    "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
-    ],
-    "id": 59,
-    "startDate": "2025-10-23",
-    "endDate": "2025-11-19"
-  },
-  {
-    "welfareName": "복지이름60",
-    "description": "복지내용60",
-    "department": "담당부처E",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service60",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
-    ],
-    "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
-    ],
-    "id": 60,
-    "startDate": "2025-10-01",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름61",
-    "description": "복지내용61",
-    "department": "담당부처A",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service61",
-    "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "INFANT"
-    ],
-    "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
-    ],
-    "id": 61,
-    "startDate": "2025-10-04",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름62",
-    "description": "복지내용62",
-    "department": "담당부처B",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service62",
-    "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "INFANT"
-    ],
-    "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
-    ],
-    "id": 62,
-    "startDate": "2025-10-08",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름63",
-    "description": "복지내용63",
-    "department": "담당부처C",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service63",
-    "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "INFANT"
-    ],
-    "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
-    ],
-    "id": 63,
-    "startDate": "2025-10-18",
-    "endDate": "2025-11-14"
-  },
-  {
-    "welfareName": "복지이름64",
-    "description": "복지내용64",
-    "department": "담당부처D",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service64",
-    "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "INFANT"
-    ],
-    "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
-    ],
-    "id": 64,
-    "startDate": "2025-10-10",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름65",
-    "description": "복지내용65",
-    "department": "담당부처E",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service65",
-    "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "INFANT"
-    ],
-    "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
-    ],
-    "id": 65,
-    "startDate": "2025-10-07",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름66",
-    "description": "복지내용66",
-    "department": "담당부처A",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service66",
-    "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "INFANT"
-    ],
-    "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
-    ],
-    "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
-    ],
-    "id": 66,
-    "startDate": "2025-10-28",
-    "endDate": "2025-11-24"
-  },
-  {
-    "welfareName": "복지이름67",
-    "description": "복지내용67",
-    "department": "담당부처B",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service67",
-    "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "INFANT"
-    ],
-    "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
-    ],
-    "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
-    ],
-    "id": 67,
-    "startDate": "2025-10-05",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름68",
-    "description": "복지내용68",
-    "department": "담당부처C",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service68",
-    "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "INFANT"
-    ],
-    "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
-    ],
-    "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
-    ],
-    "id": 68,
-    "startDate": "2025-10-28",
-    "endDate": "2025-11-30"
-  },
-  {
-    "welfareName": "복지이름69",
-    "description": "복지내용69",
-    "department": "담당부처D",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service69",
-    "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "INFANT"
-    ],
-    "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
-    ],
-    "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
-    ],
-    "id": 69,
-    "startDate": "2025-10-20",
-    "endDate": "2025-11-20"
-  },
-  {
-    "welfareName": "복지이름70",
-    "description": "복지내용70",
-    "department": "담당부처E",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service70",
-    "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "INFANT"
-    ],
-    "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
-    ],
-    "interests": [
-      "MICRO_FINANCE",
-      "LAW",
-      "ENERGY"
-    ],
-    "id": 70,
-    "startDate": "2025-10-20",
-    "endDate": "2025-11-24"
-  },
-  {
-    "welfareName": "복지이름71",
-    "description": "복지내용71",
-    "department": "담당부처A",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service71",
-    "lifecycles": [
-      "PREGNANCY_BIRTH",
       "INFANT",
       "CHILD"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "NONE"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
+      "CHILDCARE",
+      "EDUCATION"
     ],
-    "id": 71,
-    "startDate": "2025-10-20",
-    "endDate": "2025-11-12"
+    "startDate": "2025-11-26",
+    "endDate": "2025-12-11"
   },
   {
-    "welfareName": "복지이름72",
-    "description": "복지내용72",
-    "department": "담당부처B",
+    "id": 54,
+    "welfareName": "기초생활수급자 생계급여",
+    "description": "최저생계비 이하 가구에 지급되는 생계비",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
-    "url": "https://www.example.gov/service72",
-    "lifecycles": [
-      "INFANT",
-      "CHILD",
-      "TEEN"
-    ],
-    "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
-    ],
-    "id": 72,
-    "startDate": "2025-10-28",
-    "endDate": "2025-11-29"
-  },
-  {
-    "welfareName": "복지이름73",
-    "description": "복지내용73",
-    "department": "담당부처C",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service73",
-    "lifecycles": [
-      "CHILD",
-      "TEEN",
-      "YOUTH"
-    ],
-    "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "PHYSICAL_HEALTH",
-      "MENTAL_HEALTH",
-      "LIVING_SUPPORT"
-    ],
-    "id": 73,
-    "startDate": "2025-10-26",
-    "endDate": "2025-11-28"
-  },
-  {
-    "welfareName": "복지이름74",
-    "description": "복지내용74",
-    "department": "담당부처D",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service74",
-    "lifecycles": [
-      "TEEN",
-      "YOUTH",
-      "MIDDLE_AGED"
-    ],
-    "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
-    ],
-    "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
-    ],
-    "id": 74,
-    "startDate": "2025-10-10",
-    "endDate": "2025-11-14"
-  },
-  {
-    "welfareName": "복지이름75",
-    "description": "복지내용75",
-    "department": "담당부처E",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "123-123",
-    "url": "https://www.example.gov/service75",
+    "url": "https://www.example.gov/service54",
     "lifecycles": [
       "YOUTH",
       "MIDDLE_AGED",
       "SENIOR"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "LIVING_SUPPORT",
+      "MICRO_FINANCE"
+    ],
+    "startDate": "2025-11-18",
+    "endDate": "2025-12-10"
+  },
+  {
+    "id": 55,
+    "welfareName": "기초생활수급자 주거급여",
+    "description": "기초생활수급자 가구의 주거비 지원",
+    "department": "국토교통부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service55",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "HOUSING",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-16"
+  },
+  {
+    "id": 56,
+    "welfareName": "기초생활수급자 의료급여",
+    "description": "기초생활수급자의 의료비 지원",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service56",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-22",
+    "endDate": "2025-12-07"
+  },
+  {
+    "id": 57,
+    "welfareName": "한시적 생계지원",
+    "description": "일시적 경제적 어려움을 겪는 가구에 대한 긴급 생계지원",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service57",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "SAFETY_CRISIS",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-26",
+    "endDate": "2025-12-14"
+  },
+  {
+    "id": 58,
+    "welfareName": "장애인 연금",
+    "description": "중증장애인에게 지급되는 월정액 연금",
+    "department": "보건복지부",
+    "supportCycle": "월별",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service58",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "DISABLED"
+    ],
+    "interests": [
+      "LIVING_SUPPORT",
+      "PHYSICAL_HEALTH"
+    ],
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-03"
+  },
+  {
+    "id": 59,
+    "welfareName": "장애인 활동지원",
+    "description": "장애인의 일상생활 및 사회활동 지원 서비스",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service59",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "DISABLED"
+    ],
+    "interests": [
+      "LIVING_SUPPORT",
+      "PHYSICAL_HEALTH"
+    ],
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-17"
+  },
+  {
+    "id": 60,
+    "welfareName": "장애인 의료비 지원",
+    "description": "장애인의 의료비 및 재활치료비 지원",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service60",
+    "lifecycles": [
+      "CHILD",
+      "TEEN",
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "DISABLED"
+    ],
+    "interests": [
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-11"
+  },
+  {
+    "id": 61,
+    "welfareName": "장애인 자립생활 지원",
+    "description": "장애인의 자립생활을 위한 주거 및 생활 지원",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service61",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED"
+    ],
+    "households": [
+      "DISABLED"
+    ],
+    "interests": [
+      "HOUSING",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-22",
+    "endDate": "2025-12-19"
+  },
+  {
+    "id": 62,
+    "welfareName": "한부모 가족 아동양육비",
+    "description": "한부모 가족의 아동 양육비 지원",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service62",
+    "lifecycles": [
+      "CHILD",
+      "TEEN"
+    ],
+    "households": [
+      "SINGLE_PARENT"
+    ],
+    "interests": [
+      "CHILDCARE",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-20",
+    "endDate": "2025-12-06"
+  },
+  {
+    "id": 63,
+    "welfareName": "한부모 가족 주거지원",
+    "description": "한부모 가족의 주거 안정 지원",
+    "department": "국토교통부",
+    "supportCycle": "수시",
+    "supplyType": "서비스제공",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service63",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED"
+    ],
+    "households": [
       "SINGLE_PARENT"
     ],
     "interests": [
       "HOUSING",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-26",
+    "endDate": "2025-12-20"
+  },
+  {
+    "id": 64,
+    "welfareName": "한부모 가족 자립지원",
+    "description": "한부모 가족의 경제적 자립을 위한 취업 및 교육 지원",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service64",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED"
+    ],
+    "households": [
+      "SINGLE_PARENT"
+    ],
+    "interests": [
+      "JOBS",
+      "EDUCATION"
+    ],
+    "startDate": "2025-11-15",
+    "endDate": "2025-11-29"
+  },
+  {
+    "id": 65,
+    "welfareName": "청년 주거 급여",
+    "description": "청년층의 주거비 부담 완화를 위한 지원",
+    "department": "국토교통부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service65",
+    "lifecycles": [
+      "YOUTH"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "HOUSING",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-20",
+    "endDate": "2025-12-04"
+  },
+  {
+    "id": 66,
+    "welfareName": "청년 구직활동지원금",
+    "description": "구직활동 중인 청년에게 지급되는 지원금",
+    "department": "고용노동부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service66",
+    "lifecycles": [
+      "YOUTH"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "JOBS",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-15"
+  },
+  {
+    "id": 67,
+    "welfareName": "청년 내일채움공제",
+    "description": "청년 근로자의 자산형성을 위한 적립 지원",
+    "department": "고용노동부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service67",
+    "lifecycles": [
+      "YOUTH"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "JOBS",
+      "MICRO_FINANCE"
+    ],
+    "startDate": "2025-11-20",
+    "endDate": "2025-12-04"
+  },
+  {
+    "id": 68,
+    "welfareName": "청년 취업지원 프로그램",
+    "description": "청년의 취업을 위한 교육 및 훈련 지원",
+    "department": "고용노동부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service68",
+    "lifecycles": [
+      "YOUTH"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "JOBS",
+      "EDUCATION"
+    ],
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-17"
+  },
+  {
+    "id": 69,
+    "welfareName": "기초연금",
+    "description": "65세 이상 저소득 노인에게 지급되는 연금",
+    "department": "보건복지부",
+    "supportCycle": "월별",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service69",
+    "lifecycles": [
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "LIVING_SUPPORT",
+      "PHYSICAL_HEALTH"
+    ],
+    "startDate": "2025-11-26",
+    "endDate": "2025-12-11"
+  },
+  {
+    "id": 70,
+    "welfareName": "노인 돌봄 서비스",
+    "description": "독거노인 및 거동불편 노인을 위한 돌봄 서비스",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "서비스제공",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service70",
+    "lifecycles": [
+      "SENIOR"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "CARE_PROTECT",
+      "PHYSICAL_HEALTH"
+    ],
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-13"
+  },
+  {
+    "id": 71,
+    "welfareName": "노인 일자리 사업",
+    "description": "노인의 사회참여를 위한 일자리 제공",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service71",
+    "lifecycles": [
+      "SENIOR"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
       "JOBS",
       "CULTURE_LEISURE"
     ],
-    "id": 75,
-    "startDate": "2025-10-13",
-    "endDate": "2025-11-12"
+    "startDate": "2025-11-21",
+    "endDate": "2025-12-06"
   },
   {
-    "welfareName": "복지이름76",
-    "description": "복지내용76",
-    "department": "담당부처A",
+    "id": 72,
+    "welfareName": "노인 의료비 지원",
+    "description": "저소득 노인의 의료비 부담 완화 지원",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service72",
+    "lifecycles": [
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-19",
+    "endDate": "2025-12-12"
+  },
+  {
+    "id": 73,
+    "welfareName": "초중고 교육비 지원",
+    "description": "저소득 가구 자녀의 초중고 교육비 지원",
+    "department": "교육부",
+    "supportCycle": "수시",
+    "supplyType": "교육지원",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service73",
+    "lifecycles": [
+      "CHILD",
+      "TEEN"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "EDUCATION",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-26",
+    "endDate": "2025-12-10"
+  },
+  {
+    "id": 74,
+    "welfareName": "대학생 장학금",
+    "description": "저소득 가구 대학생의 등록금 및 생활비 지원",
+    "department": "교육부",
+    "supportCycle": "수시",
+    "supplyType": "현금지급",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service74",
+    "lifecycles": [
+      "YOUTH"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "EDUCATION",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-10"
+  },
+  {
+    "id": 75,
+    "welfareName": "방과후 돌봄 서비스",
+    "description": "초등학생의 방과후 돌봄 서비스 제공",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "서비스제공",
+    "contact": "123-123",
+    "url": "https://www.example.gov/service75",
+    "lifecycles": [
+      "CHILD"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "CHILDCARE",
+      "EDUCATION"
+    ],
+    "startDate": "2025-11-18",
+    "endDate": "2025-12-16"
+  },
+  {
+    "id": 76,
+    "welfareName": "청소년 문화예술 지원",
+    "description": "청소년의 문화예술 활동 지원",
+    "department": "문화체육관광부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service76",
     "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
-      "PREGNANCY_BIRTH"
+      "TEEN",
+      "YOUTH"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "NONE"
     ],
     "interests": [
-      "HOUSING",
-      "JOBS",
-      "CULTURE_LEISURE"
+      "CULTURE_LEISURE",
+      "EDUCATION"
     ],
-    "id": 76,
-    "startDate": "2025-10-10",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-22",
+    "endDate": "2025-12-11"
   },
   {
-    "welfareName": "복지이름77",
-    "description": "복지내용77",
-    "department": "담당부처B",
+    "id": 77,
+    "welfareName": "전세자금 대출 지원",
+    "description": "저소득층의 전세자금 대출 이자 지원",
+    "department": "국토교통부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service77",
     "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "INFANT"
+      "YOUTH",
+      "MIDDLE_AGED"
     ],
     "households": [
-      "LOW_INCOME",
-      "DISABLED",
-      "SINGLE_PARENT"
+      "LOW_INCOME"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "HOUSING",
+      "MICRO_FINANCE"
     ],
-    "id": 77,
-    "startDate": "2025-10-10",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-14"
   },
   {
-    "welfareName": "복지이름78",
-    "description": "복지내용78",
-    "department": "담당부처C",
+    "id": 78,
+    "welfareName": "공공임대주택 입주",
+    "description": "저소득층을 위한 공공임대주택 입주 지원",
+    "department": "국토교통부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "서비스제공",
     "contact": "123-123",
     "url": "https://www.example.gov/service78",
     "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "INFANT",
-      "CHILD"
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "HOUSING",
+      "LIVING_SUPPORT"
     ],
-    "id": 78,
-    "startDate": "2025-10-13",
-    "endDate": "2025-11-11"
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-17"
   },
   {
-    "welfareName": "복지이름79",
-    "description": "복지내용79",
-    "department": "담당부처D",
+    "id": 79,
+    "welfareName": "주거급여",
+    "description": "주거비 부담이 큰 가구에 대한 주거비 지원",
+    "department": "국토교통부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service79",
     "lifecycles": [
-      "INFANT",
-      "CHILD",
-      "TEEN"
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH",
-      "CHILDCARE"
+      "HOUSING",
+      "LIVING_SUPPORT"
     ],
-    "id": 79,
-    "startDate": "2025-10-15",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-18",
+    "endDate": "2025-12-12"
   },
   {
-    "welfareName": "복지이름80",
-    "description": "복지내용80",
-    "department": "담당부처E",
+    "id": 80,
+    "welfareName": "건강검진 지원",
+    "description": "저소득층의 정기 건강검진 비용 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service80",
     "lifecycles": [
-      "CHILD",
-      "TEEN",
-      "YOUTH"
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
     ],
-    "id": 80,
-    "startDate": "2025-10-05",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-22",
+    "endDate": "2025-12-09"
   },
   {
-    "welfareName": "복지이름81",
-    "description": "복지내용81",
-    "department": "담당부처A",
+    "id": 81,
+    "welfareName": "정신건강 상담 지원",
+    "description": "정신건강 문제를 겪는 이들의 상담 서비스 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
-    "supplyType": "현금지급",
+    "supplyType": "서비스제공",
     "contact": "123-123",
     "url": "https://www.example.gov/service81",
     "lifecycles": [
@@ -2173,656 +1862,353 @@
       "MIDDLE_AGED"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "NONE"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "MENTAL_HEALTH",
+      "LIVING_SUPPORT"
     ],
-    "id": 81,
-    "startDate": "2025-10-17",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-15",
+    "endDate": "2025-12-12"
   },
   {
-    "welfareName": "복지이름82",
-    "description": "복지내용82",
-    "department": "담당부처B",
+    "id": 82,
+    "welfareName": "만성질환 관리 지원",
+    "description": "만성질환자의 치료 및 관리비 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "123-123",
     "url": "https://www.example.gov/service82",
+    "lifecycles": [
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-07"
+  },
+  {
+    "id": 83,
+    "welfareName": "문화누리카드",
+    "description": "저소득층의 문화생활 지원을 위한 카드",
+    "department": "문화체육관광부",
+    "supportCycle": "분기별",
+    "supplyType": "바우처",
+    "contact": "02-462-3001",
+    "url": "https://www.example.gov/service83",
     "lifecycles": [
       "YOUTH",
       "MIDDLE_AGED",
       "SENIOR"
     ],
     "households": [
-      "MULTI_CHILDREN",
-      "MULTICULTURAL_NK",
-      "PROTECTED"
+      "LOW_INCOME"
     ],
     "interests": [
-      "EDUCATION",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
+      "CULTURE_LEISURE",
+      "LIVING_SUPPORT"
     ],
-    "id": 82,
-    "startDate": "2025-10-08",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-26",
+    "endDate": "2025-12-20"
   },
   {
-    "welfareName": "복지이름83",
-    "description": "복지내용83",
-    "department": "담당부처B",
-    "supportCycle": "분기별",
-    "supplyType": "서비스제공",
-    "contact": "02-462-3001",
-    "url": "https://www.example.gov/service83",
-    "lifecycles": [
-      "YOUTH",
-      "TEEN",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "MICRO_FINANCE",
-      "PREGNANCY_BIRTH",
-      "LAW"
-    ],
-    "id": 83,
-    "startDate": "2025-10-02",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름84",
-    "description": "복지내용84",
-    "department": "담당부처B",
+    "id": 84,
+    "welfareName": "청소년 체험활동 지원",
+    "description": "청소년의 다양한 체험활동 지원",
+    "department": "여성가족부",
     "supportCycle": "분기별",
     "supplyType": "바우처",
     "contact": "02-113-1725",
     "url": "https://www.example.gov/service84",
     "lifecycles": [
       "TEEN",
-      "MIDDLE_AGED",
-      "SENIOR"
+      "YOUTH"
     ],
     "households": [
       "NONE"
     ],
     "interests": [
-      "ADOPTION_TRUST",
-      "JOBS",
+      "CULTURE_LEISURE",
       "EDUCATION"
     ],
-    "id": 84,
-    "startDate": "2025-10-06",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-10"
   },
   {
-    "welfareName": "복지이름85",
-    "description": "복지내용85",
-    "department": "담당부처A",
+    "id": 85,
+    "welfareName": "법률구조 지원",
+    "description": "저소득층의 법률 문제 해결을 위한 무료 법률상담",
+    "department": "법무부",
     "supportCycle": "분기별",
     "supplyType": "대여",
     "contact": "02-750-5907",
     "url": "https://www.example.gov/service85",
     "lifecycles": [
-      "TEEN",
-      "PREGNANCY_BIRTH",
-      "INFANT"
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "NONE"
+      "LOW_INCOME"
     ],
     "interests": [
-      "MICRO_FINANCE",
-      "JOBS",
-      "CHILDCARE"
+      "LAW",
+      "LIVING_SUPPORT"
     ],
-    "id": 85,
-    "startDate": "2025-10-11",
-    "endDate": "2025-11-14"
+    "startDate": "2025-11-19",
+    "endDate": "2025-12-08"
   },
   {
-    "welfareName": "복지이름86",
-    "description": "복지내용86",
-    "department": "담당부처A",
+    "id": 86,
+    "welfareName": "가정폭력 피해자 지원",
+    "description": "가정폭력 피해자를 위한 보호 및 자립 지원",
+    "department": "여성가족부",
     "supportCycle": "상시",
     "supplyType": "대여",
     "contact": "02-349-5485",
     "url": "https://www.example.gov/service86",
     "lifecycles": [
-      "CHILD",
-      "MIDDLE_AGED",
-      "YOUTH"
+      "YOUTH",
+      "MIDDLE_AGED"
     ],
     "households": [
       "NONE"
     ],
     "interests": [
-      "CULTURE_LEISURE",
-      "MENTAL_HEALTH",
+      "SAFETY_CRISIS",
       "LIVING_SUPPORT"
     ],
-    "id": 86,
-    "startDate": "2025-10-08",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-21",
+    "endDate": "2025-12-13"
   },
   {
-    "welfareName": "복지이름87",
-    "description": "복지내용87",
-    "department": "담당부처A",
+    "id": 87,
+    "welfareName": "에너지 바우처",
+    "description": "저소득층의 전기료 및 가스료 지원",
+    "department": "산업통상자원부",
     "supportCycle": "수시",
-    "supplyType": "서비스제공",
+    "supplyType": "바우처",
     "contact": "02-523-2590",
     "url": "https://www.example.gov/service87",
     "lifecycles": [
+      "YOUTH",
       "MIDDLE_AGED",
-      "INFANT",
-      "TEEN"
+      "SENIOR"
     ],
     "households": [
-      "NONE"
+      "LOW_INCOME"
     ],
     "interests": [
-      "ADOPTION_TRUST",
-      "HOUSING",
-      "ENERGY"
+      "ENERGY",
+      "LIVING_SUPPORT"
     ],
-    "id": 87,
-    "startDate": "2025-10-02",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-22",
+    "endDate": "2025-12-15"
   },
   {
-    "welfareName": "복지이름88",
-    "description": "복지내용88",
-    "department": "담당부처C",
+    "id": 88,
+    "welfareName": "에너지 효율 개선 지원",
+    "description": "저소득층 주택의 에너지 효율 개선 지원",
+    "department": "산업통상자원부",
     "supportCycle": "수시",
     "supplyType": "바우처",
     "contact": "02-583-4497",
     "url": "https://www.example.gov/service88",
     "lifecycles": [
-      "TEEN",
-      "YOUTH",
+      "MIDDLE_AGED",
       "SENIOR"
     ],
     "households": [
-      "NONE"
+      "LOW_INCOME"
     ],
     "interests": [
-      "SAFETY_CRISIS",
       "ENERGY",
-      "CULTURE_LEISURE"
+      "HOUSING"
     ],
-    "id": 88,
-    "startDate": "2025-10-26",
-    "endDate": "2025-11-21"
+    "startDate": "2025-11-18",
+    "endDate": "2025-12-15"
   },
   {
-    "welfareName": "복지이름89",
-    "description": "복지내용89",
-    "department": "담당부처D",
+    "id": 89,
+    "welfareName": "소상공인 경영안정자금",
+    "description": "소상공인의 경영 안정을 위한 자금 지원",
+    "department": "중소벤처기업부",
     "supportCycle": "수시",
-    "supplyType": "바우처",
+    "supplyType": "현금지급",
     "contact": "02-295-1220",
     "url": "https://www.example.gov/service89",
     "lifecycles": [
-      "TEEN",
-      "PREGNANCY_BIRTH",
       "MIDDLE_AGED"
     ],
     "households": [
       "NONE"
     ],
     "interests": [
-      "ADOPTION_TRUST",
-      "SAFETY_CRISIS",
-      "MICRO_FINANCE"
+      "MICRO_FINANCE",
+      "JOBS"
     ],
-    "id": 89,
-    "startDate": "2025-10-09",
-    "endDate": "2025-11-13"
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-08"
   },
   {
-    "welfareName": "복지이름90",
-    "description": "복지내용90",
-    "department": "담당부처D",
+    "id": 90,
+    "welfareName": "청년 창업 지원",
+    "description": "청년 창업을 위한 자금 및 교육 지원",
+    "department": "중소벤처기업부",
     "supportCycle": "분기별",
     "supplyType": "대여",
     "contact": "02-911-1317",
     "url": "https://www.example.gov/service90",
     "lifecycles": [
-      "INFANT",
-      "TEEN",
-      "PREGNANCY_BIRTH"
+      "YOUTH"
     ],
     "households": [
       "NONE"
     ],
     "interests": [
-      "HOUSING",
-      "LAW",
-      "LIVING_SUPPORT"
+      "JOBS",
+      "MICRO_FINANCE",
+      "EDUCATION"
     ],
-    "id": 90,
-    "startDate": "2025-10-23",
-    "endDate": "2025-11-17"
+    "startDate": "2025-11-23",
+    "endDate": "2025-12-12"
   },
   {
-    "welfareName": "복지이름91",
-    "description": "복지내용91",
-    "department": "담당부처A",
+    "id": 91,
+    "welfareName": "다문화 가족 지원",
+    "description": "다문화 가족의 정착 및 생활 지원",
+    "department": "여성가족부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "02-502-9196",
     "url": "https://www.example.gov/service91",
     "lifecycles": [
-      "INFANT",
       "CHILD",
+      "TEEN",
       "YOUTH"
     ],
     "households": [
-      "NONE"
+      "MULTICULTURAL_NK"
     ],
     "interests": [
-      "CARE_PROTECT",
-      "MICRO_FINANCE",
-      "LIVING_SUPPORT"
+      "EDUCATION",
+      "LIVING_SUPPORT",
+      "CULTURE_LEISURE"
     ],
-    "id": 91,
-    "startDate": "2025-10-01",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-23"
   },
   {
-    "welfareName": "복지이름92",
-    "description": "복지내용92",
-    "department": "담당부처C",
+    "id": 92,
+    "welfareName": "다문화 가족 언어교육",
+    "description": "다문화 가족을 위한 한국어 교육 지원",
+    "department": "여성가족부",
     "supportCycle": "분기별",
     "supplyType": "교육지원",
     "contact": "02-765-1323",
     "url": "https://www.example.gov/service92",
     "lifecycles": [
-      "SENIOR",
-      "INFANT",
-      "YOUTH"
+      "YOUTH",
+      "MIDDLE_AGED"
     ],
     "households": [
-      "NONE"
+      "MULTICULTURAL_NK"
     ],
     "interests": [
       "EDUCATION",
-      "CULTURE_LEISURE",
       "LIVING_SUPPORT"
     ],
-    "id": 92,
-    "startDate": "2025-10-18",
-    "endDate": "2025-11-21"
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-11"
   },
   {
-    "welfareName": "복지이름93",
-    "description": "복지내용93",
-    "department": "담당부처C",
+    "id": 93,
+    "welfareName": "아동보호시설 지원",
+    "description": "보호가 필요한 아동을 위한 시설 지원",
+    "department": "보건복지부",
     "supportCycle": "분기별",
-    "supplyType": "서비스제공",
+    "supplyType": "대여",
     "contact": "02-441-9121",
     "url": "https://www.example.gov/service93",
     "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "YOUTH",
-      "INFANT"
+      "CHILD",
+      "TEEN"
     ],
     "households": [
-      "NONE"
+      "PROTECTED"
     ],
     "interests": [
-      "ADOPTION_TRUST",
-      "MENTAL_HEALTH",
+      "CARE_PROTECT",
+      "EDUCATION",
       "LIVING_SUPPORT"
     ],
-    "id": 93,
-    "startDate": "2025-10-07",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-06"
   },
   {
-    "welfareName": "복지이름94",
-    "description": "복지내용94",
-    "department": "담당부처E",
+    "id": 94,
+    "welfareName": "노인보호시설 지원",
+    "description": "보호가 필요한 노인을 위한 시설 지원",
+    "department": "보건복지부",
     "supportCycle": "연중",
     "supplyType": "대여",
     "contact": "02-640-4358",
     "url": "https://www.example.gov/service94",
     "lifecycles": [
-      "YOUTH",
-      "TEEN",
-      "INFANT"
+      "SENIOR"
     ],
     "households": [
-      "NONE"
+      "PROTECTED"
     ],
     "interests": [
-      "MICRO_FINANCE",
-      "LIVING_SUPPORT",
-      "MENTAL_HEALTH"
+      "CARE_PROTECT",
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
     ],
-    "id": 94,
-    "startDate": "2025-10-03",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-21",
+    "endDate": "2025-12-17"
   },
   {
-    "welfareName": "복지이름95",
-    "description": "복지내용95",
-    "department": "담당부처C",
+    "id": 95,
+    "welfareName": "입양 가정 지원",
+    "description": "입양 가정에 대한 양육비 및 지원 서비스",
+    "department": "보건복지부",
     "supportCycle": "연중",
     "supplyType": "대여",
     "contact": "02-412-9577",
     "url": "https://www.example.gov/service95",
     "lifecycles": [
-      "CHILD",
       "INFANT",
-      "YOUTH"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "LIVING_SUPPORT",
-      "ADOPTION_TRUST",
-      "CARE_PROTECT"
-    ],
-    "id": 95,
-    "startDate": "2025-10-19",
-    "endDate": "2025-11-15"
-  },
-  {
-    "welfareName": "복지이름96",
-    "description": "복지내용96",
-    "department": "담당부처E",
-    "supportCycle": "연중",
-    "supplyType": "교육지원",
-    "contact": "02-856-9104",
-    "url": "https://www.example.gov/service96",
-    "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "YOUTH",
-      "TEEN"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "PHYSICAL_HEALTH",
-      "JOBS",
-      "MENTAL_HEALTH"
-    ],
-    "id": 96,
-    "startDate": "2025-10-09",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름97",
-    "description": "복지내용97",
-    "department": "담당부처D",
-    "supportCycle": "상시",
-    "supplyType": "대여",
-    "contact": "02-328-9646",
-    "url": "https://www.example.gov/service97",
-    "lifecycles": [
-      "INFANT",
-      "MIDDLE_AGED",
-      "SENIOR"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "CHILDCARE",
-      "CULTURE_LEISURE",
-      "CARE_PROTECT"
-    ],
-    "id": 97,
-    "startDate": "2025-10-16",
-    "endDate": "2025-11-19"
-  },
-  {
-    "welfareName": "복지이름98",
-    "description": "복지내용98",
-    "department": "담당부처D",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "02-577-1713",
-    "url": "https://www.example.gov/service98",
-    "lifecycles": [
-      "INFANT",
-      "YOUTH",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "PHYSICAL_HEALTH",
-      "CULTURE_LEISURE",
-      "JOBS"
-    ],
-    "id": 98,
-    "startDate": "2025-10-11",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름99",
-    "description": "복지내용99",
-    "department": "담당부처E",
-    "supportCycle": "수시",
-    "supplyType": "교육지원",
-    "contact": "02-405-9185",
-    "url": "https://www.example.gov/service99",
-    "lifecycles": [
-      "CHILD",
-      "SENIOR",
-      "INFANT"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "CARE_PROTECT",
-      "JOBS",
-      "LAW"
-    ],
-    "id": 99,
-    "startDate": "2025-10-15",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름100",
-    "description": "복지내용100",
-    "department": "담당부처A",
-    "supportCycle": "분기별",
-    "supplyType": "서비스제공",
-    "contact": "02-425-4580",
-    "url": "https://www.example.gov/service100",
-    "lifecycles": [
-      "CHILD",
-      "PREGNANCY_BIRTH",
-      "SENIOR"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "MICRO_FINANCE",
-      "EDUCATION",
-      "PREGNANCY_BIRTH"
-    ],
-    "id": 100,
-    "startDate": "2025-10-09",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름101",
-    "description": "복지내용101",
-    "department": "담당부처C",
-    "supportCycle": "상시",
-    "supplyType": "서비스제공",
-    "contact": "02-759-7761",
-    "url": "https://www.example.gov/service101",
-    "lifecycles": [
-      "TEEN",
-      "YOUTH",
-      "MIDDLE_AGED"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "LAW",
-      "ADOPTION_TRUST",
-      "CULTURE_LEISURE"
-    ],
-    "id": 101,
-    "startDate": "2025-10-15",
-    "endDate": "2025-11-13"
-  },
-  {
-    "welfareName": "복지이름102",
-    "description": "복지내용102",
-    "department": "담당부처C",
-    "supportCycle": "분기별",
-    "supplyType": "교육지원",
-    "contact": "02-664-7448",
-    "url": "https://www.example.gov/service102",
-    "lifecycles": [
-      "CHILD",
-      "SENIOR",
-      "TEEN"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "CHILDCARE",
-      "HOUSING",
-      "ENERGY"
-    ],
-    "id": 102,
-    "startDate": "2025-10-26",
-    "endDate": "2025-11-30"
-  },
-  {
-    "welfareName": "복지이름103",
-    "description": "복지내용103",
-    "department": "담당부처B",
-    "supportCycle": "상시",
-    "supplyType": "대여",
-    "contact": "02-175-5700",
-    "url": "https://www.example.gov/service103",
-    "lifecycles": [
-      "YOUTH",
-      "PREGNANCY_BIRTH",
-      "TEEN"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "SAFETY_CRISIS",
-      "MENTAL_HEALTH",
-      "CARE_PROTECT"
-    ],
-    "id": 103,
-    "startDate": "2025-10-15",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름104",
-    "description": "복지내용104",
-    "department": "담당부처A",
-    "supportCycle": "연중",
-    "supplyType": "서비스제공",
-    "contact": "02-290-3805",
-    "url": "https://www.example.gov/service104",
-    "lifecycles": [
-      "CHILD",
-      "INFANT",
-      "SENIOR"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "ADOPTION_TRUST",
-      "EDUCATION",
-      "PHYSICAL_HEALTH"
-    ],
-    "id": 104,
-    "startDate": "2025-10-08",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름105",
-    "description": "복지내용105",
-    "department": "담당부처B",
-    "supportCycle": "상시",
-    "supplyType": "서비스제공",
-    "contact": "02-769-5690",
-    "url": "https://www.example.gov/service105",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "SENIOR",
       "CHILD"
     ],
     "households": [
       "NONE"
     ],
     "interests": [
-      "PREGNANCY_BIRTH",
-      "LAW",
-      "ADOPTION_TRUST"
+      "ADOPTION_TRUST",
+      "CHILDCARE",
+      "LIVING_SUPPORT"
     ],
-    "id": 105,
-    "startDate": "2025-10-06",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-13"
   },
   {
-    "welfareName": "복지이름106",
-    "description": "복지내용106",
-    "department": "담당부처D",
-    "supportCycle": "상시",
-    "supplyType": "서비스제공",
-    "contact": "02-571-3664",
-    "url": "https://www.example.gov/service106",
-    "lifecycles": [
-      "YOUTH",
-      "PREGNANCY_BIRTH",
-      "SENIOR"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "JOBS",
-      "SAFETY_CRISIS",
-      "CARE_PROTECT"
-    ],
-    "id": 106,
-    "startDate": "2025-10-25",
-    "endDate": "2025-11-28"
-  },
-  {
-    "welfareName": "복지이름107",
-    "description": "복지내용107",
-    "department": "담당부처E",
+    "id": 96,
+    "welfareName": "위탁가정 지원",
+    "description": "위탁가정에 대한 양육비 및 지원 서비스",
+    "department": "보건복지부",
     "supportCycle": "연중",
-    "supplyType": "서비스제공",
-    "contact": "02-335-9442",
-    "url": "https://www.example.gov/service107",
+    "supplyType": "교육지원",
+    "contact": "02-856-9104",
+    "url": "https://www.example.gov/service96",
     "lifecycles": [
-      "MIDDLE_AGED",
       "CHILD",
       "TEEN"
     ],
@@ -2830,18 +2216,276 @@
       "NONE"
     ],
     "interests": [
-      "PREGNANCY_BIRTH",
-      "MENTAL_HEALTH",
-      "JOBS"
+      "ADOPTION_TRUST",
+      "CHILDCARE",
+      "LIVING_SUPPORT"
     ],
-    "id": 107,
-    "startDate": "2025-10-17",
-    "endDate": "2025-11-14"
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-05"
   },
   {
-    "welfareName": "복지이름108",
-    "description": "복지내용108",
-    "department": "담당부처D",
+    "id": 97,
+    "welfareName": "출산지원금",
+    "description": "출산한 가정에 지급되는 현금 지원",
+    "department": "보건복지부",
+    "supportCycle": "상시",
+    "supplyType": "대여",
+    "contact": "02-328-9646",
+    "url": "https://www.example.gov/service97",
+    "lifecycles": [
+      "PREGNANCY_BIRTH",
+      "INFANT"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "PREGNANCY_BIRTH",
+      "CHILDCARE"
+    ],
+    "startDate": "2025-11-23",
+    "endDate": "2025-12-15"
+  },
+  {
+    "id": 98,
+    "welfareName": "아동수당",
+    "description": "만 8세 이하 아동에게 지급되는 월정액 수당",
+    "department": "보건복지부",
+    "supportCycle": "월별",
+    "supplyType": "현금지급",
+    "contact": "02-577-1713",
+    "url": "https://www.example.gov/service98",
+    "lifecycles": [
+      "INFANT",
+      "CHILD"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "CHILDCARE",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-16"
+  },
+  {
+    "id": 99,
+    "welfareName": "임신·출산 진료비 지원",
+    "description": "임신부와 신생아의 의료비 지원",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "교육지원",
+    "contact": "02-405-9185",
+    "url": "https://www.example.gov/service99",
+    "lifecycles": [
+      "PREGNANCY_BIRTH",
+      "INFANT"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "PHYSICAL_HEALTH",
+      "PREGNANCY_BIRTH"
+    ],
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-10"
+  },
+  {
+    "id": 100,
+    "welfareName": "다자녀 가정 지원금",
+    "description": "3자녀 이상 가정에 대한 추가 지원",
+    "department": "보건복지부",
+    "supportCycle": "분기별",
+    "supplyType": "서비스제공",
+    "contact": "02-425-4580",
+    "url": "https://www.example.gov/service100",
+    "lifecycles": [
+      "CHILD",
+      "TEEN"
+    ],
+    "households": [
+      "MULTI_CHILDREN"
+    ],
+    "interests": [
+      "CHILDCARE",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-22"
+  },
+  {
+    "id": 101,
+    "welfareName": "영유아 보육료 지원",
+    "description": "0~5세 영유아 보육료 전액 또는 일부 지원",
+    "department": "보건복지부",
+    "supportCycle": "상시",
+    "supplyType": "서비스제공",
+    "contact": "02-759-7761",
+    "url": "https://www.example.gov/service101",
+    "lifecycles": [
+      "INFANT",
+      "CHILD"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "CHILDCARE",
+      "EDUCATION"
+    ],
+    "startDate": "2025-11-24",
+    "endDate": "2025-12-08"
+  },
+  {
+    "id": 102,
+    "welfareName": "기초생활수급자 생계급여",
+    "description": "최저생계비 이하 가구에 지급되는 생계비",
+    "department": "보건복지부",
+    "supportCycle": "분기별",
+    "supplyType": "현금지급",
+    "contact": "02-664-7448",
+    "url": "https://www.example.gov/service102",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "LIVING_SUPPORT",
+      "MICRO_FINANCE"
+    ],
+    "startDate": "2025-11-21",
+    "endDate": "2025-12-15"
+  },
+  {
+    "id": 103,
+    "welfareName": "기초생활수급자 주거급여",
+    "description": "기초생활수급자 가구의 주거비 지원",
+    "department": "국토교통부",
+    "supportCycle": "상시",
+    "supplyType": "현금지급",
+    "contact": "02-175-5700",
+    "url": "https://www.example.gov/service103",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "HOUSING",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-19",
+    "endDate": "2025-12-12"
+  },
+  {
+    "id": 104,
+    "welfareName": "기초생활수급자 의료급여",
+    "description": "기초생활수급자의 의료비 지원",
+    "department": "보건복지부",
+    "supportCycle": "연중",
+    "supplyType": "현금지급",
+    "contact": "02-290-3805",
+    "url": "https://www.example.gov/service104",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-15",
+    "endDate": "2025-12-12"
+  },
+  {
+    "id": 105,
+    "welfareName": "한시적 생계지원",
+    "description": "일시적 경제적 어려움을 겪는 가구에 대한 긴급 생계지원",
+    "department": "보건복지부",
+    "supportCycle": "상시",
+    "supplyType": "서비스제공",
+    "contact": "02-769-5690",
+    "url": "https://www.example.gov/service105",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "SAFETY_CRISIS",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-23",
+    "endDate": "2025-12-14"
+  },
+  {
+    "id": 106,
+    "welfareName": "장애인 연금",
+    "description": "중증장애인에게 지급되는 월정액 연금",
+    "department": "보건복지부",
+    "supportCycle": "월별",
+    "supplyType": "현금지급",
+    "contact": "02-571-3664",
+    "url": "https://www.example.gov/service106",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "DISABLED"
+    ],
+    "interests": [
+      "LIVING_SUPPORT",
+      "PHYSICAL_HEALTH"
+    ],
+    "startDate": "2025-11-26",
+    "endDate": "2025-12-17"
+  },
+  {
+    "id": 107,
+    "welfareName": "장애인 활동지원",
+    "description": "장애인의 일상생활 및 사회활동 지원 서비스",
+    "department": "보건복지부",
+    "supportCycle": "연중",
+    "supplyType": "서비스제공",
+    "contact": "02-335-9442",
+    "url": "https://www.example.gov/service107",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "DISABLED"
+    ],
+    "interests": [
+      "LIVING_SUPPORT",
+      "PHYSICAL_HEALTH"
+    ],
+    "startDate": "2025-11-23",
+    "endDate": "2025-12-11"
+  },
+  {
+    "id": 108,
+    "welfareName": "장애인 의료비 지원",
+    "description": "장애인의 의료비 및 재활치료비 지원",
+    "department": "보건복지부",
     "supportCycle": "수시",
     "supplyType": "현금지급",
     "contact": "02-756-5758",
@@ -2849,493 +2493,447 @@
     "lifecycles": [
       "CHILD",
       "TEEN",
-      "MIDDLE_AGED"
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
     ],
     "households": [
-      "NONE"
+      "DISABLED"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "CULTURE_LEISURE",
-      "PREGNANCY_BIRTH"
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
     ],
-    "id": 108,
-    "startDate": "2025-10-04",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-18",
+    "endDate": "2025-12-05"
   },
   {
-    "welfareName": "복지이름109",
-    "description": "복지내용109",
-    "department": "담당부처A",
+    "id": 109,
+    "welfareName": "장애인 자립생활 지원",
+    "description": "장애인의 자립생활을 위한 주거 및 생활 지원",
+    "department": "보건복지부",
     "supportCycle": "분기별",
     "supplyType": "교육지원",
     "contact": "02-802-5161",
     "url": "https://www.example.gov/service109",
     "lifecycles": [
-      "TEEN",
-      "PREGNANCY_BIRTH",
-      "INFANT"
+      "YOUTH",
+      "MIDDLE_AGED"
     ],
     "households": [
-      "NONE"
+      "DISABLED"
     ],
     "interests": [
       "HOUSING",
-      "ADOPTION_TRUST",
-      "ENERGY"
+      "LIVING_SUPPORT"
     ],
-    "id": 109,
-    "startDate": "2025-10-24",
-    "endDate": "2025-11-24"
+    "startDate": "2025-11-19",
+    "endDate": "2025-12-16"
   },
   {
-    "welfareName": "복지이름110",
-    "description": "복지내용110",
-    "department": "담당부처D",
+    "id": 110,
+    "welfareName": "한부모 가족 아동양육비",
+    "description": "한부모 가족의 아동 양육비 지원",
+    "department": "보건복지부",
     "supportCycle": "상시",
     "supplyType": "바우처",
     "contact": "02-305-4790",
     "url": "https://www.example.gov/service110",
     "lifecycles": [
-      "SENIOR",
-      "MIDDLE_AGED",
-      "INFANT"
+      "CHILD",
+      "TEEN"
     ],
     "households": [
-      "NONE"
+      "SINGLE_PARENT"
     ],
     "interests": [
-      "PREGNANCY_BIRTH",
-      "MENTAL_HEALTH",
-      "EDUCATION"
+      "CHILDCARE",
+      "LIVING_SUPPORT"
     ],
-    "id": 110,
-    "startDate": "2025-10-23",
-    "endDate": "2025-11-18"
+    "startDate": "2025-11-19",
+    "endDate": "2025-12-12"
   },
   {
-    "welfareName": "복지이름111",
-    "description": "복지내용111",
-    "department": "담당부처E",
+    "id": 111,
+    "welfareName": "한부모 가족 주거지원",
+    "description": "한부모 가족의 주거 안정 지원",
+    "department": "국토교통부",
     "supportCycle": "수시",
-    "supplyType": "교육지원",
+    "supplyType": "서비스제공",
     "contact": "02-284-3618",
     "url": "https://www.example.gov/service111",
     "lifecycles": [
-      "TEEN",
-      "PREGNANCY_BIRTH",
-      "SENIOR"
+      "YOUTH",
+      "MIDDLE_AGED"
     ],
     "households": [
-      "NONE"
+      "SINGLE_PARENT"
     ],
     "interests": [
-      "PHYSICAL_HEALTH",
-      "CULTURE_LEISURE",
-      "EDUCATION"
+      "HOUSING",
+      "LIVING_SUPPORT"
     ],
-    "id": 111,
-    "startDate": "2025-10-18",
-    "endDate": "2025-11-11"
+    "startDate": "2025-11-15",
+    "endDate": "2025-12-01"
   },
   {
-    "welfareName": "복지이름112",
-    "description": "복지내용112",
-    "department": "담당부처C",
+    "id": 112,
+    "welfareName": "한부모 가족 자립지원",
+    "description": "한부모 가족의 경제적 자립을 위한 취업 및 교육 지원",
+    "department": "보건복지부",
     "supportCycle": "분기별",
     "supplyType": "교육지원",
     "contact": "02-494-7173",
     "url": "https://www.example.gov/service112",
     "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "CHILD",
+      "YOUTH",
+      "MIDDLE_AGED"
+    ],
+    "households": [
+      "SINGLE_PARENT"
+    ],
+    "interests": [
+      "JOBS",
+      "EDUCATION"
+    ],
+    "startDate": "2025-11-22",
+    "endDate": "2025-12-13"
+  },
+  {
+    "id": 113,
+    "welfareName": "청년 주거 급여",
+    "description": "청년층의 주거비 부담 완화를 위한 지원",
+    "department": "국토교통부",
+    "supportCycle": "상시",
+    "supplyType": "현금지급",
+    "contact": "02-506-5154",
+    "url": "https://www.example.gov/service113",
+    "lifecycles": [
       "YOUTH"
     ],
     "households": [
       "NONE"
     ],
     "interests": [
-      "SAFETY_CRISIS",
-      "PHYSICAL_HEALTH",
-      "EDUCATION"
-    ],
-    "id": 112,
-    "startDate": "2025-10-09",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름113",
-    "description": "복지내용113",
-    "department": "담당부처B",
-    "supportCycle": "상시",
-    "supplyType": "대여",
-    "contact": "02-506-5154",
-    "url": "https://www.example.gov/service113",
-    "lifecycles": [
-      "YOUTH",
-      "MIDDLE_AGED",
-      "CHILD"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
       "HOUSING",
-      "CHILDCARE",
-      "ADOPTION_TRUST"
+      "LIVING_SUPPORT"
     ],
-    "id": 113,
-    "startDate": "2025-10-14",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-12"
   },
   {
-    "welfareName": "복지이름114",
-    "description": "복지내용114",
-    "department": "담당부처E",
+    "id": 114,
+    "welfareName": "청년 구직활동지원금",
+    "description": "구직활동 중인 청년에게 지급되는 지원금",
+    "department": "고용노동부",
     "supportCycle": "상시",
     "supplyType": "대여",
     "contact": "02-351-3472",
     "url": "https://www.example.gov/service114",
     "lifecycles": [
-      "CHILD",
-      "YOUTH",
-      "INFANT"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "SAFETY_CRISIS",
-      "HOUSING",
-      "CHILDCARE"
-    ],
-    "id": 114,
-    "startDate": "2025-10-07",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름115",
-    "description": "복지내용115",
-    "department": "담당부처B",
-    "supportCycle": "상시",
-    "supplyType": "서비스제공",
-    "contact": "02-497-4686",
-    "url": "https://www.example.gov/service115",
-    "lifecycles": [
-      "SENIOR",
-      "PREGNANCY_BIRTH",
-      "MIDDLE_AGED"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "MENTAL_HEALTH",
-      "CARE_PROTECT",
-      "PREGNANCY_BIRTH"
-    ],
-    "id": 115,
-    "startDate": "2025-10-07",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름116",
-    "description": "복지내용116",
-    "department": "담당부처C",
-    "supportCycle": "분기별",
-    "supplyType": "서비스제공",
-    "contact": "02-197-9977",
-    "url": "https://www.example.gov/service116",
-    "lifecycles": [
-      "YOUTH",
-      "TEEN",
-      "MIDDLE_AGED"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "HOUSING",
-      "LIVING_SUPPORT",
-      "MICRO_FINANCE"
-    ],
-    "id": 116,
-    "startDate": "2025-10-05",
-    "endDate": "2025-11-10"
-  },
-  {
-    "welfareName": "복지이름117",
-    "description": "복지내용117",
-    "department": "담당부처E",
-    "supportCycle": "수시",
-    "supplyType": "현금지급",
-    "contact": "02-942-9598",
-    "url": "https://www.example.gov/service117",
-    "lifecycles": [
-      "TEEN",
-      "CHILD",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "PHYSICAL_HEALTH",
-      "LAW",
-      "CHILDCARE"
-    ],
-    "id": 117,
-    "startDate": "2025-10-14",
-    "endDate": "2025-11-17"
-  },
-  {
-    "welfareName": "복지이름118",
-    "description": "복지내용118",
-    "department": "담당부처A",
-    "supportCycle": "수시",
-    "supplyType": "교육지원",
-    "contact": "02-797-7912",
-    "url": "https://www.example.gov/service118",
-    "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "SENIOR",
-      "TEEN"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "EDUCATION",
-      "ENERGY",
-      "ADOPTION_TRUST"
-    ],
-    "id": 118,
-    "startDate": "2025-10-26",
-    "endDate": "2025-11-18"
-  },
-  {
-    "welfareName": "복지이름119",
-    "description": "복지내용119",
-    "department": "담당부처D",
-    "supportCycle": "분기별",
-    "supplyType": "현금지급",
-    "contact": "02-947-4714",
-    "url": "https://www.example.gov/service119",
-    "lifecycles": [
-      "PREGNANCY_BIRTH",
-      "TEEN",
-      "SENIOR"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "MICRO_FINANCE",
-      "PREGNANCY_BIRTH",
-      "HOUSING"
-    ],
-    "id": 119,
-    "startDate": "2025-10-24",
-    "endDate": "2025-11-24"
-  },
-  {
-    "welfareName": "복지이름120",
-    "description": "복지내용120",
-    "department": "담당부처B",
-    "supportCycle": "분기별",
-    "supplyType": "바우처",
-    "contact": "02-126-4576",
-    "url": "https://www.example.gov/service120",
-    "lifecycles": [
-      "SENIOR",
-      "TEEN",
-      "MIDDLE_AGED"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "LIVING_SUPPORT",
-      "CHILDCARE",
-      "EDUCATION"
-    ],
-    "id": 120,
-    "startDate": "2025-10-21",
-    "endDate": "2025-11-11"
-  },
-  {
-    "welfareName": "복지이름121",
-    "description": "복지내용121",
-    "department": "담당부처A",
-    "supportCycle": "연중",
-    "supplyType": "바우처",
-    "contact": "02-765-5737",
-    "url": "https://www.example.gov/service121",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "CHILD",
-      "SENIOR"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "MENTAL_HEALTH",
-      "CULTURE_LEISURE",
-      "PHYSICAL_HEALTH"
-    ],
-    "id": 121,
-    "startDate": "2025-10-20",
-    "endDate": "2025-11-15"
-  },
-  {
-    "welfareName": "복지이름122",
-    "description": "복지내용122",
-    "department": "담당부처A",
-    "supportCycle": "연중",
-    "supplyType": "대여",
-    "contact": "02-544-9881",
-    "url": "https://www.example.gov/service122",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "INFANT",
-      "PREGNANCY_BIRTH"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "ADOPTION_TRUST",
-      "LIVING_SUPPORT",
-      "PREGNANCY_BIRTH"
-    ],
-    "id": 122,
-    "startDate": "2025-10-23",
-    "endDate": "2025-11-19"
-  },
-  {
-    "welfareName": "복지이름123",
-    "description": "복지내용123",
-    "department": "담당부처E",
-    "supportCycle": "분기별",
-    "supplyType": "서비스제공",
-    "contact": "02-670-3668",
-    "url": "https://www.example.gov/service123",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "PREGNANCY_BIRTH",
-      "CHILD"
-    ],
-    "households": [
-      "NONE"
-    ],
-    "interests": [
-      "ADOPTION_TRUST",
-      "CULTURE_LEISURE",
-      "JOBS"
-    ],
-    "id": 123,
-    "startDate": "2025-10-24",
-    "endDate": "2025-11-17"
-  },
-  {
-    "welfareName": "복지이름124",
-    "description": "복지내용124",
-    "department": "담당부처B",
-    "supportCycle": "연중",
-    "supplyType": "교육지원",
-    "contact": "02-876-9609",
-    "url": "https://www.example.gov/service124",
-    "lifecycles": [
-      "MIDDLE_AGED",
-      "INFANT",
       "YOUTH"
     ],
     "households": [
       "NONE"
     ],
     "interests": [
-      "EDUCATION",
-      "CHILDCARE",
+      "JOBS",
       "LIVING_SUPPORT"
     ],
-    "id": 124,
-    "startDate": "2025-10-15",
-    "endDate": "2025-11-13"
+    "startDate": "2025-11-16",
+    "endDate": "2025-12-01"
   },
   {
-    "welfareName": "복지이름125",
-    "description": "복지내용125",
-    "department": "담당부처E",
+    "id": 115,
+    "welfareName": "청년 내일채움공제",
+    "description": "청년 근로자의 자산형성을 위한 적립 지원",
+    "department": "고용노동부",
     "supportCycle": "상시",
-    "supplyType": "바우처",
-    "contact": "02-980-1138",
-    "url": "https://www.example.gov/service125",
+    "supplyType": "서비스제공",
+    "contact": "02-497-4686",
+    "url": "https://www.example.gov/service115",
     "lifecycles": [
-      "INFANT",
-      "PREGNANCY_BIRTH",
+      "YOUTH"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "JOBS",
+      "MICRO_FINANCE"
+    ],
+    "startDate": "2025-11-22",
+    "endDate": "2025-12-15"
+  },
+  {
+    "id": 116,
+    "welfareName": "청년 취업지원 프로그램",
+    "description": "청년의 취업을 위한 교육 및 훈련 지원",
+    "department": "고용노동부",
+    "supportCycle": "분기별",
+    "supplyType": "서비스제공",
+    "contact": "02-197-9977",
+    "url": "https://www.example.gov/service116",
+    "lifecycles": [
+      "YOUTH"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "JOBS",
+      "EDUCATION"
+    ],
+    "startDate": "2025-11-20",
+    "endDate": "2025-12-17"
+  },
+  {
+    "id": 117,
+    "welfareName": "기초연금",
+    "description": "65세 이상 저소득 노인에게 지급되는 연금",
+    "department": "보건복지부",
+    "supportCycle": "월별",
+    "supplyType": "현금지급",
+    "contact": "02-942-9598",
+    "url": "https://www.example.gov/service117",
+    "lifecycles": [
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "LIVING_SUPPORT",
+      "PHYSICAL_HEALTH"
+    ],
+    "startDate": "2025-11-18",
+    "endDate": "2025-12-15"
+  },
+  {
+    "id": 118,
+    "welfareName": "노인 돌봄 서비스",
+    "description": "독거노인 및 거동불편 노인을 위한 돌봄 서비스",
+    "department": "보건복지부",
+    "supportCycle": "수시",
+    "supplyType": "서비스제공",
+    "contact": "02-797-7912",
+    "url": "https://www.example.gov/service118",
+    "lifecycles": [
       "SENIOR"
     ],
     "households": [
       "NONE"
     ],
     "interests": [
-      "LAW",
-      "JOBS",
-      "SAFETY_CRISIS"
+      "CARE_PROTECT",
+      "PHYSICAL_HEALTH"
     ],
-    "id": 125,
-    "startDate": "2025-10-05",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-25",
+    "endDate": "2025-12-21"
   },
   {
-    "welfareName": "복지이름126",
-    "description": "복지내용126",
-    "department": "담당부처B",
-    "supportCycle": "연중",
-    "supplyType": "바우처",
-    "contact": "02-945-3447",
-    "url": "https://www.example.gov/service126",
+    "id": 119,
+    "welfareName": "노인 일자리 사업",
+    "description": "노인의 사회참여를 위한 일자리 제공",
+    "department": "보건복지부",
+    "supportCycle": "분기별",
+    "supplyType": "현금지급",
+    "contact": "02-947-4714",
+    "url": "https://www.example.gov/service119",
     "lifecycles": [
-      "MIDDLE_AGED",
-      "INFANT",
+      "SENIOR"
+    ],
+    "households": [
+      "NONE"
+    ],
+    "interests": [
+      "JOBS",
+      "CULTURE_LEISURE"
+    ],
+    "startDate": "2025-11-20",
+    "endDate": "2025-12-15"
+  },
+  {
+    "id": 120,
+    "welfareName": "노인 의료비 지원",
+    "description": "저소득 노인의 의료비 부담 완화 지원",
+    "department": "보건복지부",
+    "supportCycle": "분기별",
+    "supplyType": "바우처",
+    "contact": "02-126-4576",
+    "url": "https://www.example.gov/service120",
+    "lifecycles": [
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "PHYSICAL_HEALTH",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-15",
+    "endDate": "2025-12-04"
+  },
+  {
+    "id": 121,
+    "welfareName": "초중고 교육비 지원",
+    "description": "저소득 가구 자녀의 초중고 교육비 지원",
+    "department": "교육부",
+    "supportCycle": "연중",
+    "supplyType": "교육지원",
+    "contact": "02-765-5737",
+    "url": "https://www.example.gov/service121",
+    "lifecycles": [
+      "CHILD",
+      "TEEN"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "EDUCATION",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-23",
+    "endDate": "2025-12-13"
+  },
+  {
+    "id": 122,
+    "welfareName": "대학생 장학금",
+    "description": "저소득 가구 대학생의 등록금 및 생활비 지원",
+    "department": "교육부",
+    "supportCycle": "연중",
+    "supplyType": "대여",
+    "contact": "02-544-9881",
+    "url": "https://www.example.gov/service122",
+    "lifecycles": [
+      "YOUTH"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "EDUCATION",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-10"
+  },
+  {
+    "id": 123,
+    "welfareName": "방과후 돌봄 서비스",
+    "description": "초등학생의 방과후 돌봄 서비스 제공",
+    "department": "보건복지부",
+    "supportCycle": "분기별",
+    "supplyType": "서비스제공",
+    "contact": "02-670-3668",
+    "url": "https://www.example.gov/service123",
+    "lifecycles": [
       "CHILD"
     ],
     "households": [
       "NONE"
     ],
     "interests": [
-      "CULTURE_LEISURE",
-      "SAFETY_CRISIS",
-      "PREGNANCY_BIRTH"
+      "CHILDCARE",
+      "EDUCATION"
     ],
-    "id": 126,
-    "startDate": "2025-10-02",
-    "endDate": "2025-11-10"
+    "startDate": "2025-11-22",
+    "endDate": "2025-12-09"
   },
   {
-    "welfareName": "복지이름127",
-    "description": "복지내용127",
-    "department": "담당부처D",
-    "supportCycle": "분기별",
-    "supplyType": "대여",
-    "contact": "02-355-9694",
-    "url": "https://www.example.gov/service127",
+    "id": 124,
+    "welfareName": "청소년 문화예술 지원",
+    "description": "청소년의 문화예술 활동 지원",
+    "department": "문화체육관광부",
+    "supportCycle": "연중",
+    "supplyType": "교육지원",
+    "contact": "02-876-9609",
+    "url": "https://www.example.gov/service124",
     "lifecycles": [
-      "CHILD",
-      "INFANT",
-      "SENIOR"
+      "TEEN",
+      "YOUTH"
     ],
     "households": [
       "NONE"
     ],
     "interests": [
-      "MENTAL_HEALTH",
-      "ENERGY",
+      "CULTURE_LEISURE",
+      "EDUCATION"
+    ],
+    "startDate": "2025-11-20",
+    "endDate": "2025-12-12"
+  },
+  {
+    "id": 125,
+    "welfareName": "전세자금 대출 지원",
+    "description": "저소득층의 전세자금 대출 이자 지원",
+    "department": "국토교통부",
+    "supportCycle": "상시",
+    "supplyType": "현금지급",
+    "contact": "02-980-1138",
+    "url": "https://www.example.gov/service125",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "HOUSING",
       "MICRO_FINANCE"
     ],
+    "startDate": "2025-11-18",
+    "endDate": "2025-12-10"
+  },
+  {
+    "id": 126,
+    "welfareName": "공공임대주택 입주",
+    "description": "저소득층을 위한 공공임대주택 입주 지원",
+    "department": "국토교통부",
+    "supportCycle": "연중",
+    "supplyType": "서비스제공",
+    "contact": "02-945-3447",
+    "url": "https://www.example.gov/service126",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "HOUSING",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-05"
+  },
+  {
     "id": 127,
-    "startDate": "2025-10-19",
-    "endDate": "2025-11-22"
+    "welfareName": "주거급여",
+    "description": "주거비 부담이 큰 가구에 대한 주거비 지원",
+    "department": "국토교통부",
+    "supportCycle": "분기별",
+    "supplyType": "현금지급",
+    "contact": "02-355-9694",
+    "url": "https://www.example.gov/service127",
+    "lifecycles": [
+      "YOUTH",
+      "MIDDLE_AGED",
+      "SENIOR"
+    ],
+    "households": [
+      "LOW_INCOME"
+    ],
+    "interests": [
+      "HOUSING",
+      "LIVING_SUPPORT"
+    ],
+    "startDate": "2025-11-17",
+    "endDate": "2025-12-11"
   }
 ]
