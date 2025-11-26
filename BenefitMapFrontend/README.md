@@ -1,239 +1,196 @@
-# BenefitMap 프로젝트
+# BenefitMap 프론트엔드
 
-## 🚀 빠른 시작
-
-### 한 번에 실행하기
-```bash
-# 프로젝트 루트에서 실행 (백엔드 + 프론트엔드 모두 실행)
-npm run dev
-```
-
-### 🌐 접속 주소
-- **백엔드**: http://localhost:8080/
-- **프론트엔드**: http://localhost:5173/
+React 기반의 복지 추천 웹서비스 프론트엔드입니다.
 
 ---
 
-## 📋 처음 프로젝트를 실행할 때 필요한 필수 과정
+## 빠른 시작
 
-### 1. 필수 소프트웨어 설치
-- **Node.js 18+** (npm 포함)
-- **Java 21**
-- **MySQL 8.0**
+### 전체 프로젝트 실행 (권장)
 
-### 2. MySQL 서버 설정
+프로젝트 루트에서 백엔드와 프론트엔드를 동시에 실행:
 
-#### 2.1 MySQL 서버 실행
 ```bash
-# 방법 1: 서비스로 실행 (관리자 권한 필요)
-net start MySQL80
-
-# 방법 2: 직접 실행
-"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqld.exe" --datadir="C:\mysql_data" --console
-```
-
-#### 2.2 데이터베이스 초기화
-```bash
-# MySQL에 연결
-mysql -u root -p
-```
-
-```sql
--- 데이터베이스 생성 및 스키마 실행
-CREATE DATABASE IF NOT EXISTS benefitmap CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE benefitmap;
-SOURCE BenefitMapBackend/src/main/resources/db/migration/V1__auth.sql;
-
--- root 계정 비밀번호 설정
-ALTER USER 'root'@'localhost' IDENTIFIED BY '1234';
-```
-
-### 3. 프로젝트 의존성 설치
-```bash
-# 루트에서 실행 (자동으로 프론트엔드도 설치됨)
+# 프로젝트 루트에서
 npm install
+npm run dev
 ```
 
-### 4. 환경변수 설정 확인
-`BenefitMapBackend/.env` 파일이 올바르게 설정되어 있는지 확인:
+**접속 주소**:
+- 프론트엔드: http://localhost:5173
+- 백엔드 API: http://localhost:8080
 
-### 5. 서버 실행
+### 프론트엔드만 실행
+
 ```bash
-# 루트에서 실행 - 백엔드와 프론트엔드 모두 실행됨
+cd BenefitMapFrontend
+npm install
 npm run dev
 ```
 
 ---
 
-## ⚠️ 주의사항
+## 필수 요구사항
 
-1. **MySQL 서버가 먼저 실행되어야 함** - 백엔드가 MySQL에 연결해야 하므로
-2. **관리자 권한** - MySQL 서비스 시작 시 필요할 수 있음
-3. **포트 충돌** - 8080, 5173 포트가 사용 중이지 않은지 확인
-4. **Java 21** - 백엔드 실행을 위해 필요
+- **Node.js 18+** (https://nodejs.org/)
+- **npm 9+**
+
+### 설치 확인
+
+```bash
+node -v      # v18.x.x 이상
+npm -v       # v9.x.x 이상
+```
 
 ---
 
-## 🔧 문제 해결
+## 프로젝트 구조
 
-### 자주 발생하는 문제
-
-#### 1. MySQL 연결 오류
-```bash
-# 비밀번호가 1234로 설정되어 있는지 확인
-mysql -u root -p1234 -e "SELECT 'Connection successful';"
+```
+BenefitMapFrontend/
+├── src/
+│   ├── components/          # 재사용 가능한 컴포넌트
+│   │   ├── Header.jsx
+│   │   ├── Footer.jsx
+│   │   ├── Notification.jsx
+│   │   └── ...
+│   ├── screens/             # 페이지 컴포넌트
+│   │   ├── MainPage.jsx
+│   │   ├── ServicePage.jsx
+│   │   ├── LoginPage.jsx
+│   │   └── ...
+│   ├── hooks/               # 커스텀 훅
+│   │   ├── useAuth.js
+│   │   ├── useNotifications.js
+│   │   └── ...
+│   ├── utils/               # 유틸리티 함수
+│   │   ├── auth.js
+│   │   └── ...
+│   └── styles/              # 스타일 관련
+│       ├── CommonStyles.js
+│       └── GlobalStyle.js
+├── public/                  # 정적 파일
+│   ├── fonts/
+│   └── vite.svg
+├── package.json
+├── vite.config.js
+└── eslint.config.js
 ```
 
-#### 2. 포트 충돌 오류
-```bash
-# 포트 사용 중인 프로세스 확인
-netstat -ano | findstr ":8080"
-netstat -ano | findstr ":5173"
+---
 
-# 프로세스 종료 (PID로)
+## 주요 명령어
+
+```bash
+# 개발 서버 실행
+npm run dev
+
+# 프로덕션 빌드
+npm run build
+
+# 빌드 결과 미리보기
+npm run preview
+
+# 코드 린팅
+npm run lint
+```
+
+---
+
+## 기술 스택
+
+- **React 19.1.1** - UI 라이브러리
+- **Vite 7.1.6** - 빌드 도구 및 개발 서버
+- **React Router DOM 6.30.1** - 클라이언트 사이드 라우팅
+- **Styled Components 6.1.19** - CSS-in-JS 스타일링
+
+---
+
+## 개발 환경 설정
+
+### Vite 개발 서버
+
+프로젝트는 Vite를 사용하여 개발 서버를 실행합니다.
+
+- **포트**: 5173
+- **프록시 설정**: `/api`, `/user` 요청은 백엔드(`http://localhost:8080`)로 프록시됩니다.
+
+### 환경 변수
+
+프론트엔드는 별도의 환경 변수가 필요하지 않습니다. 백엔드 API 주소는 `vite.config.js`에서 설정되어 있습니다.
+
+---
+
+## 주요 기능
+
+### 1. 복지 서비스 검색
+- 키워드 검색
+- 필터 기반 검색 (생애주기, 가구상황, 관심주제)
+- 지역별 검색 (시/도, 시/군/구)
+
+### 2. 사용자 인증
+- Google OAuth2 로그인
+- JWT 토큰 기반 인증
+- 자동 로그인 유지
+
+### 3. 맞춤 추천
+- 사용자 프로필 기반 복지 서비스 추천
+- 즐겨찾기 기능
+- 마이페이지에서 설정 관리
+
+### 4. 캘린더
+- 복지 서비스 신청 기간 관리
+- 마감일 알림
+
+---
+
+## 문제 해결
+
+### 포트 충돌 오류
+
+```bash
+# Windows: 포트 사용 중인 프로세스 확인 및 종료
+netstat -ano | findstr ":5173"
 taskkill /PID <PID번호> /F
 ```
 
-#### 3. Java 버전 오류
-```bash
-# Java 버전 확인
-java -version
+### 의존성 설치 오류
 
-# Java 21이 설치되어 있는지 확인
+```bash
+# 캐시 삭제 후 재설치
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
 ```
 
-#### 4. Node.js 버전 오류
-```bash
-# Node.js 버전 확인
-node -version
+### 빌드 오류
 
-# npm 버전 확인
-npm -version
+```bash
+# Vite 캐시 삭제
+rm -rf node_modules/.vite
+npm run build
 ```
 
 ---
 
-## 📁 프로젝트 구조
-
-```
-BenefitMap/
-├── BenefitMapFrontend/          # React 프론트엔드
-│   ├── src/
-│   │   ├── components/          # 재사용 가능한 컴포넌트
-│   │   ├── screens/             # 페이지 컴포넌트
-│   │   ├── hooks/               # 커스텀 훅
-│   │   ├── utils/               # 유틸리티 함수
-│   │   └── styles/              # 스타일 관련
-│   ├── package.json
-│   └── vite.config.js
-├── BenefitMapBackend/           # Spring Boot 백엔드
-│   ├── src/main/java/
-│   │   └── com/benefitmap/backend/
-│   │       ├── controller/      # REST API 컨트롤러
-│   │       ├── service/         # 비즈니스 로직
-│   │       ├── repository/      # 데이터 접근 계층
-│   │       ├── entity/          # JPA 엔티티
-│   │       └── config/          # 설정 클래스
-│   ├── src/main/resources/
-│   │   ├── application.properties
-│   │   └── db/migration/        # 데이터베이스 마이그레이션
-│   ├── .env                     # 환경변수 설정
-│   └── build.gradle
-└── package.json                 # 루트 package.json (concurrently 설정)
-```
-
----
-
-## 🛠️ 개발 명령어
-
-### 프론트엔드
-```bash
-cd BenefitMapFrontend
-npm run dev          # 개발 서버 실행
-npm run build        # 프로덕션 빌드
-npm run preview      # 빌드 결과 미리보기
-```
-
-### 백엔드
-```bash
-cd BenefitMapBackend
-./gradlew bootRun    # 개발 서버 실행
-./gradlew build      # 프로덕션 빌드
-./gradlew test       # 테스트 실행
-```
-
-### 전체 프로젝트
-```bash
-# 루트에서
-npm run dev          # 백엔드 + 프론트엔드 동시 실행
-npm install          # 모든 의존성 설치
-```
-
----
-
-## 🔐 인증 시스템
-
-### OAuth 2.0 인증 플로우
-1. 사용자가 구글 로그인 버튼 클릭
-2. 구글 OAuth 서버로 리다이렉트
-3. 사용자 인증 후 백엔드로 인증 코드 전송
-4. 백엔드에서 JWT 토큰 생성 및 쿠키에 저장
-5. 프론트엔드로 사용자 정보 전송
-
-### 보안 기능
-- **CORS 설정**: 프론트엔드 도메인만 허용
-- **JWT 토큰**: 쿠키 기반 토큰 관리
-- **입력 검증**: 클라이언트/서버 양쪽 검증
-
----
-
-## 📊 주요 기능
-
-### 1. 복지 서비스 검색
-- **실시간 검색**: 키워드, 필터 기반 검색
-- **다양한 필터**: 생애주기, 가구상황, 관심주제
-- **지역별 검색**: 시/도, 시/군/구 선택
-
-### 2. 맞춤 추천 시스템
-- **개인화된 추천**: 사용자 설정 기반 복지 서비스 추천
-- **마이페이지**: 개인정보 및 설정 관리
-
-### 3. 캘린더 기능
-- **일정 관리**: 복지 서비스 신청 기간 관리
-- **알림 시스템**: 마감일 알림 기능
-
----
-
-## 🚀 배포
+## 배포
 
 ### 프로덕션 빌드
-```bash
-# 프론트엔드 빌드
-cd BenefitMapFrontend
-npm run build
 
-# 백엔드 빌드
-cd BenefitMapBackend
-./gradlew build
+```bash
+npm run build
 ```
 
-### 환경변수 설정 (프로덕션)
-- `app.cookie.secure=true` (HTTPS 환경)
-- `CORS_ORIGINS=https://yourdomain.com`
-- 프로덕션 데이터베이스 설정
+빌드 결과물은 `dist/` 폴더에 생성됩니다.
+
+### 환경 설정
+
+프로덕션 환경에서는 `vite.config.js`의 `BACKEND_TARGET`을 프로덕션 백엔드 주소로 변경해야 합니다.
 
 ---
 
-## 📞 지원
+## 참고사항
 
-문제가 발생하면 다음을 확인해주세요:
-1. MySQL 서버가 실행 중인지
-2. 포트 8080, 5173이 사용 가능한지
-3. Java 21과 Node.js 18+가 설치되어 있는지
-4. 환경변수가 올바르게 설정되어 있는지
-
----
-
-## 📝 라이센스
-
-이 프로젝트는 MIT 라이센스 하에 있습니다.
+- 전체 프로젝트 실행 방법은 루트의 `README.md`를 참고하세요.
+- 백엔드가 실행 중이어야 API 요청이 정상적으로 작동합니다.
+- 개발 서버는 Hot Module Replacement(HMR)를 지원합니다.

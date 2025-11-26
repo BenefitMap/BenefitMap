@@ -289,13 +289,13 @@ const SortOptions = styled.div`
 
 const SortButton = styled.button`
     background-color: transparent;
-    color: ${props => (props.active ? '#333' : '#999')};
+    color: ${props => (props.$active ? '#333' : '#999')};
     border: none;
     padding: 0;
     font-size: 13px;
     cursor: pointer;
     transition: all 0.2s;
-    font-weight: ${props => (props.active ? '600' : '400')};
+    font-weight: ${props => (props.$active ? '600' : '400')};
 
     &:hover {
         color: #333;
@@ -322,11 +322,11 @@ const TabHeader = styled.div`
 const TabButton = styled.button`
     flex: 1;
     padding: 10px 16px;
-    background: ${({ active }) => (active ? '#f0f0f0' : '#fff')};
+    background: ${({ $active }) => ($active ? '#f0f0f0' : '#fff')};
     border: none;
-    border-right: ${({ position }) =>
-            position !== 'right' ? '1px solid #ddd' : 'none'};
-    font-weight: ${({ active }) => (active ? 'bold' : 'normal')};
+    border-right: ${({ $position }) =>
+            $position !== 'right' ? '1px solid #ddd' : 'none'};
+    font-weight: ${({ $active }) => ($active ? 'bold' : 'normal')};
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -1375,13 +1375,13 @@ const ServicePage = () => {
                                 </TotalServicesText>
                                 <SortOptions>
                                     <SortButton
-                                        active={sortOption === 'popular'}
+                                        $active={sortOption === 'popular'}
                                         onClick={() => setSortOption('popular')}
                                     >
                                         인기순
                                     </SortButton>
                                     <SortButton
-                                        active={sortOption === 'latest'}
+                                        $active={sortOption === 'latest'}
                                         onClick={() => setSortOption('latest')}
                                     >
                                         최신순
@@ -1392,9 +1392,9 @@ const ServicePage = () => {
                             <TabContainer>
                                 <TabHeader>
                                     <TabButton
-                                        active={activeCategory === 'central'}
+                                        $active={activeCategory === 'central'}
                                         onClick={() => setActiveCategory('central')}
-                                        position="left"
+                                        $position="left"
                                     >
                                         중앙부처{' '}
                                         <span>
@@ -1402,9 +1402,9 @@ const ServicePage = () => {
                     </span>
                                     </TabButton>
                                     <TabButton
-                                        active={activeCategory === 'local'}
+                                        $active={activeCategory === 'local'}
                                         onClick={() => setActiveCategory('local')}
-                                        position="center"
+                                        $position="center"
                                     >
                                         지자체{' '}
                                         <span>
@@ -1412,9 +1412,9 @@ const ServicePage = () => {
                     </span>
                                     </TabButton>
                                     <TabButton
-                                        active={activeCategory === 'private'}
+                                        $active={activeCategory === 'private'}
                                         onClick={() => setActiveCategory('private')}
-                                        position="right"
+                                        $position="right"
                                     >
                                         민간{' '}
                                         <span>

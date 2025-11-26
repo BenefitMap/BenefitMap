@@ -81,7 +81,7 @@ const ToggleSwitch = styled.div`
   position: relative;
   width: 50px;
   height: 24px;
-  background-color: ${props => (props.active ? '#4a9d5f' : '#ccc')};
+  background-color: ${props => (props.$active ? '#4a9d5f' : '#ccc')};
   border-radius: 12px;
   transition: background-color 0.3s ease;
   cursor: pointer;
@@ -90,7 +90,7 @@ const ToggleSwitch = styled.div`
     content: '';
     position: absolute;
     top: 2px;
-    left: ${props => (props.active ? '26px' : '2px')};
+    left: ${props => (props.$active ? '26px' : '2px')};
     width: 20px;
     height: 20px;
     background-color: white;
@@ -411,7 +411,7 @@ ${service.description ? `📝 서비스 설명:\n${service.description}` : ''}
                   )
                 }
               />
-              <ToggleSwitch active={settings.emailNotifications} />
+              <ToggleSwitch $active={settings.emailNotifications} />
               이메일로 알림 받기 (
               {userEmail || '이메일 없음'}
               )

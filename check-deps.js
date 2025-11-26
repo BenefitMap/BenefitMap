@@ -22,3 +22,4 @@ if (!rootExists || !frontendExists) {
   console.log('✅ 의존성 패키지가 이미 설치되어 있습니다.\n');
 }
 
+

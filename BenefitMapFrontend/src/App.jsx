@@ -24,7 +24,12 @@ import ServiceDetailPage from './screens/ServiceDetailPage';
 
 const App = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <GlobalStyle />
       <AppLayout>
         <Header />

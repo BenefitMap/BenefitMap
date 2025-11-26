@@ -1,9 +1,10 @@
 -- ============================================================
--- BenefitMap Database Schema
+-- BenefitMap Database Schema (age 버전 + calendar)
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS benefitmap
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+
 USE benefitmap;
 SET NAMES utf8mb4;
 
@@ -22,23 +23,34 @@ CREATE TABLE IF NOT EXISTS users (
     last_login_at  TIMESTAMP         NULL,
     created_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     CONSTRAINT uk_users_email    UNIQUE (email),
     CONSTRAINT uk_users_provider UNIQUE (provider, provider_id)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    ) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
 -- 2) USER_PROFILE (회원 상세정보)
+--    - birth_date 제거
+--    - age 추가
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS user_profile (
                                             user_id     BIGINT      NOT NULL PRIMARY KEY,
                                             gender      ENUM('MALE','FEMALE','OTHER') NOT NULL,
-    birth_date  DATE        NOT NULL,
-    region_do   VARCHAR(30) NOT NULL,
-    region_si   VARCHAR(30) NOT NULL,
+    age         SMALLINT    NOT NULL,             -- 나이 (예: 12, 25, 67...)
+    region_do   VARCHAR(30) NOT NULL,             -- 시/도 (예: 서울특별시)
+    region_si   VARCHAR(30) NOT NULL,             -- 시/군/구 (예: 종로구)
     created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_profile_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+    CONSTRAINT fk_profile_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+                                                               ON DELETE CASCADE
+    ) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
 -- 3) TAG MASTER (생애주기 / 가구상황 / 관심주제)
@@ -50,7 +62,9 @@ CREATE TABLE IF NOT EXISTS lifecycle_tag (
     name_ko       VARCHAR(40)  NOT NULL UNIQUE,
     display_order SMALLINT     NOT NULL DEFAULT 0,
     active        BIT(1)       NOT NULL DEFAULT b'1'
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    ) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS household_tag (
                                              id            SMALLINT     NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -58,7 +72,9 @@ CREATE TABLE IF NOT EXISTS household_tag (
     name_ko       VARCHAR(40)  NOT NULL UNIQUE,
     display_order SMALLINT     NOT NULL DEFAULT 0,
     active        BIT(1)       NOT NULL DEFAULT b'1'
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    ) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS interest_tag (
                                             id            SMALLINT     NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -66,37 +82,73 @@ CREATE TABLE IF NOT EXISTS interest_tag (
     name_ko       VARCHAR(40)  NOT NULL UNIQUE,
     display_order SMALLINT     NOT NULL DEFAULT 0,
     active        BIT(1)       NOT NULL DEFAULT b'1'
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    ) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
 -- 4) USER-TAG MAPPING (회원별 태그)
 -- ------------------------------------------------------------
+
 CREATE TABLE IF NOT EXISTS user_lifecycle_tag (
                                                   user_id BIGINT   NOT NULL,
                                                   tag_id  SMALLINT NOT NULL,
+
                                                   PRIMARY KEY (user_id, tag_id),
     KEY idx_ult_tag_id (tag_id),
-    CONSTRAINT fk_ult_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_ult_tag  FOREIGN KEY (tag_id)  REFERENCES lifecycle_tag(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+    CONSTRAINT fk_ult_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+
+    CONSTRAINT fk_ult_tag
+    FOREIGN KEY (tag_id)
+    REFERENCES lifecycle_tag(id)
+    ON DELETE CASCADE
+    ) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS user_household_tag (
                                                   user_id BIGINT   NOT NULL,
                                                   tag_id  SMALLINT NOT NULL,
+
                                                   PRIMARY KEY (user_id, tag_id),
     KEY idx_uht_tag_id (tag_id),
-    CONSTRAINT fk_uht_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_uht_tag  FOREIGN KEY (tag_id)  REFERENCES household_tag(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+    CONSTRAINT fk_uht_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+
+    CONSTRAINT fk_uht_tag
+    FOREIGN KEY (tag_id)
+    REFERENCES household_tag(id)
+    ON DELETE CASCADE
+    ) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS user_interest_tag (
                                                  user_id BIGINT   NOT NULL,
                                                  tag_id  SMALLINT NOT NULL,
+
                                                  PRIMARY KEY (user_id, tag_id),
     KEY idx_uit_tag_id (tag_id),
-    CONSTRAINT fk_uit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_uit_tag  FOREIGN KEY (tag_id)  REFERENCES interest_tag(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+    CONSTRAINT fk_uit_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+
+    CONSTRAINT fk_uit_tag
+    FOREIGN KEY (tag_id)
+    REFERENCES interest_tag(id)
+    ON DELETE CASCADE
+    ) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
 -- 5) REFRESH TOKEN
@@ -111,26 +163,87 @@ CREATE TABLE IF NOT EXISTS refresh_token (
     expires_at  TIMESTAMP   NOT NULL,
     revoked_at  TIMESTAMP       NULL,
     created_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
     KEY idx_rt_user_id (user_id),
     KEY idx_rt_expires_at (expires_at),
-    CONSTRAINT fk_rt_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+    CONSTRAINT fk_rt_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+    ) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_0900_ai_ci;
 
 -- ------------------------------------------------------------
 -- 6) TAG SEED DATA (초기 태그 삽입)
 -- ------------------------------------------------------------
+
 INSERT IGNORE INTO lifecycle_tag(code,name_ko,display_order) VALUES
-('PREGNANCY_BIRTH','임신·출산',1),('INFANT','영유아',2),('CHILD','아동',3),
-('TEEN','청소년',4),('YOUTH','청년',5),('MIDDLE_AGED','중장년',6),('SENIOR','노년',7);
+('PREGNANCY_BIRTH','임신·출산',1),
+('INFANT','영유아',2),
+('CHILD','아동',3),
+('TEEN','청소년',4),
+('YOUTH','청년',5),
+('MIDDLE_AGED','중장년',6),
+('SENIOR','노년',7);
 
 INSERT IGNORE INTO household_tag(code,name_ko,display_order) VALUES
-('LOW_INCOME','저소득',1),('DISABLED','장애인',2),('SINGLE_PARENT','한부모·조손',3),
-('MULTI_CHILDREN','다자녀',4),('MULTICULTURAL_NK','다문화·탈북민',5),
-('PROTECTED','보호대상자',6),('NONE','해당사항 없음',7);
+('LOW_INCOME','저소득',1),
+('DISABLED','장애인',2),
+('SINGLE_PARENT','한부모·조손',3),
+('MULTI_CHILDREN','다자녀',4),
+('MULTICULTURAL_NK','다문화·탈북민',5),
+('PROTECTED','보호대상자',6),
+('NONE','해당사항 없음',7);
 
 INSERT IGNORE INTO interest_tag(code,name_ko,display_order) VALUES
-('PHYSICAL_HEALTH','신체건강',1),('MENTAL_HEALTH','정신건강',2),('LIVING_SUPPORT','생활지원',3),
-('HOUSING','주거',4),('JOBS','일자리',5),('CULTURE_LEISURE','문화·여가',6),
-('SAFETY_CRISIS','안전·위기',7),('PREGNANCY_BIRTH','임신·출산',8),('CHILDCARE','보육',9),
-('EDUCATION','교육',10),('ADOPTION_TRUST','입양·위탁',11),('CARE_PROTECT','보호·돌봄',12),
-('MICRO_FINANCE','서민금융',13),('LAW','법률',14),('ENERGY','에너지',15);
+('PHYSICAL_HEALTH','신체건강',1),
+('MENTAL_HEALTH','정신건강',2),
+('LIVING_SUPPORT','생활지원',3),
+('HOUSING','주거',4),
+('JOBS','일자리',5),
+('CULTURE_LEISURE','문화·여가',6),
+('SAFETY_CRISIS','안전·위기',7),
+('PREGNANCY_BIRTH','임신·출산',8),
+('CHILDCARE','보육',9),
+('EDUCATION','교육',10),
+('ADOPTION_TRUST','입양·위탁',11),
+('CARE_PROTECT','보호·돌봄',12),
+('MICRO_FINANCE','서민금융',13),
+('LAW','법률',14),
+('ENERGY','에너지',15);
+
+-- ------------------------------------------------------------
+-- 7) USER CALENDAR (사용자 캘린더 일정)
+--    - 사용자가 '복지서비스를 캘린더에 추가'했을 때 저장되는 일정
+--    - 한 사용자는 동일한 welfare_id를 한 번만 추가 가능 (UNIQUE)
+-- ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS tb_calendar (
+                                           id           BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                           user_id      BIGINT        NOT NULL,                -- users.id FK
+                                           welfare_id   BIGINT        NOT NULL,                -- 복지서비스 식별자 (카탈로그 서비스 id 등)
+                                           title        VARCHAR(255)  NOT NULL,                -- 서비스명 (복지 이름)
+    description  TEXT              NULL,                -- 설명
+    department   VARCHAR(255)      NULL,                -- 담당 부서
+    start_date   DATE          NOT NULL,                -- 신청 시작일
+    end_date     DATE          NOT NULL,                -- 신청 종료일
+    created_at   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    -- 빠른 조회용 인덱스
+    INDEX idx_calendar_user (user_id),
+    INDEX idx_calendar_user_dates (user_id, start_date, end_date),
+
+    -- 유저 FK
+    CONSTRAINT fk_calendar_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+                                                                  ON DELETE CASCADE,
+
+    -- 같은 복지서비스(welfare_id)는 한 유저가 중복 추가 못 하도록
+    CONSTRAINT uq_calendar_user_welfare UNIQUE (user_id, welfare_id)
+    ) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_0900_ai_ci;

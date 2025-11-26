@@ -87,7 +87,7 @@ const DayHeader = styled.div`
     font-weight: 400;
     font-size: 14px;
     color: ${props =>
-            props.isSunday ? 'red' : props.isSaturday ? 'blue' : '#666'};
+            props.$isSunday ? 'red' : props.$isSaturday ? 'blue' : '#666'};
 `;
 
 const CalendarGrid = styled.div`
@@ -100,7 +100,7 @@ const DateCell = styled.div`
     position: relative;
     border-bottom: 1px solid #d0d0d0;
     padding: 6px;
-    background-color: ${props => (props.isOtherMonth ? '#f5f5f5' : 'white')};
+    background-color: ${props => (props.$isOtherMonth ? '#f5f5f5' : 'white')};
     min-height: 120px;
 
     &:nth-last-child(-n+7) {
@@ -110,24 +110,24 @@ const DateCell = styled.div`
 
 const DateNumber = styled.div`
     font-size: 14px;
-    font-weight: ${props => (props.isToday ? 'bold' : '400')};
+    font-weight: ${props => (props.$isToday ? 'bold' : '400')};
     color: ${props =>
-            props.isToday
+            props.$isToday
                     ? '#fff'
-                    : props.isOtherMonth
+                    : props.$isOtherMonth
                             ? '#bbb'
-                            : props.isSunday
+                            : props.$isSunday
                                     ? 'red'
-                                    : props.isSaturday
+                                    : props.$isSaturday
                                             ? 'blue'
                                             : '#666'};
-    background-color: ${props => (props.isToday ? '#dc3545' : 'transparent')};
-    border-radius: ${props => (props.isToday ? '50%' : '0')};
-    width: ${props => (props.isToday ? '24px' : 'auto')};
-    height: ${props => (props.isToday ? '24px' : 'auto')};
-    display: ${props => (props.isToday ? 'flex' : 'block')};
-    align-items: ${props => (props.isToday ? 'center' : 'auto')};
-    justify-content: ${props => (props.isToday ? 'center' : 'auto')};
+    background-color: ${props => (props.$isToday ? '#dc3545' : 'transparent')};
+    border-radius: ${props => (props.$isToday ? '50%' : '0')};
+    width: ${props => (props.$isToday ? '24px' : 'auto')};
+    height: ${props => (props.$isToday ? '24px' : 'auto')};
+    display: ${props => (props.$isToday ? 'flex' : 'block')};
+    align-items: ${props => (props.$isToday ? 'center' : 'auto')};
+    justify-content: ${props => (props.$isToday ? 'center' : 'auto')};
     margin-bottom: 6px;
 `;
 
@@ -142,7 +142,7 @@ const SpanningEventBar = styled.div`
             '#9dd9b2', // 연한 청록
             '#bce7c9', // 거의 파스텔톤
         ];
-        return colors[props.stackIndex % colors.length];
+        return colors[props.$stackIndex % colors.length];
     }};
 
     padding: 4px 8px;
@@ -152,24 +152,24 @@ const SpanningEventBar = styled.div`
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.4); /* ✅ 명도 대비 확보 */
     font-weight: 500;
 
-    cursor: ${props => (props.editMode ? 'pointer' : 'default')};
+    cursor: ${props => (props.$editMode ? 'pointer' : 'default')};
     position: absolute;
-    left: ${props => (props.isFirst ? '8px' : '0px')};
-    right: ${props => (props.isLast ? '8px' : '0px')};
-    top: ${props => 30 + props.stackIndex * 20}px;
+    left: ${props => (props.$isFirst ? '8px' : '0px')};
+    right: ${props => (props.$isLast ? '8px' : '0px')};
+    top: ${props => 30 + props.$stackIndex * 20}px;
     height: 18px;
     display: flex;
     align-items: center;
     border-radius: ${props =>
-            props.isFirst && props.isLast
+            props.$isFirst && props.$isLast
                     ? '8px'
-                    : props.isFirst
+                    : props.$isFirst
                             ? '8px 0 0 8px'
-                            : props.isLast
+                            : props.$isLast
                                     ? '0 8px 8px 0'
                                     : '0'};
-    opacity: ${props => (props.editMode ? '0.85' : '1')};
-    border: ${props => (props.editMode ? '2px dashed #dc3545' : 'none')};
+    opacity: ${props => (props.$editMode ? '0.85' : '1')};
+    border: ${props => (props.$editMode ? '2px dashed #dc3545' : 'none')};
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: filter 0.15s ease;
 
@@ -542,8 +542,8 @@ const Calendar = () => {
                     {daysOfWeek.map((day, i) => (
                         <DayHeader
                             key={i}
-                            isSunday={i === 0}
-                            isSaturday={i === 6}
+                            $isSunday={i === 0}
+                            $isSaturday={i === 6}
                         >
                             {day}
                         </DayHeader>
@@ -552,14 +552,14 @@ const Calendar = () => {
 
                 <CalendarGrid>
                     {calendarData.map((cell, i) => (
-                        <DateCell key={i} isOtherMonth={cell.isOtherMonth}>
+                        <DateCell key={i} $isOtherMonth={cell.isOtherMonth}>
                             {cell.date && (
                                 <>
                                     <DateNumber
-                                        isToday={cell.isToday}
-                                        isOtherMonth={cell.isOtherMonth}
-                                        isSunday={i % 7 === 0}
-                                        isSaturday={i % 7 === 6}
+                                        $isToday={cell.isToday}
+                                        $isOtherMonth={cell.isOtherMonth}
+                                        $isSunday={i % 7 === 0}
+                                        $isSaturday={i % 7 === 6}
                                     >
                                         {cell.date}
                                     </DateNumber>
@@ -593,10 +593,10 @@ const Calendar = () => {
                                         return (
                                             <SpanningEventBar
                                                 key={`${service.id || service.welfareId || idx}-${idx}`}
-                                                stackIndex={service.rowIndex}
-                                                isFirst={isFirst}
-                                                isLast={isLast}
-                                                editMode={editMode}
+                                                $stackIndex={service.rowIndex}
+                                                $isFirst={isFirst}
+                                                $isLast={isLast}
+                                                $editMode={editMode}
                                                 onClick={() => handleServiceClick(service)}
                                             >
                                                 {shouldShowLabel ? service.title : ''}
