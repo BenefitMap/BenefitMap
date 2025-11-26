@@ -366,6 +366,11 @@ const MainPage = () => {
                     setDisplayName(json.data.basic.name);
                 }
             } catch (err) {
+                // 연결 오류(ECONNREFUSED)는 백엔드가 시작 중일 수 있으므로 조용히 처리
+                if (err.message?.includes('fetch') || err.cause?.code === 'ECONNREFUSED') {
+                    // 백엔드가 시작 중일 수 있음 - 조용히 무시
+                    return;
+                }
                 console.error('메인페이지 /user/me 실패:', err);
             }
         }
@@ -416,6 +421,10 @@ const MainPage = () => {
             console.warn('❗추천 API 응답에서 추천 리스트를 못 찾음:', raw);
             setRecommendList([]);
         } catch (err) {
+            // 연결 오류는 백엔드가 시작 중일 수 있으므로 조용히 처리
+            if (err.message?.includes('fetch') || err.cause?.code === 'ECONNREFUSED') {
+                return; // 조용히 무시
+            }
             console.error('추천 API 호출 실패:', err);
             setRecommendList([]);
         }
@@ -442,6 +451,10 @@ const MainPage = () => {
             const data = await res.json();
             setCalendarServices(data || []);
         } catch (err) {
+            // 연결 오류는 백엔드가 시작 중일 수 있으므로 조용히 처리
+            if (err.message?.includes('fetch') || err.cause?.code === 'ECONNREFUSED') {
+                return; // 조용히 무시
+            }
             console.error('메인페이지 캘린더 불러오기 실패:', err);
             setCalendarServices([]);
         }
@@ -453,11 +466,12 @@ const MainPage = () => {
         fetchRecommendations();
         fetchCalendar();
 
+        // 1초는 너무 빈번함. 30초로 변경
         const interval = setInterval(() => {
             syncLoginInfo();
             fetchRecommendations();
             fetchCalendar();
-        }, 1000);
+        }, 30000); // 30초마다 동기화
 
         return () => clearInterval(interval);
     }, [syncLoginInfo, fetchRecommendations, fetchCalendar]);
