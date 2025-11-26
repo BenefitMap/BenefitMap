@@ -1,0 +1,26 @@
+{
+  "groups": [
+    {
+      "name": "app.cors",
+      "type": "com.benefitmap.backend.config.security.AppCorsProperties",
+      "sourceType": "com.benefitmap.backend.config.security.AppCorsProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "app.cors.allowed-origin-list",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "com.benefitmap.backend.config.security.AppCorsProperties"
+    },
+    {
+      "name": "app.cors.allowed-origins",
+      "type": "java.lang.String",
+      "description": "예: \"http:\/\/localhost:5173,http:\/\/localhost:8080\"",
+      "sourceType": "com.benefitmap.backend.config.security.AppCorsProperties"
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}
